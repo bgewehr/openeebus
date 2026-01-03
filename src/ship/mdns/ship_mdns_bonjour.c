@@ -149,11 +149,6 @@ struct Mdns {
   pthread_cond_t mdns_browse_cond;
   pthread_mutex_t mdns_browse_mutex;
 
-  bool done;
-  bool is_browsing;
-  bool service_registered;
-  bool service_browse_done;
-  bool service_resolve_done;
   bool cancel;
 };
 
@@ -268,12 +263,7 @@ void MdnsConstruct(
   pthread_cond_init(&self->mdns_browse_cond, NULL);
   pthread_mutex_init(&self->mdns_browse_mutex, NULL);
 
-  self->done                 = false;
-  self->is_browsing          = false;
-  self->service_registered   = false;
-  self->service_browse_done  = false;
-  self->service_resolve_done = false;
-  self->cancel               = false;
+  self->cancel = false;
 
   // Seed random number generator
   srand((int)time(NULL));
@@ -655,6 +645,7 @@ void MdnsBrowseServicesCallback(
     void* ctx
 ) {
   UNUSED(service_ref);
+  UNUSED(type);
 
   if (err != kDNSServiceErr_NoError) {
     MDNS_DEBUG_PRINTF("Bonjour browser error occurred: %d\n", err);
@@ -791,9 +782,6 @@ void* MdnsBrowserLoop(void* parameters) {
     MdnsBrowserReset(mdns);
   }
 
-  mdns->service_browse_done = true;
-  mdns->done                = true;
-
   return NULL;
 }
 
@@ -873,8 +861,6 @@ EebusError RegisterService(ShipMdnsObject* self) {
     return kEebusErrorMemoryAllocate;
   }
 
-  mdns->service_registered = true;
-
   return kEebusErrorOk;
 }
 
@@ -908,8 +894,6 @@ void DeregisterService(ShipMdnsObject* self) {
     DNSServiceRefDeallocate(mdns->dns_service_register_ref);
     mdns->dns_service_register_ref = NULL;
   }
-
-  mdns->service_registered = false;
 }
 
 void Stop(ShipMdnsObject* self) {
