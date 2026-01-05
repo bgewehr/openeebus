@@ -579,7 +579,7 @@ void MdnsResolveServiceCallback(
 
   const uint16_t port = OpaquePortToUint16(opaque_port);
 
-  MDNS_DEBUG_PRINTF(" can be reached at %s:%u (interface %u), flags: %X\n", host, port, iface, flags);
+  MDNS_DEBUG_PRINTF("%s can be reached at %s:%u (interface %u), flags: %X\n", name, host, port, iface, flags);
 
   Mdns* const mdns = resolve->owner;
 
@@ -688,6 +688,7 @@ void MdnsBrowseServicesCallback(
       DNSServiceRefDeallocate(service_resolve_ref);
       service_resolve_ref = NULL;
     }
+
     MdnsActiveResolveEntryDestroy(resolve);
     return;
   }
