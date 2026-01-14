@@ -95,6 +95,16 @@ else()
 endif()
 
 find_package(OpenSSL REQUIRED)
+if (APPLE)
+  set(OPEN_SSL_LIBRARIES ${OPEN_SSL_LIBRARIES} OpenSSL::Crypto)
+elseif(WIN32)
+  # For Windows, we need to link both SSL and Crypto libraries
+  # to ensure all OpenSSL functionality is available
+  set(OPEN_SSL_LIBRARIES ${OPEN_SSL_LIBRARIES} OpenSSL::SSL)
+  set(OPEN_SSL_LIBRARIES ${OPEN_SSL_LIBRARIES} OpenSSL::Crypto)
+else()
+  set(OPEN_SSL_LIBRARIES ${OPEN_SSL_LIBRARIES} crypto)
+endif()
 
 # cJSON Library
 if(WIN32)
@@ -153,17 +163,10 @@ else()
   )
 endif()
 
-if (APPLE)
-  set(OPEN_SSL_LIBRARIES ${OPEN_SSL_LIBRARIES} OpenSSL::Crypto)
-elseif(WIN32)
-  # For Windows, we need to link both SSL and Crypto libraries
-  # to ensure all OpenSSL functionality is available
-  set(OPEN_SSL_LIBRARIES ${OPEN_SSL_LIBRARIES} libssl)
-  set(OPEN_SSL_LIBRARIES ${OPEN_SSL_LIBRARIES} libcrypto)
+if(WIN32)
   set(DNS_SD_LIB "dnssd")
-else()
+elseif(NOT APPLE)
   set(DNS_SD_LIB "dns_sd")
-  set(OPEN_SSL_LIBRARIES ${OPEN_SSL_LIBRARIES} crypto)
 endif()
 
 target_link_libraries(
