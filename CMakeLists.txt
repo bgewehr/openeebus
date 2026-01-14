@@ -95,7 +95,15 @@ else()
 endif()
 
 find_package(OpenSSL REQUIRED)
-find_package(cJSON REQUIRED)
+
+# cJSON Library
+if(WIN32)
+  find_package(cJSON REQUIRED)
+  set(CJSON_LINK_TARGET cjson)
+else()
+  pkg_check_modules(CJSON REQUIRED IMPORTED_TARGET libcjson)
+  set(CJSON_LINK_TARGET PkgConfig::CJSON)
+endif()
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
@@ -162,7 +170,7 @@ target_link_libraries(
   ${PROJECT_NAME}
   PRIVATE
     ${THREAD_LIBRARY}
-    cjson
+    ${CJSON_LINK_TARGET}
     ${LIBWEBSOCKETS_TARGET}
     ${LIBWEBSOCKETS_DEP_LIBS}
     ${DNS_SD_LIB}

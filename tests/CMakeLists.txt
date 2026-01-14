@@ -67,7 +67,14 @@ else()
   find_package(GTest CONFIG REQUIRED)
 endif()
 
-find_package(cJSON REQUIRED)
+# Find cJSON - use pkg-config on Linux/macOS, find_package on Windows (vcpkg)
+if(WIN32)
+  find_package(cJSON REQUIRED)
+else()
+  pkg_check_modules(CJSON REQUIRED IMPORTED_TARGET libcjson)
+  # Create alias so existing 'cjson' references in subdirectories work
+  add_library(cjson ALIAS PkgConfig::CJSON)
+endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES GNU OR CMAKE_C_COMPILER_ID MATCHES "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
