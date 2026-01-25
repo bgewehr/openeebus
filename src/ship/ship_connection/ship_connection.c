@@ -134,11 +134,10 @@ void ShipConnectionQueueMsgDeallocator(void* msg) {
 
   ShipConnectionQueueMessage* queue_msg = (ShipConnectionQueueMessage*)msg;
 
-  if (queue_msg->type != kShipConnectionQueueMsgTypeDataReceived) {
-    return;
+  if ((queue_msg->type == kShipConnectionQueueMsgTypeDataReceived)
+      || (queue_msg->type == kShipConnectionQueueMsgTypeSpineDataToSend)) {
+    MessageBufferRelease(&queue_msg->msg_buf);
   }
-
-  MessageBufferRelease(&queue_msg->msg_buf);
 }
 
 void Destruct(DataWriterObject* self) {
