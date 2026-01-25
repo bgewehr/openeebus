@@ -915,6 +915,7 @@ void SmePinStateCheckListen(ShipConnection* self) {
 
   if (error != kEebusErrorOk) {
     ShipConnectionCloseWithError(self, "SmePinStateCheckListen: Error receiving SHIP message");
+    return;
   }
 
   ShipMessageDeserializeObject* const deserialize = ShipMessageDeserializeCreate(&self->msg);
