@@ -8,7 +8,7 @@ static constexpr char discovery_response[] = R"RAWFILE({
         {
           "addressSource": [
             {
-              "device": "d:_n:Demo_HEMS-123456789"
+              "device": "d:_n:HeatPump_123456789"
             },
             {
               "entity": [
@@ -23,7 +23,7 @@ static constexpr char discovery_response[] = R"RAWFILE({
         {
           "addressDestination": [
             {
-              "device": "d:_n:Demo_ControlBox-123456789"
+              "device": "d:_n:HEMS_123456789"
             },
             {
               "entity": [
@@ -36,7 +36,7 @@ static constexpr char discovery_response[] = R"RAWFILE({
           ]
         },
         {
-          "msgCounter": 2
+          "msgCounter": 22
         },
         {
           "msgCounterReference": 1
@@ -69,12 +69,12 @@ static constexpr char discovery_response[] = R"RAWFILE({
                           {
                             "deviceAddress": [
                               {
-                                "device": "d:_n:Demo_HEMS-123456789"
+                                "device": "d:_n:HeatPump_123456789"
                               }
                             ]
                           },
                           {
-                            "deviceType": "EnergyManagementSystem"
+                            "deviceType": "HeatGenerationSystem"
                           },
                           {
                             "networkFeatureSet": "smart"
@@ -91,7 +91,7 @@ static constexpr char discovery_response[] = R"RAWFILE({
                             {
                               "entityAddress": [
                                 {
-                                  "device": "d:_n:Demo_HEMS-123456789"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [
@@ -112,7 +112,7 @@ static constexpr char discovery_response[] = R"RAWFILE({
                             {
                               "entityAddress": [
                                 {
-                                  "device": "d:_n:Demo_HEMS-123456789"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [
@@ -137,7 +137,7 @@ static constexpr char discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_HEMS-123456789"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [
@@ -260,7 +260,7 @@ static constexpr char discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_HEMS-123456789"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [
@@ -303,7 +303,7 @@ static constexpr char discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_HEMS-123456789"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [
@@ -333,7 +333,7 @@ static constexpr char discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_HEMS-123456789"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [
@@ -398,7 +398,7 @@ static constexpr char discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_HEMS-123456789"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [
@@ -463,7 +463,7 @@ static constexpr char discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_HEMS-123456789"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [
@@ -509,7 +509,7 @@ static constexpr char discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_HEMS-123456789"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [
@@ -555,7 +555,7 @@ static constexpr char discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_HEMS-123456789"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [
@@ -585,7 +585,7 @@ static constexpr char discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_HEMS-123456789"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [
@@ -615,7 +615,7 @@ static constexpr char discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_HEMS-123456789"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [
@@ -645,7 +645,7 @@ static constexpr char discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_HEMS-123456789"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [

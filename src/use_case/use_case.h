@@ -86,7 +86,7 @@ static inline void UseCaseDelete(UseCaseObject* use_case) {
 }
 
 bool UseCaseIsEntityCompatible(const UseCaseObject* self, const EntityRemoteObject* remote_entity);
-
+bool UseCaseIsUseCaseCompatible(const UseCaseObject* self, const UseCaseFilterType* use_case_filter);
 EntityRemoteObject*
 UseCaseGetRemoteEntityWithAddress(const UseCaseObject* self, const EntityAddressType* remote_entity_addr);
 

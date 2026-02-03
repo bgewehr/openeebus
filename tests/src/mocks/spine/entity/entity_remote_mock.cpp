@@ -39,6 +39,7 @@ static FeatureRemoteObject*
 GetFeatureWithTypeAndRole(const EntityRemoteObject* self, FeatureTypeType feature_type, RoleType role);
 static FeatureRemoteObject* GetFeatureWithId(const EntityRemoteObject* self, const uint32_t* feature_id);
 static const Vector* GetFeatures(const EntityRemoteObject* self);
+static bool HasUseCaseSupport(const EntityRemoteObject* self, const UseCaseFilterType* use_case_filter);
 
 static const EntityRemoteInterface entity_remote_methods = {
     .entity_interface = {
@@ -57,6 +58,7 @@ static const EntityRemoteInterface entity_remote_methods = {
     .get_feature_with_type_and_role = GetFeatureWithTypeAndRole,
     .get_feature_with_id            = GetFeatureWithId,
     .get_features                   = GetFeatures,
+    .has_use_case_support           = HasUseCaseSupport,
 };
 
 static void EntityRemoteMockConstruct(EntityRemoteMock* self);
@@ -141,4 +143,9 @@ FeatureRemoteObject* GetFeatureWithId(const EntityRemoteObject* self, const uint
 const Vector* GetFeatures(const EntityRemoteObject* self) {
   EntityRemoteMock* const mock = ENTITY_REMOTE_MOCK(self);
   return mock->gmock->GetFeatures(self);
+}
+
+bool HasUseCaseSupport(const EntityRemoteObject* self, const UseCaseFilterType* use_case_filter) {
+  EntityRemoteMock* const mock = ENTITY_REMOTE_MOCK(self);
+  return mock->gmock->HasUseCaseSupport(self, use_case_filter);
 }

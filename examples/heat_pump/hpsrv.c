@@ -27,8 +27,10 @@
 #include "src/common/eebus_errors.h"
 #include "src/common/eebus_malloc.h"
 
-#include "cs_lpc_listener.h"
+#include "examples/heat_pump/cs_lpc_listener.h"
+#include "src/cli/eebus_cli.h"
 #include "src/common/array_util.h"
+#include "src/common/eebus_arguments.h"
 #include "src/service/api/service_reader_interface.h"
 #include "src/service/service/eebus_service.h"
 #include "src/ship/tls_certificate/tls_certificate.h"
@@ -48,9 +50,10 @@ struct Hpsrv {
 
   EebusServiceConfig* cfg;
   EebusServiceObject* service;
-  CsLpcUseCaseObject* cs_lpc;
   CsLpcListenerObject* cs_lpc_listener;
+  CsLpcUseCaseObject* cs_lpc;
   MuMpcUseCaseObject* mu_mpc;
+  EebusCliObject* cli;
 };
 
 #define HPSRV(obj) ((Hpsrv*)(obj))
@@ -92,9 +95,15 @@ EebusError HpsrvConstruct(Hpsrv* self) {
 
   self->cfg             = NULL;
   self->service         = NULL;
-  self->cs_lpc          = NULL;
   self->cs_lpc_listener = NULL;
+  self->cs_lpc          = NULL;
   self->mu_mpc          = NULL;
+  self->cli             = NULL;
+
+  self->cli = EebusCliCreate();
+  if (self->cli == NULL) {
+    return kEebusErrorMemoryAllocate;
+  }
 
   return kEebusErrorOk;
 }
@@ -171,6 +180,40 @@ EebusError AddMpc(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObjec
   return kEebusErrorOk;
 }
 
+EebusError AddHeatPumpApplianceEntity(
+    Hpsrv* self,
+    DeviceLocalObject* device_local,
+    const uint32_t* entity_ids,
+    size_t entity_id_size
+) {
+  EntityLocalObject* const entity = EntityLocalCreate(
+      device_local,
+      kEntityTypeTypeHeatPumpAppliance,
+      entity_ids,
+      entity_id_size,
+      kHeartbeatTimeoutSeconds
+  );
+
+  if (entity == NULL) {
+    return kEebusErrorMemoryAllocate;
+  }
+
+  EebusError err = AddLpc(self, device_local, entity);
+  if (err != kEebusErrorOk) {
+    EntityLocalDelete(entity);
+    return err;
+  }
+
+  err = AddMpc(self, device_local, entity);
+  if (err != kEebusErrorOk) {
+    EntityLocalDelete(entity);
+    return err;
+  }
+
+  DEVICE_LOCAL_ADD_ENTITY(device_local, entity);
+  return kEebusErrorOk;
+}
+
 EebusError HpsrvStart(Hpsrv* hpsrv, int32_t port, const char* role, TlsCertificateObject* tls_certificate) {
   if (tls_certificate == NULL) {
     return kEebusErrorInputArgument;
@@ -185,8 +228,6 @@ EebusError HpsrvStart(Hpsrv* hpsrv, int32_t port, const char* role, TlsCertifica
 
   hpsrv->service = EebusServiceCreate(hpsrv->cfg, role, tls_certificate, SERVICE_READER_OBJECT(hpsrv));
   if (hpsrv->service == NULL) {
-    EebusServiceConfigDelete(hpsrv->cfg);
-    hpsrv->cfg = NULL;
     return kEebusErrorInit;
   }
 
@@ -197,20 +238,10 @@ EebusError HpsrvStart(Hpsrv* hpsrv, int32_t port, const char* role, TlsCertifica
 
   uint32_t entity_ids[1] = {VectorGetSize(DEVICE_LOCAL_GET_ENTITIES(device_local))};
 
-  EntityLocalObject* const entity
-      = EntityLocalCreate(device_local, kEntityTypeTypeHeatPumpAppliance, entity_ids, 1, kHeartbeatTimeoutSeconds);
-
-  EebusError err = AddLpc(hpsrv, device_local, entity);
-  if (err != kEebusErrorOk) {
-    return err;
+  if (AddHeatPumpApplianceEntity(hpsrv, device_local, entity_ids, ARRAY_SIZE(entity_ids)) != kEebusErrorOk) {
+    return kEebusErrorOther;
   }
 
-  err = AddMpc(hpsrv, device_local, entity);
-  if (err != kEebusErrorOk) {
-    return err;
-  }
-
-  DEVICE_LOCAL_ADD_ENTITY(device_local, entity);
   EEBUS_SERVICE_START(hpsrv->service);
 
   return kEebusErrorOk;
@@ -239,6 +270,9 @@ HpsrvObject* HpsrvOpen(int32_t port, const char* role, TlsCertificateObject* tls
 void Destruct(ServiceReaderObject* self) {
   Hpsrv* const hpsrv = HPSRV(self);
 
+  EebusCliDelete(hpsrv->cli);
+  hpsrv->cli = NULL;
+
   if (hpsrv->service != NULL) {
     EEBUS_SERVICE_STOP(hpsrv->service);
     EebusServiceDelete(hpsrv->service);
@@ -259,32 +293,38 @@ void Destruct(ServiceReaderObject* self) {
 }
 
 void OnRemoteSkiConnected(ServiceReaderObject* self, EebusServiceObject* service, const char* ski) {
-  Hpsrv* const hpsrv = HPSRV(self);
+  UNUSED(self);
+  UNUSED(service);
+
   printf("Remote SKI connected: %s\n", ski);
 }
 
 void OnRemoteSkiDisconnected(ServiceReaderObject* self, EebusServiceObject* service, const char* ski) {
-  Hpsrv* const hpsrv = HPSRV(self);
+  UNUSED(self);
+  UNUSED(service);
+
   printf("Remote SKI disconnected: %s\n", ski);
 }
 
 void OnRemoteServicesUpdate(ServiceReaderObject* self, EebusServiceObject* service, const Vector* entries) {
-  Hpsrv* const hpsrv = HPSRV(self);
+  UNUSED(self);
+
   // Optional: print the remote services
 }
 
 void OnShipIdUpdate(ServiceReaderObject* self, const char* ski, const char* shipd_id) {
-  Hpsrv* const hpsrv = HPSRV(self);
+  UNUSED(self);
 }
 
 void OnShipStateUpdate(ServiceReaderObject* self, const char* ski, SmeState state) {
-  Hpsrv* const hpsrv = HPSRV(self);
+  UNUSED(self);
 
   printf("Ship state update for SKI %s: %d\n", ski, state);
 }
 
 bool IsWaitingForTrustAllowed(const ServiceReaderObject* self, const char* ski) {
-  Hpsrv* const hpsrv = HPSRV(self);
+  UNUSED(self);
+
   return true;
 }
 
@@ -425,4 +465,9 @@ EebusError HpsrvSetAcFrequency(HpsrvObject* self, int32_t ac_frequency) {
   }
 
   return MuMpcUpdate(hpsrv->mu_mpc);
+}
+
+void HpsrvHandleCmd(HpsrvObject* self, char* cmd) {
+  Hpsrv* const hpsrv = HPSRV(self);
+  EEBUS_CLI_HANDLE_CMD(hpsrv->cli, cmd);
 }

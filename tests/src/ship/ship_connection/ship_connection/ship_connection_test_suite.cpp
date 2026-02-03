@@ -28,10 +28,6 @@
 
 using testing::_;
 
-EebusTimerObject* EebusTimerCreate(EebusTimerTimeoutCallback cb, void* ctx) {
-  return EEBUS_TIMER_OBJECT(EebusTimerMockCreate());
-}
-
 EebusError ShipConnectionTestSuite::MessageBufferInitHelper(MessageBuffer* msg_buf, const char* msg, size_t msg_size) {
   const size_t data_size = sizeof(uint8_t) + msg_size;
   uint8_t* const data    = (uint8_t*)malloc(data_size);

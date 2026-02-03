@@ -52,6 +52,8 @@ EebusError EebusDataBaseCopyMatching(
     const void* data_to_match_base_addr
 );
 
+bool EebusDataBaseHasIdentifiersFlags(const EebusDataCfg* cfg);
+
 bool EebusDataBaseHasIdentifiers(const EebusDataCfg* cfg, const void* base_addr);
 
 bool EebusDataBaseSelectorsMatch(

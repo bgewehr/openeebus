@@ -270,8 +270,7 @@ bool LoadControlLimitIsValid(const LoadControlLimitDataType* limit);
 bool LoadControlLimitIsLimitChangeable(const LoadControlLimitDataType* limit);
 bool LoadControlLimitIsActive(const LoadControlLimitDataType* limit);
 EebusError LoadControlLimitGetDuration(const LoadControlLimitDataType* limit, DurationType* duration);
-int64_t LoadControlLimitGetValue(const LoadControlLimitDataType* limit);
-int8_t LoadControlLimitGetScale(const LoadControlLimitDataType* limit);
+const ScaledNumberType* LoadControlLimitGetValue(const LoadControlLimitDataType* limit);
 
 #ifdef __cplusplus
 }

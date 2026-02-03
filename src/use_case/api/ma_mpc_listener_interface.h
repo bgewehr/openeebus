@@ -22,8 +22,8 @@
 #define SRC_CLI_MA_MPC_LISTENER_INTERFACE_H_
 
 #include "src/spine/model/entity_types.h"
-#include "src/use_case/api/mpc_types.h"
-#include "src/use_case/api/types.h"
+#include "src/use_case/model/mpc_types.h"
+#include "src/use_case/model/scaled_value.h"
 
 #ifdef __cplusplus
 extern "C" {

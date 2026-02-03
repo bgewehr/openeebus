@@ -16,7 +16,7 @@
 /**
  * @brief String Pointer class is aimed to simplify the checks
  * where the obtained value is accessible via pointer (const char* or std::string_view*),
- * so whenever comparing with the expected one follwoing cases can be evaluated:
+ * so whenever comparing with the expected one following cases can be evaluated:
  * 1) Both obtained pointer and expected pointer are null — ok;
  * 2) Both obtained pointer and expected pointer are nonnull and
  * pointed strings match — ok;

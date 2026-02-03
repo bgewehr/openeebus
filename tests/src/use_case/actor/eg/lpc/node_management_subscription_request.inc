@@ -8,7 +8,7 @@ static constexpr char node_management_subscription_request[] = R"({
         {
           "addressSource": [
             {
-              "device": "d:_n:Demo_HEMS-123456789"
+              "device": "d:_n:HeatPump_123456789"
             },
             {
               "entity": [
@@ -23,7 +23,7 @@ static constexpr char node_management_subscription_request[] = R"({
         {
           "addressDestination": [
             {
-              "device": "d:_n:Demo_ControlBox-123456789"
+              "device": "d:_n:HEMS_123456789"
             },
             {
               "entity": [
@@ -36,7 +36,7 @@ static constexpr char node_management_subscription_request[] = R"({
           ]
         },
         {
-          "msgCounter": 3
+          "msgCounter": 28
         },
         {
           "cmdClassifier": "call"
@@ -58,7 +58,7 @@ static constexpr char node_management_subscription_request[] = R"({
                       {
                         "clientAddress": [
                           {
-                            "device": "d:_n:Demo_HEMS-123456789"
+                            "device": "d:_n:HeatPump_123456789"
                           },
                           {
                             "entity": [
@@ -73,7 +73,7 @@ static constexpr char node_management_subscription_request[] = R"({
                       {
                         "serverAddress": [
                           {
-                            "device": "d:_n:Demo_ControlBox-123456789"
+                            "device": "d:_n:HEMS_123456789"
                           },
                           {
                             "entity": [

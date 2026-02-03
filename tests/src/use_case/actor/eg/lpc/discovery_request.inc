@@ -8,7 +8,7 @@ static constexpr char discovery_request[] = R"({
         {
           "addressSource": [
             {
-              "device": "d:_n:Demo_HEMS-123456789"
+              "device": "d:_n:HeatPump_123456789"
             },
             {
               "entity": [
@@ -33,7 +33,7 @@ static constexpr char discovery_request[] = R"({
           ]
         },
         {
-          "msgCounter": 1
+          "msgCounter": 21
         },
         {
           "cmdClassifier": "read"

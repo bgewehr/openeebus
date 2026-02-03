@@ -1,6 +1,5 @@
-#include <stdint.h>
 
-static constexpr uint8_t discovery_request[] = R"({
+static constexpr char discovery_request[] = R"({
   "datagram": [
     {
       "header": [
@@ -10,7 +9,7 @@ static constexpr uint8_t discovery_request[] = R"({
         {
           "addressSource": [
             {
-              "device": "d:_n:Demo_ControlBox-123456789"
+              "device": "d:_n:HEMS_123456789"
             },
             {
               "entity": [

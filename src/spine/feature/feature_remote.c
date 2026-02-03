@@ -18,48 +18,16 @@
  * @brief Feature Remote implementation
  */
 
+#include "src/spine/feature/feature_remote.h"
 #include "src/common/eebus_malloc.h"
 #include "src/spine/api/entity_remote_interface.h"
-#include "src/spine/api/feature_remote_interface.h"
 #include "src/spine/api/function_interface.h"
 #include "src/spine/feature/feature.h"
-
-typedef struct FeatureRemote FeatureRemote;
-
-struct FeatureRemote {
-  /** Inherits the Feature */
-  Feature obj;
-
-  EntityRemoteObject* entity;
-  uint32_t max_response_delay;
-};
-
-#define FEATURE_REMOTE(obj) ((FeatureRemote*)(obj))
-
-static void Destruct(FeatureObject* self);
-static DeviceRemoteObject* GetDevice(const FeatureRemoteObject* self);
-static EntityRemoteObject* GetEntity(const FeatureRemoteObject* self);
-static const void* GetData(const FeatureRemoteObject* self, FunctionType function_type);
-static void* DataCopy(const FeatureRemoteObject* self, FunctionType fcn_type);
-static EebusError UpdateData(
-    FeatureRemoteObject* self,
-    FunctionType function_type,
-    const void* new_data,
-    const FilterType* filter_partial,
-    const FilterType* filter_delete,
-    bool persist
-);
-static void SetFunctionOperations(
-    FeatureRemoteObject* self,
-    const FunctionPropertyType* const* supported_functions,
-    size_t supported_functions_size
-);
-static void SetMaxResponseDelay(FeatureRemoteObject* self, uint32_t max_delay);
-static uint32_t GetMaxResponseDelay(const FeatureRemoteObject* self);
+#include "src/spine/feature/feature_remote_internal.h"
 
 static const FeatureRemoteInterface feature_remote_methods = {
     .feature_interface = {
-        .destruct                = Destruct,
+        .destruct                = FeatureRemoteDestruct,
         .get_address             = FeatureGetAddress,
         .get_type                = FeatureGetType,
         .get_role                = FeatureGetRole,
@@ -69,26 +37,19 @@ static const FeatureRemoteInterface feature_remote_methods = {
         .to_string               = FeatureToString,
     },
 
-    .get_device              = GetDevice,
-    .get_entity              = GetEntity,
-    .get_data                = GetData,
-    .data_copy               = DataCopy,
-    .update_data             = UpdateData,
-    .set_function_operations = SetFunctionOperations,
-    .set_max_response_delay  = SetMaxResponseDelay,
-    .get_max_response_delay  = GetMaxResponseDelay,
+    .get_device              = FeatureRemoteGetDevice,
+    .get_entity              = FeatureRemoteGetEntity,
+    .get_data                = FeatureRemoteGetData,
+    .data_copy               = FeatureRemoteDataCopy,
+    .update_data             = FeatureRemoteUpdateData,
+    .set_function_operations = FeatureRemoteSetFunctionOperations,
+    .set_max_response_delay  = FeatureRemoteSetMaxResponseDelay,
+    .get_max_response_delay  = FeatureRemoteGetMaxResponseDelay,
 };
 
-static void FeatureRemoteConstruct(
-    FeatureRemote* self,
-    uint32_t id,
-    EntityRemoteObject* entity,
-    FeatureTypeType type,
-    RoleType role
-);
 static void SetOperations(FeatureRemoteObject* self, FunctionType function_type, const PossibleOperationsType* ops);
 
-void FeatureRemoteConstruct(
+EebusError FeatureRemoteConstruct(
     FeatureRemote* self,
     uint32_t id,
     EntityRemoteObject* entity,
@@ -102,30 +63,39 @@ void FeatureRemoteConstruct(
 
   self->entity             = entity;
   self->max_response_delay = kDefaultMaxResponseDelayMs;
+
+  return kEebusErrorOk;
 }
 
 FeatureRemoteObject* FeatureRemoteCreate(uint32_t id, EntityRemoteObject* entity, FeatureTypeType type, RoleType role) {
   FeatureRemote* const feature_remote = (FeatureRemote*)EEBUS_MALLOC(sizeof(FeatureRemote));
+  if (feature_remote == NULL) {
+    return NULL;
+  }
 
-  FeatureRemoteConstruct(feature_remote, id, entity, type, role);
+  EebusError err = FeatureRemoteConstruct(feature_remote, id, entity, type, role);
+  if (err != kEebusErrorOk) {
+    FeatureRemoteDelete(FEATURE_REMOTE_OBJECT(feature_remote));
+    return NULL;
+  }
 
   return FEATURE_REMOTE_OBJECT(feature_remote);
 }
 
-void Destruct(FeatureObject* self) {
+void FeatureRemoteDestruct(FeatureObject* self) {
   FeatureDestruct(self);
 }
 
-DeviceRemoteObject* GetDevice(const FeatureRemoteObject* self) {
+DeviceRemoteObject* FeatureRemoteGetDevice(const FeatureRemoteObject* self) {
   const FeatureRemote* const fr = FEATURE_REMOTE(self);
   return ENTITY_REMOTE_GET_DEVICE(fr->entity);
 }
 
-EntityRemoteObject* GetEntity(const FeatureRemoteObject* self) {
+EntityRemoteObject* FeatureRemoteGetEntity(const FeatureRemoteObject* self) {
   return FEATURE_REMOTE(self)->entity;
 }
 
-const void* GetData(const FeatureRemoteObject* self, FunctionType function_type) {
+const void* FeatureRemoteGetData(const FeatureRemoteObject* self, FunctionType function_type) {
   const FeatureRemote* const fr = FEATURE_REMOTE(self);
 
   FunctionObject* const fcn = FeatureGetFunction(FEATURE(fr), function_type);
@@ -136,7 +106,7 @@ const void* GetData(const FeatureRemoteObject* self, FunctionType function_type)
   return FUNCTION_GET_DATA(fcn);
 }
 
-void* DataCopy(const FeatureRemoteObject* self, FunctionType fcn_type) {
+void* FeatureRemoteDataCopy(const FeatureRemoteObject* self, FunctionType fcn_type) {
   const FeatureRemote* const fr = FEATURE_REMOTE(self);
 
   FunctionObject* const fcn = FeatureGetFunction(FEATURE(fr), fcn_type);
@@ -147,7 +117,7 @@ void* DataCopy(const FeatureRemoteObject* self, FunctionType fcn_type) {
   return FUNCTION_DATA_COPY(fcn);
 }
 
-EebusError UpdateData(
+EebusError FeatureRemoteUpdateData(
     FeatureRemoteObject* self,
     FunctionType function_type,
     const void* new_data,
@@ -177,7 +147,7 @@ void SetOperations(FeatureRemoteObject* self, FunctionType function_type, const 
   FUNCTION_SET_OPERATIONS(function, read, read_partial, write, write_partial);
 }
 
-void SetFunctionOperations(
+void FeatureRemoteSetFunctionOperations(
     FeatureRemoteObject* self,
     const FunctionPropertyType* const* supported_functions,
     size_t supported_functions_size
@@ -189,10 +159,10 @@ void SetFunctionOperations(
   }
 }
 
-void SetMaxResponseDelay(FeatureRemoteObject* self, uint32_t max_delay) {
+void FeatureRemoteSetMaxResponseDelay(FeatureRemoteObject* self, uint32_t max_delay) {
   FEATURE_REMOTE(self)->max_response_delay = max_delay;
 }
 
-uint32_t GetMaxResponseDelay(const FeatureRemoteObject* self) {
+uint32_t FeatureRemoteGetMaxResponseDelay(const FeatureRemoteObject* self) {
   return FEATURE_REMOTE(self)->max_response_delay;
 }

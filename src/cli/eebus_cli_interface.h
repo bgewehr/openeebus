@@ -25,6 +25,7 @@
 #include "src/spine/model/entity_types.h"
 #include "src/use_case/actor/eg/lpc/eg_lpc.h"
 #include "src/use_case/actor/ma/mpc/ma_mpc.h"
+#include "src/use_case/actor/mu/mpc/mu_mpc.h"
 
 #ifdef __cplusplus
 extern "C" {

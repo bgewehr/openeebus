@@ -48,6 +48,7 @@ static FeatureRemoteObject* GetFeatureWithTypeAndRole(
     RoleType role
 );
 static EebusError HandleSpineMesssage(DeviceRemoteObject* self, MessageBuffer* msg);
+static NodeManagementRemoteObject* GetNodeManagement(const DeviceRemoteObject* self);
 static SenderObject* GetSender(const DeviceRemoteObject* self);
 static NodeManagementUseCaseDataType* UseCasesDataCopy(const DeviceRemoteObject* self);
 static void UpdateDevice(DeviceRemoteObject* self, const NetworkManagementDeviceDescriptionDataType* description);
@@ -77,6 +78,7 @@ static const DeviceRemoteInterface device_remote_methods = {
     .get_feature_with_address       = GetFeatureWithAddress,
     .get_feature_with_type_and_role = GetFeatureWithTypeAndRole,
     .handle_spine_messsage          = HandleSpineMesssage,
+    .get_node_management            = GetNodeManagement,
     .get_sender                     = GetSender,
     .use_cases_data_copy            = UseCasesDataCopy,
     .update_device                  = UpdateDevice,
@@ -177,6 +179,11 @@ FeatureRemoteObject* GetFeatureWithTypeAndRole(
 EebusError HandleSpineMesssage(DeviceRemoteObject* self, MessageBuffer* msg) {
   DeviceRemoteMock* const mock = DEVICE_REMOTE_MOCK(self);
   return mock->gmock->HandleSpineMesssage(self, msg);
+}
+
+NodeManagementRemoteObject* GetNodeManagement(const DeviceRemoteObject* self) {
+  DeviceRemoteMock* const mock = DEVICE_REMOTE_MOCK(self);
+  return mock->gmock->GetNodeManagement(self);
 }
 
 SenderObject* GetSender(const DeviceRemoteObject* self) {

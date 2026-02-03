@@ -1,6 +1,5 @@
-#include <stdint.h>
 
-static constexpr uint8_t result_data_msg_cnt_ref_3[] = R"({
+static constexpr char result_data_msg_cnt_ref_3[] = R"({
   "datagram": [
     {
       "header": [
@@ -10,7 +9,7 @@ static constexpr uint8_t result_data_msg_cnt_ref_3[] = R"({
         {
           "addressSource": [
             {
-              "device": "d:_n:NIBE_06613320300999"
+              "device": "d:_n:HeatPump_123456789"
             },
             {
               "entity": [
@@ -25,7 +24,7 @@ static constexpr uint8_t result_data_msg_cnt_ref_3[] = R"({
         {
           "addressDestination": [
             {
-              "device": "d:_n:OpenEEBUS_123456789"
+              "device": "d:_n:HEMS_123456789"
             },
             {
               "entity": [

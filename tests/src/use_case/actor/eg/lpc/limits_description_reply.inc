@@ -8,7 +8,7 @@ static constexpr char limits_description_reply[] = R"({
         {
           "addressSource": [
             {
-              "device": "d:_n:Demo_HEMS-123456789"
+              "device": "d:_n:HeatPump_123456789"
             },
             {
               "entity": [
@@ -23,7 +23,7 @@ static constexpr char limits_description_reply[] = R"({
         {
           "addressDestination": [
             {
-              "device": "d:_n:Demo_ControlBox-123456789"
+              "device": "d:_n:HEMS_123456789"
             },
             {
               "entity": [
@@ -36,7 +36,7 @@ static constexpr char limits_description_reply[] = R"({
           ]
         },
         {
-          "msgCounter": 11
+          "msgCounter": 34
         },
         {
           "msgCounterReference": 7

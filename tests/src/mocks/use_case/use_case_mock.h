@@ -30,8 +30,13 @@
 class UseCaseGMockInterface {
  public:
   virtual ~UseCaseGMockInterface() {};
-  virtual void Destruct(UseCaseObject* self)                                                          = 0;
-  virtual bool IsEntityCompatible(const UseCaseObject* self, const EntityRemoteObject* remote_entity) = 0;
+  virtual void Destruct(UseCaseObject* self)                                                            = 0;
+  virtual bool IsEntityCompatible(const UseCaseObject* self, const EntityRemoteObject* remote_entity)   = 0;
+  virtual bool IsUseCaseCompatible(const UseCaseObject* self, const UseCaseFilterType* use_case_filter) = 0;
+  virtual EntityRemoteObject* GetRemoteEntityWithAddress(
+      const UseCaseObject* self,
+      const EntityAddressType* remote_entity_addr
+  ) = 0;
 };
 
 class UseCaseGMock : public UseCaseGMockInterface {
@@ -39,6 +44,8 @@ class UseCaseGMock : public UseCaseGMockInterface {
   virtual ~UseCaseGMock() {};
   MOCK_METHOD1(Destruct, void(UseCaseObject*));
   MOCK_METHOD2(IsEntityCompatible, bool(const UseCaseObject*, const EntityRemoteObject*));
+  MOCK_METHOD2(IsUseCaseCompatible, bool(const UseCaseObject*, const UseCaseFilterType*));
+  MOCK_METHOD2(GetRemoteEntityWithAddress, EntityRemoteObject*(const UseCaseObject*, const EntityAddressType*));
 };
 
 typedef struct UseCaseMock {

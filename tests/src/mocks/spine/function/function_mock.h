@@ -35,12 +35,18 @@ class FunctionGMockInterface {
   virtual FunctionType GetFunctionType(const FunctionObject* self)                             = 0;
   virtual const void* GetData(const FunctionObject* self)                                      = 0;
   virtual CmdType* CreateReplyCmd(const FunctionObject* self)                                  = 0;
-  virtual CmdType*
-  CreateNotifyCmd(const FunctionObject* self, const FilterType* filter_partial, const FilterType* filter_delete)
-      = 0;
-  virtual CmdType*
-  CreateWriteCmd(const FunctionObject* self, const FilterType* filter_partial, const FilterType* filter_delete)
-      = 0;
+  virtual CmdType* CreateNotifyCmd(
+      const FunctionObject* self,
+      const void* new_data,
+      const FilterType* filter_partial,
+      const FilterType* filter_delete
+  ) = 0;
+  virtual CmdType* CreateWriteCmd(
+      const FunctionObject* self,
+      const void* new_data,
+      const FilterType* filter_partial,
+      const FilterType* filter_delete
+  )                                                  = 0;
   virtual void* DataCopy(const FunctionObject* self) = 0;
   virtual EebusError UpdateData(
       FunctionObject* self,
@@ -62,8 +68,8 @@ class FunctionGMock : public FunctionGMockInterface {
   MOCK_METHOD1(GetFunctionType, FunctionType(const FunctionObject*));
   MOCK_METHOD1(GetData, const void*(const FunctionObject*));
   MOCK_METHOD1(CreateReplyCmd, CmdType*(const FunctionObject*));
-  MOCK_METHOD3(CreateNotifyCmd, CmdType*(const FunctionObject*, const FilterType*, const FilterType*));
-  MOCK_METHOD3(CreateWriteCmd, CmdType*(const FunctionObject*, const FilterType*, const FilterType*));
+  MOCK_METHOD4(CreateNotifyCmd, CmdType*(const FunctionObject*, const void*, const FilterType*, const FilterType*));
+  MOCK_METHOD4(CreateWriteCmd, CmdType*(const FunctionObject*, const void*, const FilterType*, const FilterType*));
   MOCK_METHOD1(DataCopy, void*(const FunctionObject*));
   MOCK_METHOD6(UpdateData, EebusError(FunctionObject*, const void*, const FilterType*, const FilterType*, bool, bool));
   MOCK_METHOD1(GetOperations, const OperationsObject*(const FunctionObject*));

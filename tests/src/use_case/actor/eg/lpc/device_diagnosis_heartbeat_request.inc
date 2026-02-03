@@ -8,7 +8,7 @@ static constexpr char device_diagnosis_heartbeat_request[] = R"({
         {
           "addressSource": [
             {
-              "device": "d:_n:Demo_HEMS-123456789"
+              "device": "d:_n:HeatPump_123456789"
             },
             {
               "entity": [
@@ -23,7 +23,7 @@ static constexpr char device_diagnosis_heartbeat_request[] = R"({
         {
           "addressDestination": [
             {
-              "device": "d:_n:Demo_ControlBox-123456789"
+              "device": "d:_n:HEMS_123456789"
             },
             {
               "entity": [
@@ -36,7 +36,7 @@ static constexpr char device_diagnosis_heartbeat_request[] = R"({
           ]
         },
         {
-          "msgCounter": 6
+          "msgCounter": 32
         },
         {
           "cmdClassifier": "read"

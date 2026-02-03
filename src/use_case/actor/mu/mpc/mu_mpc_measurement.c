@@ -183,12 +183,7 @@ EebusError GetDataValue(const MuMpcMeasurementObject* self, MeasurementServer* m
     return kEebusErrorNoChange;
   }
 
-  *measurement_value = (ScaledValue){
-      .value = *data->value->number,
-      .scale = (data->value->scale != NULL) ? *data->value->scale : 0,
-  };
-
-  return kEebusErrorOk;
+  return ScaledValueInitWithScaledNumber(measurement_value, data->value);
 }
 
 const MeasurementConstraintsDataType* GetConstraints(const MuMpcMeasurementObject* self) {

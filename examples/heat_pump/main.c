@@ -29,6 +29,8 @@
 
 static bool should_terminate = false;
 
+static HpsrvObject* hpsrv = NULL;
+
 void PrintUsage() {
   printf("General Usage:\n");
   printf("heat_pump <server_port> <remote_ski> <certificate_file> <private_key_file>\n");
@@ -39,13 +41,17 @@ void GracefulTerminate(int signal) {
 }
 
 void MainLoop() {
+  char cmd[200] = "";
+
   // Ctrl + C from the consle
   signal(SIGINT, &GracefulTerminate);
   // Default signal for kill utility
   signal(SIGTERM, &GracefulTerminate);
 
   while (!should_terminate) {
-    EebusThreadSleep(1);
+    if (fgets(cmd, sizeof(cmd), stdin)) {
+      HpsrvHandleCmd(hpsrv, cmd);
+    }
   }
 }
 
@@ -67,7 +73,7 @@ int main(int argc, char** argv) {
     return -1;
   }
 
-  HpsrvObject* const hpsrv = HpsrvOpen(port, remote_ski, tls_cert);
+  hpsrv = HpsrvOpen(port, remote_ski, tls_cert);
   if (hpsrv == NULL) {
     printf("Failed to open heat pump EEBUS service!\n");
     return -1;

@@ -26,8 +26,8 @@
 
 static void OnEntityAddedHandleElectricalConnection(const MaMpcUseCase* self, EntityRemoteObject* entity);
 static void OnEntityAddedHandleMeasurement(const MaMpcUseCase* self, EntityRemoteObject* entity);
-static void OnEntityAdded(MaMpcUseCase* self, EntityRemoteObject* payload);
-static void OnEntityRemoved(const MaMpcUseCase* self, EntityRemoteObject* entity);
+static void OnEntityAdded(MaMpcUseCase* self, const EventPayload* payload);
+static void OnEntityRemoved(const MaMpcUseCase* self, const EventPayload* payload);
 static void OnMeasurementDescriptionDataUpdate(MaMpcUseCase* self, const EventPayload* payload);
 static void OnMeasurementDataUpdate(MaMpcUseCase* self, const EventPayload* payload);
 static void OnDataChange(MaMpcUseCase* self, const EventPayload* payload);
@@ -73,7 +73,16 @@ void OnEntityAddedHandleMeasurement(const MaMpcUseCase* self, EntityRemoteObject
 }
 
 // process required steps when a device is connected
-void OnEntityAdded(MaMpcUseCase* self, EntityRemoteObject* entity) {
+void OnEntityAdded(MaMpcUseCase* self, const EventPayload* payload) {
+  EntityRemoteObject* const entity = payload->entity;
+  if (entity == NULL) {
+    return;
+  }
+
+  if (!USE_CASE_IS_USE_CASE_COMPATIBLE(USE_CASE_OBJECT(self), payload->use_case_filter)) {
+    return;
+  }
+
   OnEntityAddedHandleElectricalConnection(self, entity);
   OnEntityAddedHandleMeasurement(self, entity);
 
@@ -83,8 +92,13 @@ void OnEntityAdded(MaMpcUseCase* self, EntityRemoteObject* entity) {
   }
 }
 
-void OnEntityRemoved(const MaMpcUseCase* self, EntityRemoteObject* entity) {
+void OnEntityRemoved(const MaMpcUseCase* self, const EventPayload* payload) {
+  EntityRemoteObject* const entity = payload->entity;
   if (entity == NULL) {
+    return;
+  }
+
+  if (!USE_CASE_IS_USE_CASE_COMPATIBLE(USE_CASE_OBJECT(self), payload->use_case_filter)) {
     return;
   }
 
@@ -163,19 +177,19 @@ void OnDataChange(MaMpcUseCase* self, const EventPayload* payload) {
 }
 
 void MaMpcHandleEvent(const EventPayload* payload, void* ctx) {
-  MaMpcUseCase* eg_lpc_use_case = (MaMpcUseCase*)ctx;
+  MaMpcUseCase* ma_mpc_use_case = (MaMpcUseCase*)ctx;
 
-  if (!USE_CASE_IS_ENTITY_COMPATIBLE(USE_CASE_OBJECT(eg_lpc_use_case), payload->entity)) {
+  if (!USE_CASE_IS_ENTITY_COMPATIBLE(USE_CASE_OBJECT(ma_mpc_use_case), payload->entity)) {
     return;
   }
 
-  if (payload->event_type == kEventTypeEntityChange) {
+  if (payload->event_type == kEventTypeUseCaseChange) {
     if (payload->change_type == kElementChangeAdd) {
-      OnEntityAdded(eg_lpc_use_case, payload->entity);
+      OnEntityAdded(ma_mpc_use_case, payload);
     } else if (payload->change_type == kElementChangeRemove) {
-      OnEntityRemoved(eg_lpc_use_case, payload->entity);
+      OnEntityRemoved(ma_mpc_use_case, payload);
     }
   } else if ((payload->event_type == kEventTypeDataChange) || (payload->change_type == kElementChangeUpdate)) {
-    OnDataChange(eg_lpc_use_case, payload);
+    OnDataChange(ma_mpc_use_case, payload);
   }
 }

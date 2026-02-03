@@ -18,11 +18,16 @@
  * @brief CS LPC Listener implementation
  */
 
+#include <inttypes.h>
 #include <math.h>
 #include <stdio.h>
 
+#include "examples/heat_pump/cs_lpc_listener.h"
+#include "src/common/eebus_arguments.h"
+#include "src/common/eebus_date_time/eebus_date_time.h"
 #include "src/common/eebus_malloc.h"
 #include "src/use_case/api/cs_lpc_listener_interface.h"
+#include "src/use_case/model/scaled_value.h"
 
 typedef struct CsLpcListener CsLpcListener;
 
@@ -52,27 +57,33 @@ static const CsLpcListenerInterface cs_lpc_listener_methods = {
     .on_heartbeat_receive            = OnHeartbeatReceive,
 };
 
-static void CsLpcListenerConstruct(CsLpcListener* self);
+static EebusError CsLpcListenerConstruct(CsLpcListener* self);
 
-void CsLpcListenerConstruct(CsLpcListener* self) {
+EebusError CsLpcListenerConstruct(CsLpcListener* self) {
   // Override "virtual functions table"
   CS_LPC_LISTENER_INTERFACE(self) = &cs_lpc_listener_methods;
+
+  return kEebusErrorOk;
 }
 
 CsLpcListenerObject* CsLpcListenerCreate(void) {
   CsLpcListener* const cs_lpc_listener = (CsLpcListener*)EEBUS_MALLOC(sizeof(CsLpcListener));
+  if (cs_lpc_listener == NULL) {
+    return NULL;
+  }
 
-  CsLpcListenerConstruct(cs_lpc_listener);
+  if (CsLpcListenerConstruct(cs_lpc_listener) != kEebusErrorOk) {
+    CsLpcListenerDelete(CS_LPC_LISTENER_OBJECT(cs_lpc_listener));
+    return NULL;
+  }
 
   return CS_LPC_LISTENER_OBJECT(cs_lpc_listener);
 }
 
 void Destruct(CsLpcListenerObject* self) {
-  // Nothing to be deallocated yet
-}
+  UNUSED(self);
 
-double GetValue(const ScaledValue* value) {
-  return (double)(value->value) * pow(10, (double)value->scale);
+  // Nothing to be deallocated yet
 }
 
 void OnPowerLimitReceive(
@@ -81,33 +92,27 @@ void OnPowerLimitReceive(
     const EebusDuration* duration,
     bool is_active
 ) {
-  CsLpcListener* const lpc_listener = CS_LPC_LISTENER(self);
+  UNUSED(self);
 
-  const double limit     = GetValue(power_limit);
-  const uint64_t seconds = EebusDurationToSeconds(duration);
-  printf(
-      "New Limit received %4.0fW, duration = %llu seconds, active = %s\n",
-      limit,
-      (unsigned long long)seconds,
-      is_active ? "true" : "false"
-  );
+  ScaledValuePrint("New Limit received %sW, ", power_limit);
+  EebusDurationPrint("duration = %s, ", duration);
+  printf("active = %s\n", is_active ? "true" : "false");
 }
 
 void OnFailsafePowerLimitReceive(CsLpcListenerObject* self, const ScaledValue* power_limit) {
-  CsLpcListener* const lpc_listener = CS_LPC_LISTENER(self);
+  UNUSED(self);
 
-  const double limit = GetValue(power_limit);
-  printf("New Failsafe Consumption Active Power Limit received:  %4.0fW\n", limit);
+  ScaledValuePrint("New Failsafe Consumption Active Power Limit received:  %sW\n", power_limit);
 }
 
 void OnFailsafeDurationReceive(CsLpcListenerObject* self, const DurationType* duration) {
-  CsLpcListener* const lpc_listener = CS_LPC_LISTENER(self);
+  UNUSED(self);
 
-  const uint64_t seconds = EebusDurationToSeconds(duration);
-  printf("New Failsafe Duration Minimum received: %llu seconds\n", (unsigned long long)seconds);
+  EebusDurationPrint("New Failsafe Duration Minimum received: %s\n", duration);
 }
 
 void OnHeartbeatReceive(CsLpcListenerObject* self, uint64_t heartbeat_counter) {
-  CsLpcListener* const lpc_listener = CS_LPC_LISTENER(self);
-  printf("Heartbeat received, counter = %llu\n", (unsigned long long)heartbeat_counter);
+  UNUSED(self);
+
+  printf("Heartbeat received, counter = %" PRIu64 "\n", heartbeat_counter);
 }

@@ -1,6 +1,5 @@
-#include <stdint.h>
 
-static constexpr uint8_t discovery_response[] = R"RAWFILE({
+static constexpr char discovery_response[] = R"RAWFILE({
   "datagram": [
     {
       "header": [
@@ -10,7 +9,7 @@ static constexpr uint8_t discovery_response[] = R"RAWFILE({
         {
           "addressSource": [
             {
-              "device": "d:_n:Demo_ControlBox-123456789"
+              "device": "d:_n:HEMS_123456789"
             },
             {
               "entity": [
@@ -25,7 +24,7 @@ static constexpr uint8_t discovery_response[] = R"RAWFILE({
         {
           "addressDestination": [
             {
-              "device": "d:_n:Demo_HEMS-123456789"
+              "device": "d:_n:HeatPump_123456789"
             },
             {
               "entity": [
@@ -71,7 +70,7 @@ static constexpr uint8_t discovery_response[] = R"RAWFILE({
                           {
                             "deviceAddress": [
                               {
-                                "device": "d:_n:Demo_ControlBox-123456789"
+                                "device": "d:_n:HEMS_123456789"
                               }
                             ]
                           },
@@ -93,7 +92,7 @@ static constexpr uint8_t discovery_response[] = R"RAWFILE({
                             {
                               "entityAddress": [
                                 {
-                                  "device": "d:_n:Demo_ControlBox-123456789"
+                                  "device": "d:_n:HEMS_123456789"
                                 },
                                 {
                                   "entity": [
@@ -114,7 +113,7 @@ static constexpr uint8_t discovery_response[] = R"RAWFILE({
                             {
                               "entityAddress": [
                                 {
-                                  "device": "d:_n:Demo_ControlBox-123456789"
+                                  "device": "d:_n:HEMS_123456789"
                                 },
                                 {
                                   "entity": [
@@ -139,7 +138,7 @@ static constexpr uint8_t discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_ControlBox-123456789"
+                                  "device": "d:_n:HEMS_123456789"
                                 },
                                 {
                                   "entity": [
@@ -262,7 +261,7 @@ static constexpr uint8_t discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_ControlBox-123456789"
+                                  "device": "d:_n:HEMS_123456789"
                                 },
                                 {
                                   "entity": [
@@ -305,7 +304,7 @@ static constexpr uint8_t discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_ControlBox-123456789"
+                                  "device": "d:_n:HEMS_123456789"
                                 },
                                 {
                                   "entity": [
@@ -335,7 +334,7 @@ static constexpr uint8_t discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_ControlBox-123456789"
+                                  "device": "d:_n:HEMS_123456789"
                                 },
                                 {
                                   "entity": [
@@ -365,7 +364,7 @@ static constexpr uint8_t discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_ControlBox-123456789"
+                                  "device": "d:_n:HEMS_123456789"
                                 },
                                 {
                                   "entity": [
@@ -395,7 +394,7 @@ static constexpr uint8_t discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_ControlBox-123456789"
+                                  "device": "d:_n:HEMS_123456789"
                                 },
                                 {
                                   "entity": [
@@ -425,7 +424,7 @@ static constexpr uint8_t discovery_response[] = R"RAWFILE({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:Demo_ControlBox-123456789"
+                                  "device": "d:_n:HEMS_123456789"
                                 },
                                 {
                                   "entity": [

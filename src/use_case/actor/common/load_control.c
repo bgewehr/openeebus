@@ -20,7 +20,7 @@
 
 #include "src/common/eebus_errors.h"
 #include "src/spine/model/absolute_or_relative_time.h"
-#include "src/use_case/api/types.h"
+#include "src/use_case/model/load_limit_types.h"
 #include "src/use_case/specialization/load_control/load_control_client.h"
 
 EebusError LoadControlWriteLimit(

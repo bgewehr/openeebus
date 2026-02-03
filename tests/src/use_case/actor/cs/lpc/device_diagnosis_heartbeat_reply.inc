@@ -1,6 +1,5 @@
-#include <stdint.h>
 
-static constexpr uint8_t device_diagnosis_heartbeat_reply[] = R"({
+static constexpr char device_diagnosis_heartbeat_reply[] = R"({
   "datagram": [
     {
       "header": [
@@ -10,7 +9,7 @@ static constexpr uint8_t device_diagnosis_heartbeat_reply[] = R"({
         {
           "addressSource": [
             {
-              "device": "d:_n:Demo_ControlBox-123456789"
+              "device": "d:_n:HEMS_123456789"
             },
             {
               "entity": [
@@ -25,7 +24,7 @@ static constexpr uint8_t device_diagnosis_heartbeat_reply[] = R"({
         {
           "addressDestination": [
             {
-              "device": "d:_n:Demo_HEMS-123456789"
+              "device": "d:_n:HeatPump_123456789"
             },
             {
               "entity": [
@@ -38,7 +37,7 @@ static constexpr uint8_t device_diagnosis_heartbeat_reply[] = R"({
           ]
         },
         {
-          "msgCounter": 16
+          "msgCounter": 17
         },
         {
           "msgCounterReference": 6

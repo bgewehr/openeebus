@@ -21,6 +21,7 @@
 #include "src/spine/model/entity_types.h"
 
 #include <stddef.h>
+#include <stdio.h>
 
 #include "src/common/bool_ptr.h"
 #include "src/common/eebus_malloc.h"
@@ -93,4 +94,20 @@ bool EntityAddressMatchIds(const EntityAddressType* self, const uint32_t* const*
   };
 
   return EntityAddressCompare(&entity_addr_a, &entity_addr_b);
+}
+
+void EntityAddressPrint(const char* fmt, const EntityAddressType* addr) {
+  if (addr == NULL) {
+    printf(fmt, "NULL");
+    return;
+  }
+
+  const char* entity_addr_string = EEBUS_DATA_PRINT_UNFORMATTED(ModelGetEntityAddressCfg(), &addr);
+  if (entity_addr_string != NULL) {
+    printf(fmt, entity_addr_string);
+  } else {
+    printf(fmt, "<error converting to string>");
+  }
+
+  StringDelete((char*)entity_addr_string);
 }

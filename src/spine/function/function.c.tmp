@@ -4,8 +4,8 @@ CmdType* CreateReadCmd(const FilterType* filter_partial) const
 FunctionType GetFunctionType() const
 const void* GetData() const
 CmdType* CreateReplyCmd() const
-CmdType* CreateNotifyCmd(const FilterType* filter_partial, const FilterType* filter_delete) const
-CmdType* CreateWriteCmd(const FilterType* filter_partial, const FilterType* filter_delete) const
+CmdType* CreateNotifyCmd(const void* new_data, const FilterType* filter_partial, const FilterType* filter_delete) const
+CmdType* CreateWriteCmd(const void* new_data, const FilterType* filter_partial, const FilterType* filter_delete) const
 void* DataCopy() const
 EebusError UpdateData(const void* new_data, const FilterType* filter_partial, const FilterType* filter_delete, bool wr_remote, bool persist)
 const OperationsObject* GetOperations() const

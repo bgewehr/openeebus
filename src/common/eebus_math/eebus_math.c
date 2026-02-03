@@ -14,27 +14,17 @@
  * limitations under the License.
  */
 /**
- * @file
- * @brief Scaled Number helper functions
+ * @file eebus_math.h
+ * @brief Math functions used within EEBUS stack implementation
  */
-
-#ifndef SRC_SPINE_MODEL_SCALED_NUMBER_H_
-#define SRC_SPINE_MODEL_SCALED_NUMBER_H_
 
 #include <stdint.h>
 
-#include "src/common/eebus_errors.h"
-#include "src/spine/model/common_data_types.h"
+int64_t PowerOfTen(int8_t exponent) {
+  int64_t result = 1;
+  for (int8_t i = 0; i < exponent; ++i) {
+    result *= 10;
+  }
 
-#ifdef __cplusplus
-extern "C" {
-#endif  // __cplusplus
-
-EebusError ScaledNumberGetNumber(const ScaledNumberType* scaled_number, int64_t* value);
-EebusError ScaledNumberGetScale(const ScaledNumberType* scaled_number, int8_t* scale);
-
-#ifdef __cplusplus
+  return result;
 }
-#endif  // __cplusplus
-
-#endif  // SRC_SPINE_MODEL_SCALED_NUMBER_H_

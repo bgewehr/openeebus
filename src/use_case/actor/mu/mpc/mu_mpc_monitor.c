@@ -267,10 +267,6 @@ EebusError MuMpcMonitorPowerConstruct(MuMpcMonitor* self, const MuMpcMonitorPowe
   }
 
   const uint8_t connected_phases = GetConnectedPhases(cfg);
-  if (connected_phases == 0) {
-    return kEebusErrorInputArgument;
-  }
-
   MuMpcMeasurementObject* const power_measurement_total
       = MuMpcMeasurementPowerTotalCreate(connected_phases, &cfg->power_total_cfg);
   if (power_measurement_total == NULL) {
@@ -279,13 +275,17 @@ EebusError MuMpcMonitorPowerConstruct(MuMpcMonitor* self, const MuMpcMonitorPowe
 
   VectorPushBack(&self->measurements, power_measurement_total);
 
-  MeasurementParameters measurement_params[] = {
-      {kMpcPowerPhaseA, cfg->power_phase_a_cfg},
-      {kMpcPowerPhaseB, cfg->power_phase_b_cfg},
-      {kMpcPowerPhaseC, cfg->power_phase_c_cfg},
-  };
+  if (connected_phases != 0) {
+    MeasurementParameters measurement_params[] = {
+        {kMpcPowerPhaseA, cfg->power_phase_a_cfg},
+        {kMpcPowerPhaseB, cfg->power_phase_b_cfg},
+        {kMpcPowerPhaseC, cfg->power_phase_c_cfg},
+    };
 
-  return AddMeasurements(self, measurement_params, ARRAY_SIZE(measurement_params));
+    return AddMeasurements(self, measurement_params, ARRAY_SIZE(measurement_params));
+  }
+
+  return kEebusErrorOk;
 }
 
 MuMpcMonitorObject* MuMpcMonitorPowerCreate(const MuMpcMonitorPowerConfig* cfg) {

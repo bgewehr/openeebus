@@ -29,8 +29,8 @@ static void OnLoadControlLimitDataUpdate(EgLpcUseCase* self, const EventPayload*
 static void OnConfigurationDataUpdate(const EgLpcUseCase* self, const EventPayload* payload);
 static void OnHeartbeat(const EgLpcUseCase* self, const EventPayload* payload);
 static void OnDataChange(EgLpcUseCase* self, const EventPayload* payload);
-static void OnEntityAdded(const EgLpcUseCase* self, EntityRemoteObject* entity);
-static void OnEntityRemoved(const EgLpcUseCase* self, EntityRemoteObject* entity);
+static void OnEntityAdded(const EgLpcUseCase* self, const EventPayload* payload);
+static void OnEntityRemoved(const EgLpcUseCase* self, const EventPayload* payload);
 
 void OnEntityAddedHandleLoadControl(const EgLpcUseCase* self, EntityRemoteObject* entity) {
   const UseCase* const use_case = USE_CASE(self);
@@ -99,8 +99,13 @@ void OnEntityAddedHandleDeviceDiagnosis(const EgLpcUseCase* self, EntityRemoteOb
   DeviceDiagnosisClientRequestHeartbeat(&device_diagnosis);
 }
 
-void OnEntityAdded(const EgLpcUseCase* self, EntityRemoteObject* entity) {
+void OnEntityAdded(const EgLpcUseCase* self, const EventPayload* payload) {
+  EntityRemoteObject* entity = payload->entity;
   if (entity == NULL) {
+    return;
+  }
+
+  if (!USE_CASE_IS_USE_CASE_COMPATIBLE(USE_CASE_OBJECT(self), payload->use_case_filter)) {
     return;
   }
 
@@ -115,8 +120,13 @@ void OnEntityAdded(const EgLpcUseCase* self, EntityRemoteObject* entity) {
   }
 }
 
-void OnEntityRemoved(const EgLpcUseCase* self, EntityRemoteObject* entity) {
+void OnEntityRemoved(const EgLpcUseCase* self, const EventPayload* payload) {
+  EntityRemoteObject* entity = payload->entity;
   if (entity == NULL) {
+    return;
+  }
+
+  if (!USE_CASE_IS_USE_CASE_COMPATIBLE(USE_CASE_OBJECT(self), payload->use_case_filter)) {
     return;
   }
 
@@ -277,11 +287,11 @@ void EgLpcHandleEvent(const EventPayload* payload, void* ctx) {
     return;
   }
 
-  if (payload->event_type == kEventTypeEntityChange) {
+  if (payload->event_type == kEventTypeUseCaseChange) {
     if (payload->change_type == kElementChangeAdd) {
-      OnEntityAdded(eg_lpc_use_case, payload->entity);
+      OnEntityAdded(eg_lpc_use_case, payload);
     } else if (payload->change_type == kElementChangeRemove) {
-      OnEntityRemoved(eg_lpc_use_case, payload->entity);
+      OnEntityRemoved(eg_lpc_use_case, payload);
     }
   } else if ((payload->event_type == kEventTypeDataChange) || (payload->change_type == kElementChangeUpdate)) {
     OnDataChange(eg_lpc_use_case, payload);

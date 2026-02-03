@@ -1,6 +1,5 @@
-#include <stdint.h>
 
-static constexpr uint8_t failsafe_power_limit_write[] = R"({
+static constexpr char failsafe_power_limit_write[] = R"({
   "datagram": [
     {
       "header": [
@@ -10,7 +9,7 @@ static constexpr uint8_t failsafe_power_limit_write[] = R"({
         {
           "addressSource": [
             {
-              "device": "d:_n:Demo_ControlBox-123456789"
+              "device": "d:_n:HEMS_123456789"
             },
             {
               "entity": [
@@ -25,7 +24,7 @@ static constexpr uint8_t failsafe_power_limit_write[] = R"({
         {
           "addressDestination": [
             {
-              "device": "d:_n:Demo_HEMS-123456789"
+              "device": "d:_n:HeatPump_123456789"
             },
             {
               "entity": [
@@ -38,7 +37,7 @@ static constexpr uint8_t failsafe_power_limit_write[] = R"({
           ]
         },
         {
-          "msgCounter": 5022
+          "msgCounter": 21
         },
         {
           "cmdClassifier": "write"

@@ -25,7 +25,7 @@
 #include <stdint.h>
 
 #include "src/common/eebus_date_time/eebus_duration.h"
-#include "src/use_case/api/types.h"
+#include "src/use_case/model/load_limit_types.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -35,6 +35,11 @@ extern "C" {
 extern const EebusDataInterface eebus_data_list_methods;
 
 /**
+ * @brief EEBUS Data List Simple Interface
+ */
+extern const EebusDataInterface eebus_data_list_simple_methods;
+
+/**
  * @brief EEBUS Data List type check
  */
 #define EEBUS_DATA_IS_LIST(cfg) (EEBUS_DATA_INTERFACE(cfg) == &eebus_data_list_methods)
@@ -49,6 +54,22 @@ extern const EebusDataInterface eebus_data_list_methods;
 #define EEBUS_DATA_LIST(ed_name, struct_name, struct_field, le_cfg)          \
   {                                                                          \
       .interface_  = &eebus_data_list_methods,                               \
+      .name        = ed_name,                                                \
+      .offset      = STRUCT_MEMBER_OFFSET(struct_name, struct_field),        \
+      .size_offset = STRUCT_MEMBER_OFFSET(struct_name, struct_field##_size), \
+      .metadata    = le_cfg,                                                 \
+  }
+
+/**
+ * @brief EEBUS Data List Simple configuration
+ * @param ed_name Expected Data record name
+ * @param struct_name Structure name associated with Data record
+ * @param struct_field Structure field name
+ * @param le_cfg Entry point of list element Data configuration
+ */
+#define EEBUS_DATA_LIST_SIMPLE(ed_name, struct_name, struct_field, le_cfg)   \
+  {                                                                          \
+      .interface_  = &eebus_data_list_simple_methods,                        \
       .name        = ed_name,                                                \
       .offset      = STRUCT_MEMBER_OFFSET(struct_name, struct_field),        \
       .size_offset = STRUCT_MEMBER_OFFSET(struct_name, struct_field##_size), \

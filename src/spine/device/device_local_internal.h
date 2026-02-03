@@ -27,7 +27,7 @@
 extern "C" {
 #endif  // __cplusplus
 
-void HandleQueueMessage(DeviceLocalObject* self);
+EebusError HandleQueueMessage(DeviceLocalObject* self);
 
 #ifdef __cplusplus
 }

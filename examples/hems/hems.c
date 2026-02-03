@@ -30,6 +30,7 @@
 #include "examples/hems/eg_lpc_listener.h"
 #include "examples/hems/ma_mpc_listener.h"
 #include "src/cli/eebus_cli.h"
+#include "src/common/eebus_arguments.h"
 #include "src/service/api/service_reader_interface.h"
 #include "src/service/service/eebus_service.h"
 #include "src/spine/entity/entity_local.h"
@@ -208,6 +209,12 @@ void Destruct(ServiceReaderObject* self) {
     hems->service = NULL;
   }
 
+  UseCaseDelete(USE_CASE_OBJECT(hems->ma_mpc));
+  hems->ma_mpc = NULL;
+
+  MaMpcListenerDelete(hems->ma_mpc_listener);
+  hems->ma_mpc_listener = NULL;
+
   UseCaseDelete(USE_CASE_OBJECT(hems->eg_lpc));
   hems->eg_lpc = NULL;
 
@@ -225,24 +232,42 @@ void Destruct(ServiceReaderObject* self) {
 }
 
 void OnRemoteSkiConnected(ServiceReaderObject* self, EebusServiceObject* service, const char* ski) {
+  UNUSED(self);
+  UNUSED(service);
+
   printf("Remote SKI connected: %s\n", ski);
 }
 
 void OnRemoteSkiDisconnected(ServiceReaderObject* self, EebusServiceObject* service, const char* ski) {
+  UNUSED(self);
+  UNUSED(service);
+
   printf("Remote SKI disconnected: %s\n", ski);
 }
 
 void OnRemoteServicesUpdate(ServiceReaderObject* self, EebusServiceObject* service, const Vector* entries) {
+  UNUSED(self);
+  UNUSED(service);
+  UNUSED(entries);
+
   // Optional: print the remote services
 }
 
-void OnShipIdUpdate(ServiceReaderObject* self, const char* ski, const char* shipd_id) {}
+void OnShipIdUpdate(ServiceReaderObject* self, const char* ski, const char* shipd_id) {
+  UNUSED(self);
+
+  printf("Ship ID update for SKI %s: %s\n", ski, shipd_id);
+}
 
 void OnShipStateUpdate(ServiceReaderObject* self, const char* ski, SmeState state) {
+  UNUSED(self);
+
   printf("Ship state update for SKI %s: %d\n", ski, state);
 }
 
 bool IsWaitingForTrustAllowed(const ServiceReaderObject* self, const char* ski) {
+  UNUSED(self);
+
   return true;
 }
 
@@ -257,13 +282,23 @@ void HemsUnregisterRemoteSki(HemsObject* self, const char* ski) {
 void HemsSetEgLpcRemoteEntity(HemsObject* self, const EntityAddressType* entity_addr) {
   Hems* const hems = HEMS(self);
 
-  EEBUS_CLI_SET_EG_LPC(hems->cli, hems->eg_lpc, entity_addr);
+  if (hems->cli == NULL) {
+    return;
+  }
+
+  EgLpcUseCaseObject* const eg_lpc = (entity_addr == NULL) ? NULL : hems->eg_lpc;
+  EEBUS_CLI_SET_EG_LPC(hems->cli, eg_lpc, entity_addr);
 }
 
 void HemsSetMaMpcRemoteEntity(HemsObject* self, const EntityAddressType* entity_addr) {
   Hems* const hems = HEMS(self);
 
-  EEBUS_CLI_SET_MA_MPC(hems->cli, hems->ma_mpc, entity_addr);
+  if (hems->cli == NULL) {
+    return;
+  }
+
+  MaMpcUseCaseObject* const ma_mpc = (entity_addr == NULL) ? NULL : hems->ma_mpc;
+  EEBUS_CLI_SET_MA_MPC(hems->cli, ma_mpc, entity_addr);
 }
 
 void HemsHandleCmd(HemsObject* self, char* cmd) {

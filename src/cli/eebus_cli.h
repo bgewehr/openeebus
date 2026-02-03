@@ -25,14 +25,14 @@
  * // Consider EG LPC connection is established and remote entity address is already known
  * EebusCliSetRemoteEntityAddress(cli, remote_entity_address);
  * // Set power limit to 3500.5W for 12 hours, 7 seconds and activate it
- * EebusCliHandleCmd(cli, "eg_lpc set power_limit 35005 -1 PT12H07S true");
+ * EebusCliHandleCmd(cli, "eg_lpc set power_limit 3500.5 PT12H07S true");
  * @endcode
  *
  * Commands examples
  * EG LPC:
- * eg_lpc set power_limit 35005 -1 PT12H true
+ * eg_lpc set power_limit 3500.5 PT12H true
  * eg_lpc get power_limit
- * eg_lpc set failsafe_limit 35005 -1
+ * eg_lpc set failsafe_limit 3500.5
  * eg_lpc get failsafe_limit
  * eg_lpc set failsafe_duration PT3H02M3S
  * eg_lpc start heartbeat

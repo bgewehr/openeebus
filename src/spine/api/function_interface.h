@@ -53,9 +53,17 @@ struct FunctionInterface {
   const void* (*get_data)(const FunctionObject* self);
   CmdType* (*create_reply_cmd)(const FunctionObject* self);
   CmdType* (*create_notify_cmd)(
-      const FunctionObject* self, const FilterType* filter_partial, const FilterType* filter_delete);
+      const FunctionObject* self,
+      const void* new_data,
+      const FilterType* filter_partial,
+      const FilterType* filter_delete
+  );
   CmdType* (*create_write_cmd)(
-      const FunctionObject* self, const FilterType* filter_partial, const FilterType* filter_delete);
+      const FunctionObject* self,
+      const void* new_data,
+      const FilterType* filter_partial,
+      const FilterType* filter_delete
+  );
   void* (*data_copy)(const FunctionObject* self);
   EebusError (*update_data)(FunctionObject* self, const void* new_data, const FilterType* filter_partial,
       const FilterType* filter_delete, bool wr_remote, bool persist);
@@ -108,14 +116,14 @@ struct FunctionObject {
 /**
  * @brief Function Create Notify Cmd caller definition
  */
-#define FUNCTION_CREATE_NOTIFY_CMD(obj, filter_partial, filter_delete) \
-  (FUNCTION_INTERFACE(obj)->create_notify_cmd(obj, filter_partial, filter_delete))
+#define FUNCTION_CREATE_NOTIFY_CMD(obj, new_data, filter_partial, filter_delete) \
+  (FUNCTION_INTERFACE(obj)->create_notify_cmd(obj, new_data, filter_partial, filter_delete))
 
 /**
  * @brief Function Create Write Cmd caller definition
  */
-#define FUNCTION_CREATE_WRITE_CMD(obj, filter_partial, filter_delete) \
-  (FUNCTION_INTERFACE(obj)->create_write_cmd(obj, filter_partial, filter_delete))
+#define FUNCTION_CREATE_WRITE_CMD(obj, new_data, filter_partial, filter_delete) \
+  (FUNCTION_INTERFACE(obj)->create_write_cmd(obj, new_data, filter_partial, filter_delete))
 
 /**
  * @brief Function Data Copy caller definition

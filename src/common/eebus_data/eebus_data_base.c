@@ -122,12 +122,19 @@ EebusError EebusDataBaseCopyMatching(
   return EEBUS_DATA_WRITE(cfg, dst_base_addr, base_addr);
 }
 
+bool EebusDataBaseHasIdentifiersFlags(const EebusDataCfg* cfg) {
+  const bool has_identifiers     = !!(cfg->flags & kEebusDataFlagIsIdentifier);
+  const bool has_sub_identifiers = !!(cfg->flags & kEebusDataFlagIsSubIdentifier);
+
+  return has_identifiers || has_sub_identifiers;
+}
+
 bool EebusDataBaseHasIdentifiers(const EebusDataCfg* cfg, const void* base_addr) {
   if (EEBUS_DATA_IS_NULL(cfg, base_addr)) {
     return false;
   }
 
-  return !!(cfg->flags & kEebusDataFlagIsIdentifier);
+  return EebusDataBaseHasIdentifiersFlags(cfg);
 }
 
 bool EebusDataBaseSelectorsMatch(const EebusDataCfg* cfg, const void* base_addr, const EebusDataCfg* selectors_cfg,
@@ -138,7 +145,7 @@ bool EebusDataBaseSelectorsMatch(const EebusDataCfg* cfg, const void* base_addr,
 }
 
 bool EebusDataBaseIdentifiersMatch(const EebusDataCfg* cfg, const void* base_addr, const void* src_base_addr) {
-  if (!(cfg->flags & kEebusDataFlagIsIdentifier)) {
+  if (!EebusDataBaseHasIdentifiersFlags(cfg)) {
     // Return true to skip the comparing of non-identifier data
     return true;
   }

@@ -48,6 +48,9 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/spine/feature
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/spine/function
     ${EXECUTABLE_OUTPUT_PATH}/spine/function)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/spine/node_management/node_management_remote
+    ${EXECUTABLE_OUTPUT_PATH}/spine/node_management/node_management_remote)
+
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/spine/device/sender
     ${EXECUTABLE_OUTPUT_PATH}/spine/device/sender)
 
@@ -65,6 +68,9 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/use_case/actor/ma/mpc
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/use_case/actor/mu/mpc
     ${EXECUTABLE_OUTPUT_PATH}/use_case/actor/mu/mpc)
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/use_case/model/scaled_value
+    ${EXECUTABLE_OUTPUT_PATH}/use_case/model/scaled_value)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/use_case/specialization/helper
     ${EXECUTABLE_OUTPUT_PATH}/use_case/specialization/helper)

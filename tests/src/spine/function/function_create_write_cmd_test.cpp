@@ -51,7 +51,9 @@ TEST_P(FunctionCreateWriteCmdTests, FunctionCreateWriteCmdTests) {
 
   // Act: Run the write command creation
   std::unique_ptr<CmdType, decltype(&CmdDelete)> cmd{
-      FUNCTION_CREATE_WRITE_CMD(fcn.get(), filter_partial.get(), filter_delete.get()), CmdDelete};
+      FUNCTION_CREATE_WRITE_CMD(fcn.get(), function_data->data, filter_partial.get(), filter_delete.get()),
+      CmdDelete
+  };
   ASSERT_NE(cmd, nullptr);
 
   // Assert: Verify with expected command

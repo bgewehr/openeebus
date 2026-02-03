@@ -148,4 +148,11 @@ EebusError HpsrvSetVoltagePerPhase(
  */
 EebusError HpsrvSetAcFrequency(HpsrvObject* self, int32_t ac_frequency);
 
+/**
+ * @brief Handle command line input
+ * @param self HEMS instance to handle the command for
+ * @param cmd Command string to be handled
+ */
+void HpsrvHandleCmd(HpsrvObject* self, char* cmd);
+
 #endif  // SRC_HPSRV_H_

@@ -26,12 +26,11 @@
 #include "src/use_case/actor/common/load_control.h"
 #include "src/use_case/actor/cs/lpc/cs_lpc.h"
 #include "src/use_case/actor/cs/lpc/cs_lpc_internal.h"
-#include "src/use_case/api/types.h"
+#include "src/use_case/model/load_limit_types.h"
 #include "src/use_case/specialization/device_configuration/device_configuration_server.h"
 #include "src/use_case/specialization/electrical_connection/electrical_connection_server.h"
 #include "src/use_case/specialization/load_control/load_control_common.h"
 #include "src/use_case/specialization/load_control/load_control_server.h"
-#include "src/use_case/specialization/load_control/load_limit.h"
 
 //-------------------------------------------------------------------------------------------//
 //
@@ -164,14 +163,16 @@ EebusError GetFailsafeConsumptionActivePowerLimitInternal(
 
   const DeviceConfigurationKeyValueDataType* const key_data
       = DeviceConfigurationCommonGetKeyValueWithFilter(&dc.device_cfg_common, &filter);
-  if (!DeviceConfigurationKeyValueIsValid(key_data) || (key_data->value->scaled_number == NULL)) {
+  if (!DeviceConfigurationKeyValueIsValid(key_data)) {
     return kEebusErrorOther;
   }
 
-  *power_limit = (ScaledValue){
-      .value = DeviceConfigurationKeyValueGetNumber(key_data),
-      .scale = DeviceConfigurationKeyValueGetScale(key_data),
-  };
+  const ScaledNumberType* const scaled_number = DeviceConfigurationKeyValueGetScaledNumber(key_data);
+
+  EebusError err = ScaledValueInitWithScaledNumber(power_limit, scaled_number);
+  if (err != kEebusErrorOk) {
+    return err;
+  }
 
   *is_changeable = DeviceConfigurationKeyValueIsChangeable(key_data);
   return kEebusErrorOk;
@@ -393,10 +394,7 @@ EebusError GetConsumptionNominalMaxInternal(const CsLpcUseCase* self, ScaledValu
     return kEebusErrorNoChange;
   }
 
-  nominal_max->value = (characteristic->value->number != NULL) ? *characteristic->value->number : 0;
-  nominal_max->scale = (characteristic->value->scale != NULL) ? *characteristic->value->scale : 0;
-
-  return kEebusErrorOk;
+  return ScaledValueInitWithScaledNumber(nominal_max, characteristic->value);
 }
 
 EebusError GetConsumptionNominalMax(CsLpcUseCaseObject* self, ScaledValue* nominal_max) {

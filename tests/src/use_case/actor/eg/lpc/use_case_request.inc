@@ -8,7 +8,7 @@ static constexpr char use_case_request[] = R"({
         {
           "addressSource": [
             {
-              "device": "d:_n:Demo_HEMS-123456789"
+              "device": "d:_n:HeatPump_123456789"
             },
             {
               "entity": [
@@ -23,7 +23,7 @@ static constexpr char use_case_request[] = R"({
         {
           "addressDestination": [
             {
-              "device": "d:_n:Demo_ControlBox-123456789"
+              "device": "d:_n:HEMS_123456789"
             },
             {
               "entity": [
@@ -36,7 +36,7 @@ static constexpr char use_case_request[] = R"({
           ]
         },
         {
-          "msgCounter": 4
+          "msgCounter": 29
         },
         {
           "cmdClassifier": "read"

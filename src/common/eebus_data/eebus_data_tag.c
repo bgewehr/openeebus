@@ -27,6 +27,7 @@
 #include "src/common/eebus_data/eebus_data_base.h"
 #include "src/common/eebus_errors.h"
 
+static void* CreateEmpty(const EebusDataCfg* cfg, void* base_addr);
 static EebusError FromJsonObjectItem(const EebusDataCfg* cfg, void* base_addr, const JsonObject* json_obj);
 static EebusError ToJsonObjectItem(const EebusDataCfg* cfg, const void* base_addr, JsonObject** json_obj);
 bool Compare(const EebusDataCfg* a_cfg, const void* a_base_addr, const EebusDataCfg* b_cfg, const void* b_base_addr);
@@ -40,7 +41,7 @@ void DeleteElements(
 void Delete(const EebusDataCfg* cfg, void* base_addr);
 
 const EebusDataInterface eebus_data_tag_methods = {
-    .create_empty          = EebusDataBaseCreateEmpty,
+    .create_empty          = CreateEmpty,
     .parse                 = EebusDataBaseParse,
     .print_unformatted     = EebusDataBasePrintUnformatted,
     .from_json_object_item = FromJsonObjectItem,
@@ -62,6 +63,12 @@ const EebusDataInterface eebus_data_tag_methods = {
     .delete_partial        = EebusDataBaseDeletePartial,
     .delete_               = Delete,
 };
+
+void* CreateEmpty(const EebusDataCfg* cfg, void* base_addr) {
+  TagType* const buf = (TagType*)((uint8_t*)base_addr + cfg->offset);
+
+  return *buf = EEBUS_TAG_RESET;
+}
 
 EebusError FromJsonObjectItem(const EebusDataCfg* cfg, void* base_addr, const JsonObject* json_obj) {
   TagType* const buf = (TagType*)((uint8_t*)base_addr + cfg->offset);

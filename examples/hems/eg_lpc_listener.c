@@ -18,10 +18,13 @@
  * @brief CS LPC Listener implementation
  */
 
+#include <inttypes.h>
 #include <math.h>
 #include <stdio.h>
 
 #include "examples/hems/eg_lpc_listener.h"
+#include "src/common/eebus_arguments.h"
+#include "src/common/eebus_date_time/eebus_date_time.h"
 #include "src/common/eebus_malloc.h"
 #include "src/use_case/api/eg_lpc_listener_interface.h"
 
@@ -105,26 +108,27 @@ void OnPowerLimitReceive(
     const EebusDuration* duration,
     bool is_active
 ) {
-  const double limit     = GetValue(power_limit);
-  const uint64_t seconds = EebusDurationToSeconds(duration);
-  printf(
-      "New Limit received %4.0fW, duration = %llu seconds, active = %s\n",
-      limit,
-      (unsigned long long)seconds,
-      is_active ? "true" : "false"
-  );
+  UNUSED(self);
+
+  ScaledValuePrint("New Limit received %sW, ", power_limit);
+  EebusDurationPrint("duration = %s, ", duration);
+  printf("active = %s\n", is_active ? "true" : "false");
 }
 
 void OnFailsafePowerLimitReceive(EgLpcListenerObject* self, const ScaledValue* power_limit) {
-  const double limit = GetValue(power_limit);
-  printf("New Failsafe Consumption Active Power Limit received:  %4.0fW\n", limit);
+  UNUSED(self);
+
+  ScaledValuePrint("New Failsafe Consumption Active Power Limit received:  %sW\n", power_limit);
 }
 
 void OnFailsafeDurationReceive(EgLpcListenerObject* self, const DurationType* duration) {
-  const uint64_t seconds = EebusDurationToSeconds(duration);
-  printf("New Failsafe Duration Minimum received: %llu seconds\n", (unsigned long long)seconds);
+  UNUSED(self);
+
+  EebusDurationPrint("New Failsafe Duration Minimum received: %s\n", duration);
 }
 
 void OnHeartbeatReceive(EgLpcListenerObject* self, uint64_t heartbeat_counter) {
-  printf("Heartbeat received, counter = %llu\n", (unsigned long long)heartbeat_counter);
+  UNUSED(self);
+
+  printf("Heartbeat received, counter = %" PRIu64 "\n", heartbeat_counter);
 }

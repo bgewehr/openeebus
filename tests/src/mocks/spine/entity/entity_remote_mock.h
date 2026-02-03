@@ -41,6 +41,7 @@ class EntityRemoteGMockInterface : public EntityGMockInterface {
       = 0;
   virtual FeatureRemoteObject* GetFeatureWithId(const EntityRemoteObject* self, const uint32_t* feature_id) = 0;
   virtual const Vector* GetFeatures(const EntityRemoteObject* self)                                         = 0;
+  virtual bool HasUseCaseSupport(const EntityRemoteObject* self, const UseCaseFilterType* use_case_filter)  = 0;
 };
 
 class EntityRemoteGMock : public EntityRemoteGMockInterface {
@@ -59,6 +60,7 @@ class EntityRemoteGMock : public EntityRemoteGMockInterface {
   MOCK_METHOD3(GetFeatureWithTypeAndRole, FeatureRemoteObject*(const EntityRemoteObject*, FeatureTypeType, RoleType));
   MOCK_METHOD2(GetFeatureWithId, FeatureRemoteObject*(const EntityRemoteObject*, const uint32_t*));
   MOCK_METHOD1(GetFeatures, const Vector*(const EntityRemoteObject*));
+  MOCK_METHOD2(HasUseCaseSupport, bool(const EntityRemoteObject*, const UseCaseFilterType*));
 };
 
 typedef struct EntityRemoteMock {

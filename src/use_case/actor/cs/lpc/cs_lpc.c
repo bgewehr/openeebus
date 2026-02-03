@@ -38,8 +38,10 @@
 static void CsLpcUseCaseDestruct(UseCaseObject* self);
 
 static const UseCaseInterface lpc_use_case_methods = {
-    .destruct             = CsLpcUseCaseDestruct,
-    .is_entity_compatible = UseCaseIsEntityCompatible,
+    .destruct                       = CsLpcUseCaseDestruct,
+    .is_entity_compatible           = UseCaseIsEntityCompatible,
+    .is_use_case_compatible         = UseCaseIsUseCaseCompatible,
+    .get_remote_entity_with_address = UseCaseGetRemoteEntityWithAddress,
 };
 
 static const UseCaseActorType valid_actor_types[] = {kUseCaseActorTypeEnergyGuard};

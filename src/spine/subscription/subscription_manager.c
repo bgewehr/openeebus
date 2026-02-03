@@ -104,22 +104,20 @@ EebusError AddSubscription(
 ) {
   SubscriptionManager* const sm = SUBSCRIPTION_MANAGER(self);
 
-  if (data->server_feature_type == NULL) {
-    return kEebusErrorInputArgumentNull;
-  }
-
   FeatureLocalObject* const server_feature
       = DEVICE_LOCAL_GET_FEATURE_WITH_ADDRESS(sm->local_device, data->server_address);
-
-  if (!FeatureParametersMatch(FEATURE(server_feature), kRoleTypeServer, *data->server_feature_type)) {
-    return kEebusErrorNoChange;
-  }
 
   FeatureRemoteObject* const client_feature
       = DEVICE_REMOTE_GET_FEATURE_WITH_ADDRESS(remote_device, data->client_address);
 
-  if (!FeatureParametersMatch(FEATURE(client_feature), kRoleTypeClient, *data->server_feature_type)) {
-    return kEebusErrorNoChange;
+  if (data->server_feature_type != NULL) {
+    if (!FeatureParametersMatch(FEATURE(server_feature), kRoleTypeServer, *data->server_feature_type)) {
+      return kEebusErrorNoChange;
+    }
+
+    if (!FeatureParametersMatch(FEATURE(client_feature), kRoleTypeClient, *data->server_feature_type)) {
+      return kEebusErrorNoChange;
+    }
   }
 
   if (FeatureLinkContainerFind(&sm->subscription_entries, data->server_address, data->client_address) != NULL) {

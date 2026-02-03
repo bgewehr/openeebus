@@ -24,6 +24,7 @@
 #include "src/common/vector.h"
 #include "src/spine/api/entity_interface.h"
 #include "src/spine/api/feature_remote_interface.h"
+#include "src/spine/model/node_management_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,6 +60,7 @@ struct EntityRemoteInterface {
       const EntityRemoteObject* self, FeatureTypeType feature_type, RoleType role);
   FeatureRemoteObject* (*get_feature_with_id)(const EntityRemoteObject* self, const uint32_t* feature_id);
   const Vector* (*get_features)(const EntityRemoteObject* self);
+  bool (*has_use_case_support)(const EntityRemoteObject* self, const UseCaseFilterType* use_case_filter);
 };
 
 /**
@@ -115,6 +117,12 @@ struct EntityRemoteObject {
  * @brief Entity Remote Get Features caller definition
  */
 #define ENTITY_REMOTE_GET_FEATURES(obj) (ENTITY_REMOTE_INTERFACE(obj)->get_features(obj))
+
+/**
+ * @brief Entity Remote Has Use Case Support caller definition
+ */
+#define ENTITY_REMOTE_HAS_USE_CASE_SUPPORT(obj, use_case_filter) \
+  (ENTITY_REMOTE_INTERFACE(obj)->has_use_case_support(obj, use_case_filter))
 
 #ifdef __cplusplus
 }

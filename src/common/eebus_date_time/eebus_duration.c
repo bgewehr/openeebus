@@ -18,6 +18,8 @@
  * @brief Eebus Duration implementation
  */
 
+#include <ctype.h>
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -27,6 +29,7 @@
 #include "src/common/array_util.h"
 #include "src/common/eebus_date_time/eebus_duration.h"
 #include "src/common/eebus_malloc.h"
+#include "src/common/string_util.h"
 
 static const char zero_duration[] = "PT0S";
 
@@ -52,6 +55,41 @@ void EebusDurationInvertSign(EebusDuration* duration) {
   duration->hours   = -duration->hours;
   duration->minutes = -duration->minutes;
   duration->seconds = -duration->seconds;
+  duration->milliseconds = -duration->milliseconds;
+}
+
+EebusError EebusDurationParseMs(EebusDuration* duration, int32_t value, const char* ps, char** ps_end) {
+  // Currently fractional values are supported only for seconds (milliseconds)
+  int32_t fractional = 0;
+
+  // Move past the decimal point
+  ++ps;
+
+  // Read up to three digits for milliseconds
+  int32_t factor = 100;
+  while (isdigit((int)*ps) && (factor > 0)) {
+    fractional += ((*ps - '0') * factor);
+    factor /= 10;
+    ++ps;
+  }
+
+  // Only milliseconds (up to 3 digits) are supported
+  if (*ps != 'S') {
+    return kEebusErrorParse;  // Expected 'S' after fractional part
+  }
+
+  // Set the seconds value
+  EebusError err = EebusDurationSetValue(duration, *ps, true, value);
+  if (err != kEebusErrorOk) {
+    return err;
+  }
+
+  // Set the milliseconds value
+  duration->milliseconds = fractional;
+
+  *ps_end = (char*)ps;
+
+  return kEebusErrorOk;
 }
 
 EebusError EebusDurationSetValue(EebusDuration* self, char key, bool is_time, int32_t value) {
@@ -118,8 +156,17 @@ EebusError EebusDurationParse(const char* s, EebusDuration* duration) {
       }
 
       ps = ps_end;
-      if (EebusDurationSetValue(duration, *ps, is_time, value) != kEebusErrorOk) {
-        return kEebusErrorParse;  // Invalid character
+      EebusError err;
+      if (*ps == '.') {
+        // Currently fractional values are supported only for seconds (milliseconds)
+        err = EebusDurationParseMs(duration, value, ps, &ps_end);
+        ps  = ps_end;
+      } else {
+        err = EebusDurationSetValue(duration, *ps, is_time, value);
+      }
+
+      if (err != kEebusErrorOk) {
+        return err;
       }
     }
 
@@ -141,7 +188,7 @@ bool EebusDurationIsZero(const EebusDuration* self) {
 
   // Check if all components are zero
   return (self->years == 0) && (self->months == 0) && (self->days == 0) && (self->hours == 0) && (self->minutes == 0)
-         && (self->seconds == 0);
+         && (self->seconds == 0) && (self->milliseconds == 0);
 }
 
 bool EebusDurationIsNegative(const EebusDuration* self) {
@@ -155,7 +202,7 @@ bool EebusDurationIsNegative(const EebusDuration* self) {
 
   // Check if the duration is negative
   return (self->years <= 0) && (self->months <= 0) && (self->days <= 0) && (self->hours <= 0) && (self->minutes <= 0)
-         && (self->seconds <= 0);
+         && (self->seconds <= 0) && (self->milliseconds <= 0);
 }
 
 bool EebusDurationIsPositive(const EebusDuration* self) {
@@ -169,7 +216,7 @@ bool EebusDurationIsPositive(const EebusDuration* self) {
 
   // Check if the duration is positive
   return (self->years >= 0) && (self->months >= 0) && (self->days >= 0) && (self->hours >= 0) && (self->minutes >= 0)
-         && (self->seconds >= 0);
+         && (self->seconds >= 0) && (self->milliseconds >= 0);
 }
 
 bool EebusDurationIsValid(const EebusDuration* self) {
@@ -186,10 +233,12 @@ size_t print_non_zero(char* buffer, size_t size, const char* format, int32_t num
     return 0;  // No number to print
   }
 
+  const int32_t number_tmp = (number < 0) ? -number : number;
+
   if (buffer == NULL) {
-    return snprintf(NULL, 0, format, number);
+    return snprintf(NULL, 0, format, number_tmp);
   } else {
-    return snprintf(buffer, size, format, number);
+    return snprintf(buffer, size, format, number_tmp);
   }
 }
 
@@ -209,15 +258,21 @@ size_t EebusDurationGetStringLength(const EebusDuration* self) {
     size += 1;  // For the sign
   }
 
-  size += print_non_zero(NULL, 0, "%dY", self->years);
-  size += print_non_zero(NULL, 0, "%dM", self->months);
-  size += print_non_zero(NULL, 0, "%dD", self->days);
+  size += print_non_zero(NULL, 0, "%" PRId32 "Y", self->years);
+  size += print_non_zero(NULL, 0, "%" PRId32 "M", self->months);
+  size += print_non_zero(NULL, 0, "%" PRId32 "D", self->days);
 
-  if (self->hours > 0 || self->minutes > 0 || self->seconds > 0) {
+  if ((self->hours != 0) || (self->minutes != 0) || (self->seconds != 0) || (self->milliseconds != 0)) {
     size += 1;  // For "T"
-    size += print_non_zero(NULL, 0, "%dH", self->hours);
-    size += print_non_zero(NULL, 0, "%dM", self->minutes);
-    size += print_non_zero(NULL, 0, "%dS", self->seconds);
+    size += print_non_zero(NULL, 0, "%" PRId32 "H", self->hours);
+    size += print_non_zero(NULL, 0, "%" PRId32 "M", self->minutes);
+    if (self->milliseconds != 0) {
+      // Include fractional part for seconds
+      size += print_non_zero(NULL, 0, "%" PRId32, self->seconds);
+      size += print_non_zero(NULL, 0, ".%03" PRId32 "S", self->milliseconds);
+    } else {
+      size += print_non_zero(NULL, 0, "%" PRId32 "S", self->seconds);
+    }
   }
 
   return size;
@@ -244,19 +299,41 @@ char* EebusDurationToString(const EebusDuration* self) {
   // Add the 'P' prefix
   offset += snprintf(buffer + offset, size - offset, "P");
   // Add the date components
-  offset += print_non_zero(buffer + offset, size - offset, "%dY", self->years);
-  offset += print_non_zero(buffer + offset, size - offset, "%dM", self->months);
-  offset += print_non_zero(buffer + offset, size - offset, "%dD", self->days);
+  offset += print_non_zero(buffer + offset, size - offset, "%" PRId32 "Y", self->years);
+  offset += print_non_zero(buffer + offset, size - offset, "%" PRId32 "M", self->months);
+  offset += print_non_zero(buffer + offset, size - offset, "%" PRId32 "D", self->days);
 
   // Add the time components if any exist
-  if (self->hours > 0 || self->minutes > 0 || self->seconds > 0) {
+  if ((self->hours != 0) || (self->minutes != 0) || (self->seconds != 0) || (self->milliseconds != 0)) {
     offset += snprintf(buffer + offset, size - offset, "T");
-    offset += print_non_zero(buffer + offset, size - offset, "%dH", self->hours);
-    offset += print_non_zero(buffer + offset, size - offset, "%dM", self->minutes);
-    offset += print_non_zero(buffer + offset, size - offset, "%dS", self->seconds);
+    offset += print_non_zero(buffer + offset, size - offset, "%" PRId32 "H", self->hours);
+    offset += print_non_zero(buffer + offset, size - offset, "%" PRId32 "M", self->minutes);
+    if (self->milliseconds != 0) {
+      // Include fractional part for seconds
+      offset += print_non_zero(buffer + offset, size - offset, "%" PRId32, self->seconds);
+      offset += print_non_zero(buffer + offset, size - offset, ".%03" PRId32 "S", self->milliseconds);
+    } else {
+      offset += print_non_zero(buffer + offset, size - offset, "%" PRId32 "S", self->seconds);
+    }
   }
 
   return buffer;
+}
+
+void EebusDurationPrint(const char* fmt, const EebusDuration* duration) {
+  if (duration == NULL) {
+    printf(fmt, "NULL");
+    return;
+  }
+
+  char* duration_str = EebusDurationToString(duration);
+  if (duration_str != NULL) {
+    printf(fmt, duration_str);
+  } else {
+    printf(fmt, "<error converting to string>");
+  }
+
+  StringDelete(duration_str);
 }
 
 int64_t EebusDurationToSeconds(const EebusDuration* self) {
@@ -272,6 +349,7 @@ int64_t EebusDurationToSeconds(const EebusDuration* self) {
   total_seconds += (int64_t)self->hours * seconds_per_hour;
   total_seconds += (int64_t)self->minutes * seconds_per_minute;
   total_seconds += (int64_t)self->seconds;
+  total_seconds += (int64_t)(self->milliseconds) / 1000;  // Convert milliseconds to seconds
 
   return total_seconds;
 }
@@ -304,6 +382,10 @@ int32_t EebusDurationCompare(const EebusDuration* self, const EebusDuration* oth
 
   if (self->seconds != other->seconds) {
     return (self->seconds < other->seconds) ? -1 : 1;
+  }
+
+  if (self->milliseconds != other->milliseconds) {
+    return (self->milliseconds < other->milliseconds) ? -1 : 1;
   }
 
   return 0;  // Durations are equal

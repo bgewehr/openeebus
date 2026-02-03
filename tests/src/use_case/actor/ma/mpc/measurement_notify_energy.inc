@@ -1,6 +1,5 @@
-#include <stdint.h>
 
-static constexpr uint8_t measurement_notify_energy[] = R"({
+static constexpr char measurement_notify_energy[] = R"({
   "datagram": [
     {
       "header": [
@@ -10,7 +9,7 @@ static constexpr uint8_t measurement_notify_energy[] = R"({
         {
           "addressSource": [
             {
-              "device": "d:_n:NIBE_06613320300999"
+              "device": "d:_n:HeatPump_123456789"
             },
             {
               "entity": [
@@ -25,7 +24,7 @@ static constexpr uint8_t measurement_notify_energy[] = R"({
         {
           "addressDestination": [
             {
-              "device": "d:_n:OpenEEBUS_123456789"
+              "device": "d:_n:HEMS_123456789"
             },
             {
               "entity": [
@@ -38,7 +37,7 @@ static constexpr uint8_t measurement_notify_energy[] = R"({
           ]
         },
         {
-          "msgCounter": 14
+          "msgCounter": 15
         },
         {
           "cmdClassifier": "notify"

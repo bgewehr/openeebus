@@ -1,6 +1,5 @@
-#include <stdint.h>
 
-static constexpr uint8_t use_case_reply[] = R"({
+static constexpr char use_case_reply[] = R"({
   "datagram": [
     {
       "header": [
@@ -10,7 +9,7 @@ static constexpr uint8_t use_case_reply[] = R"({
         {
           "addressSource": [
             {
-              "device": "d:_n:Bosch_myHP-12345678"
+              "device": "d:_n:HEMS_123456789"
             },
             {
               "entity": [
@@ -25,7 +24,7 @@ static constexpr uint8_t use_case_reply[] = R"({
         {
           "addressDestination": [
             {
-              "device": "d:_i:Demo_HEMS-123456789"
+              "device": "d:_n:HeatPump_123456789"
             },
             {
               "entity": [
@@ -61,7 +60,7 @@ static constexpr uint8_t use_case_reply[] = R"({
                         {
                           "address": [
                             {
-                              "device": "d:_n:Bosch_myHP-12345678"
+                              "device": "d:_n:HEMS_123456789"
                             },
                             {
                               "entity": [
@@ -104,7 +103,7 @@ static constexpr uint8_t use_case_reply[] = R"({
                         {
                           "address": [
                             {
-                              "device": "d:_n:Bosch_myHP-12345678"
+                              "device": "d:_n:HEMS_123456789"
                             },
                             {
                               "entity": [

@@ -49,7 +49,7 @@ const EebusDataInterface eebus_data_sequence_methods = {
     .read_elements         = EebusDataSequenceReadElements,
     .write                 = EebusDataSequenceWrite,
     .write_elements        = EebusDataSequenceWriteElements,
-    .write_partial         = EebusDataBaseWritePartial,
+    .write_partial         = EebusDataSequenceWritePartial,
     .delete_elements       = EebusDataSequenceDeleteElements,
     .delete_partial        = EebusDataBaseDeletePartial,
     .delete_               = EebusDataSequenceDelete,
@@ -159,7 +159,7 @@ bool EebusDataSequenceHasIdentifiers(const EebusDataCfg* cfg, const void* base_a
     return false;
   }
 
-  if (!!(cfg->flags & kEebusDataFlagIsIdentifier)) {
+  if (EebusDataBaseHasIdentifiersFlags(cfg)) {
     return true;
   }
 
@@ -173,12 +173,17 @@ bool EebusDataSequenceHasIdentifiers(const EebusDataCfg* cfg, const void* base_a
   return false;
 }
 
-const EebusDataCfg* GetItemWithName(const EebusDataCfg* cfg, const char* name) {
+const EebusDataCfg* EebusDataSequenceGetFieldCfg(const EebusDataCfg* cfg, const char* name) {
   if ((cfg == NULL) || (name == NULL)) {
     return NULL;
   }
 
-  for (const EebusDataCfg* cfg_it = (const EebusDataCfg*)cfg->metadata; cfg_it->name != NULL; ++cfg_it) {
+  const EebusDataCfg* cfg_first = (const EebusDataCfg*)cfg->metadata;
+  if (cfg_first == NULL) {
+    return NULL;
+  }
+
+  for (const EebusDataCfg* cfg_it = cfg_first; cfg_it->name != NULL; ++cfg_it) {
     if (!strcmp(cfg_it->name, name)) {
       return cfg_it;
     }
@@ -196,13 +201,21 @@ bool SelectorsMatch(const EebusDataCfg* cfg, const void* base_addr, const EebusD
   void** const buf       = (void**)((uint8_t*)base_addr + cfg->offset);
   void** const selectors = (void**)((uint8_t*)selectors_base_addr + selectors_cfg->offset);
 
+  if (*selectors == NULL) {
+    return true;
+  }
+
+  if (*buf == NULL) {
+    return false;
+  }
+
   const EebusDataCfg* selectors_cfg_it = (const EebusDataCfg*)selectors_cfg->metadata;
   for (; selectors_cfg_it->name != NULL; ++selectors_cfg_it) {
     if (EEBUS_DATA_IS_NULL(selectors_cfg_it, *selectors)) {
       continue;
     }
 
-    const EebusDataCfg* data_cfg_it = GetItemWithName(cfg, selectors_cfg_it->name);
+    const EebusDataCfg* data_cfg_it = EebusDataSequenceGetFieldCfg(cfg, selectors_cfg_it->name);
     if (data_cfg_it == NULL) {
       // TODO: Handle each specific selectors case
       continue;
@@ -217,7 +230,7 @@ bool SelectorsMatch(const EebusDataCfg* cfg, const void* base_addr, const EebusD
 }
 
 bool EebusDataSequenceIdentifiersMatch(const EebusDataCfg* cfg, const void* base_addr, const void* src_base_addr) {
-  if (!!(cfg->flags & kEebusDataFlagIsIdentifier)) {
+  if (EebusDataBaseHasIdentifiersFlags(cfg)) {
     return EEBUS_DATA_COMPARE(cfg, base_addr, cfg, src_base_addr);
   }
 
@@ -333,6 +346,40 @@ EebusError EebusDataSequenceWriteElements(const EebusDataCfg* cfg, void* base_ad
   const EebusDataCfg* const cfg_first = (const EebusDataCfg*)cfg->metadata;
   for (const EebusDataCfg* cfg_it = cfg_first; cfg_it->name != NULL; ++cfg_it) {
     const EebusError ret = EEBUS_DATA_WRITE_ELEMENTS(cfg_it, *buf, *src_buf);
+    if (ret != kEebusErrorOk) {
+      return ret;
+    }
+  }
+
+  return kEebusErrorOk;
+}
+
+EebusError EebusDataSequenceWritePartial(
+    const EebusDataCfg* cfg,
+    void* base_addr,
+    const void* src_base_addr,
+    const EebusDataCfg* selectors_cfg,
+    const void* selectors_base_addr,
+    SelectorsMatcher selectors_matcher
+) {
+  const void** const src_buf = (const void**)((const uint8_t*)src_base_addr + cfg->offset);
+  if (*src_buf == NULL) {
+    // Nothing to be copied — ok
+    return kEebusErrorOk;
+  }
+
+  void** buf = (void**)((uint8_t*)base_addr + cfg->offset);
+  if (*buf == NULL) {
+    *buf = EEBUS_DATA_CREATE_EMPTY(cfg, base_addr);
+    if (*buf == NULL) {
+      return kEebusErrorMemoryAllocate;
+    }
+  }
+
+  const EebusDataCfg* const cfg_first = (const EebusDataCfg*)cfg->metadata;
+  for (const EebusDataCfg* cfg_it = cfg_first; cfg_it->name != NULL; ++cfg_it) {
+    // Selectors are used on container level and specific custom data types
+    const EebusError ret = EEBUS_DATA_WRITE_PARTIAL(cfg_it, *buf, *src_buf, NULL, NULL, NULL);
     if (ret != kEebusErrorOk) {
       return ret;
     }

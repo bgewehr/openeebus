@@ -15,7 +15,7 @@
  */
 /**
  * @file
- * @brief Feature Local implementation declarations
+ * @brief Node Management implementation declarations
  */
 
 #ifndef SRC_SPINE_NODE_MANAGEMENT_NODE_MANAGEMENT_H_

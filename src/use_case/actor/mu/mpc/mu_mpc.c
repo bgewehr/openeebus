@@ -21,7 +21,7 @@
 #include "src/use_case/actor/mu/mpc/mu_mpc_internal.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_measurement.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_monitor.h"
-#include "src/use_case/api/types.h"
+#include "src/use_case/model/load_limit_types.h"
 #include "src/use_case/specialization/electrical_connection/electrical_connection_server.h"
 #include "src/use_case/specialization/measurement/measurement_server.h"
 #include "src/use_case/use_case.h"
@@ -32,8 +32,10 @@ static void Destruct(UseCaseObject* self);
 static bool IsEntityCompatible(const UseCaseObject* self, const EntityRemoteObject* remote_entity);
 
 static const UseCaseInterface mu_mpc_use_case_methods = {
-    .destruct             = Destruct,
-    .is_entity_compatible = IsEntityCompatible,
+    .destruct                       = Destruct,
+    .is_entity_compatible           = IsEntityCompatible,
+    .is_use_case_compatible         = UseCaseIsUseCaseCompatible,
+    .get_remote_entity_with_address = UseCaseGetRemoteEntityWithAddress,
 };
 
 static EebusError MuMpcUseCaseConstruct(

@@ -33,8 +33,10 @@
 static void MaMpcUseCaseDestruct(UseCaseObject* self);
 
 static const UseCaseInterface mam_mpc_use_case_methods = {
-    .destruct             = MaMpcUseCaseDestruct,
-    .is_entity_compatible = UseCaseIsEntityCompatible,
+    .destruct                       = MaMpcUseCaseDestruct,
+    .is_entity_compatible           = UseCaseIsEntityCompatible,
+    .is_use_case_compatible         = UseCaseIsUseCaseCompatible,
+    .get_remote_entity_with_address = UseCaseGetRemoteEntityWithAddress,
 };
 
 static const UseCaseActorType valid_actor_types[] = {kUseCaseActorTypeMonitoredUnit};

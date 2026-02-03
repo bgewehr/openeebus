@@ -57,6 +57,7 @@ enum {
   kEventTypeSubscriptionChange,  // Sent after successful subscription request from remote
   kEventTypeBindingChange,       // Sent after successful binding request from remote
   kEventTypeDataChange,          // Sent after remote provided new data items for a function
+  kEventTypeUseCaseChange,       // Sent after successful response of NodeManagementUseCaseData
 };
 
 typedef struct EventPayload EventPayload;
@@ -72,6 +73,7 @@ struct EventPayload {
   FunctionType function_type;         // Required for write commands
   const void* function_data;
   const CommandClassifierType* cmd_classifier;  // Optional, used together with EventType EventTypeDataChange
+  const UseCaseFilterType* use_case_filter;     // Optional, used together with EventType EventTypeUseCaseChange
 };
 
 typedef void (*EventHandler)(const EventPayload* payload, void* ctx);

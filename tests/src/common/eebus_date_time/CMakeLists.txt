@@ -11,16 +11,15 @@ if(WIN32)
   set_property(TARGET ${TEST_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 endif()
 
+include(${MAIN_PROJ_SOURCES_PATH}/common/eebus_date_time/eebus_date_time_sources.cmake)
+
 target_sources(
   ${TEST_NAME}
   PRIVATE
   ${GTEST_SOURCES}
 
   # Main project sources
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_date_time/eebus_date.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_date_time/eebus_duration.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_date_time/eebus_date_time.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_date_time/eebus_time.c
+  ${EEBUS_DATE_TIME_SOURCES}
 
   eebus_date_test.cpp
   eebus_date_time_test.cpp

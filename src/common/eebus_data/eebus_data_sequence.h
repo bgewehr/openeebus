@@ -145,10 +145,20 @@ bool EebusDataSequenceIdentifiersMatch(const EebusDataCfg* cfg, const void* base
 EebusError EebusDataSequenceReadElements(const EebusDataCfg* cfg, const void* base_addr, void* dst_base_addr,
     const EebusDataCfg* elements_cfg, const void* elements_base_addr);
 EebusError EebusDataSequenceWriteElements(const EebusDataCfg* cfg, void* base_addr, const void* src_base_addr);
+EebusError EebusDataSequenceWritePartial(
+    const EebusDataCfg* cfg,
+    void* base_addr,
+    const void* src_base_addr,
+    const EebusDataCfg* selectors_cfg,
+    const void* selectors_base_addr,
+    SelectorsMatcher selectors_matcher
+);
 void EebusDataSequenceDeleteElements(
     const EebusDataCfg* cfg, void* base_addr, const EebusDataCfg* elements_cfg, const void* elements_base_addr);
 void EebusDataSequenceDelete(const EebusDataCfg* cfg, void* base_addr);
 /** @} */
+
+const EebusDataCfg* EebusDataSequenceGetFieldCfg(const EebusDataCfg* cfg, const char* name);
 
 #ifdef __cplusplus
 }

@@ -25,7 +25,7 @@
 #include "src/spine/api/entity_local_interface.h"
 #include "src/spine/api/entity_remote_interface.h"
 #include "src/spine/model/loadcontrol_types.h"
-#include "src/use_case/api/types.h"
+#include "src/use_case/model/load_limit_types.h"
 
 /**
  * @brief Generic helper to be used in LPC and LPP

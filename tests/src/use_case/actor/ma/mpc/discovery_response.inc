@@ -1,6 +1,5 @@
-#include <stdint.h>
 
-static constexpr uint8_t discovery_response[] = R"({
+static constexpr char discovery_response[] = R"({
   "datagram": [
     {
       "header": [
@@ -10,7 +9,7 @@ static constexpr uint8_t discovery_response[] = R"({
         {
           "addressSource": [
             {
-              "device": "d:_n:NIBE_06613320300999"
+              "device": "d:_n:HeatPump_123456789"
             },
             {
               "entity": [
@@ -25,7 +24,7 @@ static constexpr uint8_t discovery_response[] = R"({
         {
           "addressDestination": [
             {
-              "device": "d:_n:OpenEEBUS_123456789"
+              "device": "d:_n:HEMS_123456789"
             },
             {
               "entity": [
@@ -71,7 +70,7 @@ static constexpr uint8_t discovery_response[] = R"({
                           {
                             "deviceAddress": [
                               {
-                                "device": "d:_n:NIBE_06613320300999"
+                                "device": "d:_n:HeatPump_123456789"
                               }
                             ]
                           },
@@ -93,7 +92,7 @@ static constexpr uint8_t discovery_response[] = R"({
                             {
                               "entityAddress": [
                                 {
-                                  "device": "d:_n:NIBE_06613320300999"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [
@@ -114,7 +113,7 @@ static constexpr uint8_t discovery_response[] = R"({
                             {
                               "entityAddress": [
                                 {
-                                  "device": "d:_n:NIBE_06613320300999"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [
@@ -139,7 +138,7 @@ static constexpr uint8_t discovery_response[] = R"({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:NIBE_06613320300999"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [
@@ -262,7 +261,7 @@ static constexpr uint8_t discovery_response[] = R"({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:NIBE_06613320300999"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [
@@ -305,7 +304,7 @@ static constexpr uint8_t discovery_response[] = R"({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:NIBE_06613320300999"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [
@@ -363,7 +362,7 @@ static constexpr uint8_t discovery_response[] = R"({
                             {
                               "featureAddress": [
                                 {
-                                  "device": "d:_n:NIBE_06613320300999"
+                                  "device": "d:_n:HeatPump_123456789"
                                 },
                                 {
                                   "entity": [

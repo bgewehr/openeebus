@@ -20,8 +20,16 @@
 #include "src/common/eebus_errors.h"
 #include "src/spine/api/events.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 EebusError EventSubscribe(EventHandlerLevel level, EventHandler handler, void* ctx);
 EebusError EventUnsubscribe(EventHandlerLevel level, EventHandler handler, void* ctx);
 void EventPublish(const EventPayload* payload);
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif  // __cplusplus
 
 #endif  // SRC_EEBUS_SRC_SPINE_EVENTS_EVENTS_H_

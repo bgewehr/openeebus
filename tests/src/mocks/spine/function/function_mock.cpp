@@ -30,10 +30,18 @@ static CmdType* CreateReadCmd(const FunctionObject* self, const FilterType* filt
 static FunctionType GetFunctionType(const FunctionObject* self);
 static const void* GetData(const FunctionObject* self);
 static CmdType* CreateReplyCmd(const FunctionObject* self);
-static CmdType*
-CreateNotifyCmd(const FunctionObject* self, const FilterType* filter_partial, const FilterType* filter_delete);
-static CmdType*
-CreateWriteCmd(const FunctionObject* self, const FilterType* filter_partial, const FilterType* filter_delete);
+static CmdType* CreateNotifyCmd(
+    const FunctionObject* self,
+    const void* new_data,
+    const FilterType* filter_partial,
+    const FilterType* filter_delete
+);
+static CmdType* CreateWriteCmd(
+    const FunctionObject* self,
+    const void* new_data,
+    const FilterType* filter_partial,
+    const FilterType* filter_delete
+);
 static void* DataCopy(const FunctionObject* self);
 static EebusError UpdateData(
     FunctionObject* self,
@@ -72,7 +80,7 @@ FunctionMock* FunctionMockCreate(void) {
 
   FunctionMockConstruct(mock);
 
-  mock->gmock = FunctionGMock();
+  mock->gmock = new FunctionGMock();
 
   return mock;
 }
@@ -103,15 +111,24 @@ CmdType* CreateReplyCmd(const FunctionObject* self) {
   return mock->gmock->CreateReplyCmd(self);
 }
 
-CmdType*
-CreateNotifyCmd(const FunctionObject* self, const FilterType* filter_partial, const FilterType* filter_delete) {
+CmdType* CreateNotifyCmd(
+    const FunctionObject* self,
+    const void* new_data,
+    const FilterType* filter_partial,
+    const FilterType* filter_delete
+) {
   FunctionMock* const mock = FUNCTION_MOCK(self);
-  return mock->gmock->CreateNotifyCmd(self, filter_partial, filter_delete);
+  return mock->gmock->CreateNotifyCmd(self, new_data, filter_partial, filter_delete);
 }
 
-CmdType* CreateWriteCmd(const FunctionObject* self, const FilterType* filter_partial, const FilterType* filter_delete) {
+CmdType* CreateWriteCmd(
+    const FunctionObject* self,
+    const void* new_data,
+    const FilterType* filter_partial,
+    const FilterType* filter_delete
+) {
   FunctionMock* const mock = FUNCTION_MOCK(self);
-  return mock->gmock->CreateWriteCmd(self, filter_partial, filter_delete);
+  return mock->gmock->CreateWriteCmd(self, new_data, filter_partial, filter_delete);
 }
 
 void* DataCopy(const FunctionObject* self) {

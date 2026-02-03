@@ -97,26 +97,24 @@ EebusError AddBinding(
     BindingManagerObject* self, DeviceRemoteObject* remote_device, const BindingManagementRequestCallType* data) {
   BindingManager* const bm = BINDING_MANAGER(self);
 
-  if (data->server_feature_type == NULL) {
-    return kEebusErrorInputArgumentNull;
-  }
-
   FeatureLocalObject* const server_feature
       = DEVICE_LOCAL_GET_FEATURE_WITH_ADDRESS(bm->local_device, data->server_address);
-
-  if (!FeatureParametersMatch(FEATURE(server_feature), kRoleTypeServer, *data->server_feature_type)) {
-    return kEebusErrorNoChange;
-  }
-
-  // A local feature can only have one remote binding
-  if (FeatureLinkContainerHasServer(&bm->binding_entries, data->server_address)) {
-    return kEebusErrorNoChange;
-  }
 
   FeatureRemoteObject* const client_feature
       = DEVICE_REMOTE_GET_FEATURE_WITH_ADDRESS(remote_device, data->client_address);
 
-  if (!FeatureParametersMatch(FEATURE(client_feature), kRoleTypeClient, *data->server_feature_type)) {
+  if (data->server_feature_type != NULL) {
+    if (!FeatureParametersMatch(FEATURE(server_feature), kRoleTypeServer, *data->server_feature_type)) {
+      return kEebusErrorNoChange;
+    }
+
+    if (!FeatureParametersMatch(FEATURE(client_feature), kRoleTypeClient, *data->server_feature_type)) {
+      return kEebusErrorNoChange;
+    }
+  }
+
+  // A local feature can only have one remote binding
+  if (FeatureLinkContainerHasServer(&bm->binding_entries, data->server_address)) {
     return kEebusErrorNoChange;
   }
 

@@ -22,8 +22,8 @@
 #define SRC_USE_CASE_API_MA_MPC_MEASUREMENT_INTERFACE_H_
 
 #include "src/common/eebus_errors.h"
-#include "src/use_case/api/mpc_types.h"
-#include "src/use_case/api/types.h"
+#include "src/use_case/model/mpc_types.h"
+#include "src/use_case/model/scaled_value.h"
 #include "src/use_case/specialization/electrical_connection/electrical_connection_client.h"
 #include "src/use_case/specialization/measurement/measurement_client.h"
 

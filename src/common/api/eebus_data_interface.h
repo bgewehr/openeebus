@@ -32,8 +32,9 @@ extern "C" {
 #endif  // __cplusplus
 
 enum EebusDataFlag {
-  kEebusDataFlagIsIdentifier = 1,
-  kEebusDataFlagIsReadOnly   = 2,
+  kEebusDataFlagIsIdentifier    = 1,
+  kEebusDataFlagIsSubIdentifier = 2,
+  kEebusDataFlagIsReadOnly      = 3,
 };
 
 typedef bool (*SelectorsMatcher)(const void* selectors, const void* data);

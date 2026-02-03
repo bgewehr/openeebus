@@ -14,34 +14,23 @@
  * limitations under the License.
  */
 /**
- * @brief Use Case data types eclarations
+ * @brief Load Limit data types declarations
  */
 
-#ifndef SRC_USE_CASE_API_TYPES_H_
-#define SRC_USE_CASE_API_TYPES_H_
+#ifndef SRC_USE_CASE_MODEL_LOAD_LIMIT_TYPES_H_
+#define SRC_USE_CASE_MODEL_LOAD_LIMIT_TYPES_H_
 
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "src/common/eebus_errors.h"
 #include "src/spine/model/common_data_types.h"
+#include "src/spine/model/loadcontrol_types.h"
+#include "src/use_case/model/scaled_value.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
-
-/**
- * @brief Scaled Value is similar to SPINE ScaledNumber but uses values instead of pointers internally.
- * Transformation of Scaled Value to folating point number is: n = value * 10 ^ scale
- */
-typedef struct ScaledValue ScaledValue;
-
-/**
- * @brief Scaled Value structure
- */
-struct ScaledValue {
-  int64_t value;  /**< Value */
-  int8_t scale;   /**< Scale */
-};
 
 /**
  * @brif Load Control Limit (LPC) data
@@ -57,8 +46,17 @@ struct LoadLimit {
                             Relevant for LPC & LPP only) */
 };
 
+/**
+ * @brief Initialize LoadLimit structure from LoadControlLimitDataType structure
+ *
+ * @param self LoadLimit structure to be initialized
+ * @param limit_data LoadControlLimitDataType structure to initialize from
+ * @return kEebusErrorOk on success, error code otherwise
+ */
+EebusError LoadLimitInitWithLoadControlLimitData(LoadLimit* self, const LoadControlLimitDataType* limit_data);
+
 #ifdef __cplusplus
 }
 #endif  // __cplusplus
 
-#endif  // SRC_USE_CASE_API_TYPES_H_
+#endif  // SRC_USE_CASE_MODEL_LOAD_LIMIT_TYPES_H_

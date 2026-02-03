@@ -102,8 +102,7 @@ char* StringWithHex(const uint8_t* data, size_t data_len) {
 
   // Skipping a series of equal to 0 octets from the beginning.
   // "Started" means the first none-zero octet has been found
-  bool is_started = false;
-  size_t j        = 0;
+  size_t j = 0;
   for (size_t i = 0; i < data_len; ++i) {
     const uint8_t h = (data[i] >> 4) & 0x0F;
     s[j++] = ((h >= 10) ? 'a' - 10 : '0') + h;

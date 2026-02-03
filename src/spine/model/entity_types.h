@@ -97,6 +97,7 @@ void EntityAddressDelete(EntityAddressType* self);
 EntityAddressType* EntityAddressCopy(const EntityAddressType* self);
 bool EntityAddressCompare(const EntityAddressType* addr_a, const EntityAddressType* addr_b);
 bool EntityAddressMatchIds(const EntityAddressType* self, const uint32_t* const* entity_ids, size_t entity_ids_size);
+void EntityAddressPrint(const char* fmt, const EntityAddressType* addr);
 
 #ifdef __cplusplus
 }

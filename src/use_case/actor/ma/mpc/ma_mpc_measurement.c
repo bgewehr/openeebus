@@ -20,7 +20,7 @@
 
 #include "src/common/array_util.h"
 #include "src/use_case/api/ma_mpc_measurement_interface.h"
-#include "src/use_case/api/mpc_types.h"
+#include "src/use_case/model/mpc_types.h"
 #include "src/use_case/specialization/electrical_connection/electrical_connection_client.h"
 #include "src/use_case/specialization/measurement/measurement_client.h"
 
@@ -386,9 +386,7 @@ EebusError GetPhaseSpecificData(
     for (; !EebusDataListMatchIteratorIsDone(&it2); EebusDataListMatchIteratorNext(&it2)) {
       const MeasurementDataType* const measurement_data = EebusDataListMatchIteratorGet(&it2);
       if (CheckPhaseSpecificData(measurement, mcl, eccl, energy_direction, measurement_data)) {
-        value->value = *measurement_data->value->number;
-        value->scale = (measurement_data->value->scale != NULL) ? *measurement_data->value->scale : 0;
-        return kEebusErrorOk;
+        return ScaledValueInitWithScaledNumber(value, measurement_data->value);
       }
     }
   }
@@ -431,7 +429,7 @@ EebusError GetEnergyStrategy(
   // Assume there is only one unique result
   const MeasurementDataType* const measurement_data
       = MeasurementCommonGetMeasurementWithFilter(&mcl->measurement_common, &filter);
-  if ((measurement_data == NULL) || (measurement_data->value == NULL) || (measurement_data->value->number == NULL)) {
+  if (measurement_data == NULL) {
     return kEebusErrorNotAvailable;
   }
 
@@ -441,9 +439,7 @@ EebusError GetEnergyStrategy(
     return kEebusErrorInvalid;
   }
 
-  value->value = *measurement_data->value->number;
-  value->scale = (measurement_data->value->scale != NULL) ? *measurement_data->value->scale : 0;
-  return kEebusErrorOk;
+  return ScaledValueInitWithScaledNumber(value, measurement_data->value);
 }
 
 EebusError GetVoltageStrategy(
@@ -470,7 +466,7 @@ EebusError GetFrequencyStrategy(
   const MeasurementDataType* const measurement_data
       = MeasurementCommonGetMeasurementWithFilter(&mcl->measurement_common, &filter);
 
-  if ((measurement_data == NULL) || (measurement_data->value == NULL) || (measurement_data->value->number == NULL)) {
+  if (measurement_data == NULL) {
     return kEebusErrorNotAvailable;
   }
 
@@ -480,9 +476,7 @@ EebusError GetFrequencyStrategy(
     return kEebusErrorInvalid;
   }
 
-  value->value = *measurement_data->value->number;
-  value->scale = (measurement_data->value->scale != NULL) ? *measurement_data->value->scale : 0;
-  return kEebusErrorOk;
+  return ScaledValueInitWithScaledNumber(value, measurement_data->value);
 }
 
 MuMpcMeasurementNameId GetName(const MaMpcMeasurementObject* self) {

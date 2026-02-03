@@ -23,7 +23,7 @@
 #include "src/spine/model/measurement_types.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_measurement.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_monitor.h"
-#include "src/use_case/api/types.h"
+#include "src/use_case/model/load_limit_types.h"
 #include "src/use_case/use_case.h"
 
 typedef struct MuMpcUseCase MuMpcUseCase;

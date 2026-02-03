@@ -22,7 +22,7 @@
 #define SRC_USE_CASE_ACTOR_MA_MPC_MA_MPC_MEASUREMENT_H_
 
 #include "src/use_case/api/ma_mpc_measurement_interface.h"
-#include "src/use_case/api/mpc_types.h"
+#include "src/use_case/model/mpc_types.h"
 #include "src/use_case/specialization/electrical_connection/electrical_connection_client.h"
 #include "src/use_case/specialization/measurement/measurement_client.h"
 

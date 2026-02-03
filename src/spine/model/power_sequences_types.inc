@@ -50,7 +50,7 @@ static const EnumMapping power_sequence_state_lut[] = {
 
 static const EebusDataCfg power_time_slot_schedule_data_cfg[] = {
     EEBUS_DATA_UINT32_WITH_FLAGS("sequenceId", PowerTimeSlotScheduleDataType, sequence_id, kEebusDataFlagIsIdentifier),
-    EEBUS_DATA_UINT32("slotNumber", PowerTimeSlotScheduleDataType, slot_number),
+    EEBUS_DATA_UINT32_WITH_FLAGS("slotNumber", PowerTimeSlotScheduleDataType, slot_number, kEebusDataFlagIsSubIdentifier),
     EEBUS_DATA_SEQUENCE("timePeriod", PowerTimeSlotScheduleDataType, time_period, time_period_cfg),
     EEBUS_DATA_DURATION("defaultDuration", PowerTimeSlotScheduleDataType, default_duration),
     EEBUS_DATA_DURATION("durationUncertainty", PowerTimeSlotScheduleDataType, duration_uncertainty),

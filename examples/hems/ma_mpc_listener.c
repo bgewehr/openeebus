@@ -22,8 +22,12 @@
 #include <stdio.h>
 
 #include "examples/hems/hems.h"
+#include "examples/hems/ma_mpc_listener.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_malloc.h"
 #include "src/use_case/api/ma_mpc_listener_interface.h"
+#include "src/use_case/model/mpc_types.h"
+#include "src/use_case/model/scaled_value.h"
 
 typedef struct MaMpcListener MaMpcListener;
 
@@ -54,27 +58,36 @@ static const MaMpcListenerInterface ma_mpc_listener_methods = {
     .on_measurement_receive      = OnMeasurementReceive,
 };
 
-static void MaMpcListenerConstruct(MaMpcListener* self, HemsObject* hems);
-static const char* MuMpcMeasurementNameIdToString(MuMpcMeasurementNameId name_id);
+static EebusError MaMpcListenerConstruct(MaMpcListener* self, HemsObject* hems);
 static float GetValue(const ScaledValue* value);
 
-void MaMpcListenerConstruct(MaMpcListener* self, HemsObject* hems) {
+EebusError MaMpcListenerConstruct(MaMpcListener* self, HemsObject* hems) {
   // Override "virtual functions table"
   MA_MPC_LISTENER_INTERFACE(self) = &ma_mpc_listener_methods;
 
   self->hems = hems;
+
+  return kEebusErrorOk;
 }
 
 MaMpcListenerObject* MaMpcListenerCreate(HemsObject* hems) {
   MaMpcListener* const ma_mpc_listener = (MaMpcListener*)EEBUS_MALLOC(sizeof(MaMpcListener));
+  if (ma_mpc_listener == NULL) {
+    return NULL;
+  }
 
-  MaMpcListenerConstruct(ma_mpc_listener, hems);
+  if (MaMpcListenerConstruct(ma_mpc_listener, hems) != kEebusErrorOk) {
+    MaMpcListenerDelete(MA_MPC_LISTENER_OBJECT(ma_mpc_listener));
+    return NULL;
+  }
 
   return MA_MPC_LISTENER_OBJECT(ma_mpc_listener);
 }
 
 void Destruct(MaMpcListenerObject* self) {
-  // TODO: Implement destructor
+  UNUSED(self);
+
+  // Nothing to be deallocated yet
 }
 
 void OnRemoteEntityConnect(MaMpcListenerObject* self, const EntityAddressType* entity_addr) {
@@ -89,44 +102,21 @@ void OnRemoteEntityDisconnect(MaMpcListenerObject* self, const EntityAddressType
   HemsSetMaMpcRemoteEntity(ma_mpc_listener->hems, entity_addr);
 }
 
-const char* MuMpcMeasurementNameIdToString(MuMpcMeasurementNameId name_id) {
-  switch (name_id) {
-    case kMpcPowerTotal: return "Power Total";
-    case kMpcPowerPhaseA: return "Power Phase A";
-    case kMpcPowerPhaseB: return "Power Phase B";
-    case kMpcPowerPhaseC: return "Power Phase C";
-    case kMpcEnergyConsumed: return "Energy Consumed";
-    case kMpcEnergyProduced: return "Energy Produced";
-    case kMpcCurrentPhaseA: return "Current Phase A";
-    case kMpcCurrentPhaseB: return "Current Phase B";
-    case kMpcCurrentPhaseC: return "Current Phase C";
-    case kMpcVoltagePhaseA: return "Voltage Phase A";
-    case kMpcVoltagePhaseB: return "Voltage Phase B";
-    case kMpcVoltagePhaseC: return "Voltage Phase C";
-    case kMpcVoltagePhaseAb: return "Voltage Phase AB";
-    case kMpcVoltagePhaseBc: return "Voltage Phase BC";
-    case kMpcVoltagePhaseAc: return "Voltage Phase AC";
-    case kMpcFrequency: return "Frequency";
-    default: return "Unknown Measurement";
-  }
-}
-
-float GetValue(const ScaledValue* value) {
-  if (value == NULL) {
-    return 0.0;
-  }
-
-  return value->value * pow(10, (float)value->scale);
-}
-
 void OnMeasurementReceive(
     MaMpcListenerObject* self,
     MuMpcMeasurementNameId name_id,
     const ScaledValue* measurement_value,
     const EntityAddressType* remote_entity_addr
 ) {
-  const char* name  = MuMpcMeasurementNameIdToString(name_id);
-  const float value = GetValue(measurement_value);
+  UNUSED(self);
 
-  printf("MA MPC Measurement received: %s = %.3f\n", name, value);
+  const char* name = MuMpcMeasurementGetName(name_id);
+  if (name == NULL) {
+    printf("MA MPC Measurement received: Unknown Measurement ID %d\n", (int)name_id);
+    return;
+  }
+
+  printf("MA MPC Measurement received: %s = ", name);
+  ScaledValuePrint("%s,", measurement_value);
+  EntityAddressPrint(" from entity: %s\n", remote_entity_addr);
 }

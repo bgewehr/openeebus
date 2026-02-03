@@ -54,6 +54,7 @@ class DeviceRemoteGMockInterface : public DeviceGMockInterface {
       RoleType role
   )                                                                                       = 0;
   virtual EebusError HandleSpineMesssage(DeviceRemoteObject* self, MessageBuffer* msg)    = 0;
+  virtual NodeManagementRemoteObject* GetNodeManagement(const DeviceRemoteObject* self)   = 0;
   virtual SenderObject* GetSender(const DeviceRemoteObject* self)                         = 0;
   virtual NodeManagementUseCaseDataType* UseCasesDataCopy(const DeviceRemoteObject* self) = 0;
   virtual void UpdateDevice(DeviceRemoteObject* self, const NetworkManagementDeviceDescriptionDataType* description)
@@ -88,6 +89,7 @@ class DeviceRemoteGMock : public DeviceRemoteGMockInterface {
       FeatureRemoteObject*(const DeviceRemoteObject*, const uint32_t* const*, size_t, FeatureTypeType, RoleType)
   );
   MOCK_METHOD2(HandleSpineMesssage, EebusError(DeviceRemoteObject*, MessageBuffer*));
+  MOCK_METHOD1(GetNodeManagement, NodeManagementRemoteObject*(const DeviceRemoteObject*));
   MOCK_METHOD1(GetSender, SenderObject*(const DeviceRemoteObject*));
   MOCK_METHOD1(UseCasesDataCopy, NodeManagementUseCaseDataType*(const DeviceRemoteObject*));
   MOCK_METHOD2(UpdateDevice, void(DeviceRemoteObject*, const NetworkManagementDeviceDescriptionDataType*));

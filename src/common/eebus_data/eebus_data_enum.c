@@ -77,7 +77,9 @@ EebusError FromJsonObjectItem(const EebusDataCfg* cfg, void* base_addr, const Js
     }
   }
 
-  return kEebusErrorParse;
+  void** const buf = (void**)((uint8_t*)base_addr + cfg->offset);
+  *buf             = NULL;
+  return kEebusErrorOk;
 }
 
 EebusError ToJsonObjectItem(const EebusDataCfg* cfg, const void* base_addr, JsonObject** json_obj) {

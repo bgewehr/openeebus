@@ -56,6 +56,7 @@ struct EebusDuration {
   int32_t hours;   /**< Number of hours in the duration. */
   int32_t minutes; /**< Number of minutes in the duration. */
   int32_t seconds; /**< Number of seconds in the duration. */
+  int32_t milliseconds; /**< Number of milliseconds in the duration. */
 };
 
 /**
@@ -93,6 +94,18 @@ bool EebusDurationIsValid(const EebusDuration* self);
  * @return EebusError Returns kEebusErrorOk on success, error code otherwise.
  */
 EebusError EebusDurationParse(const char* s, EebusDuration* duration);
+
+/**
+ * @brief Prints the string representation of an EebusDuration structure.
+ *
+ * This function converts an EebusDuration structure into a string format and prints it
+ * using the specified format string.
+ *
+ * @param[in] fmt The format string used for printing.
+ * Must not be null and shall contain a single %s format specifier
+ * @param[in] duration Pointer to the EebusDuration structure to be printed. Must not be null.
+ */
+void EebusDurationPrint(const char* fmt, const EebusDuration* duration);
 
 /**
  * @brief Converts an EebusDuration structure to a string representation.

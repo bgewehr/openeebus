@@ -230,8 +230,8 @@ struct DeviceConfigurationKeyValueConstraintsListDataSelectorsType {
 EebusError
 DeviceConfigurationKeyValueGetDuration(const DeviceConfigurationKeyValueDataType* key_value, DurationType* duration);
 bool DeviceConfigurationKeyValueIsValid(const DeviceConfigurationKeyValueDataType* key_value);
-int64_t DeviceConfigurationKeyValueGetNumber(const DeviceConfigurationKeyValueDataType* key_value);
-int8_t DeviceConfigurationKeyValueGetScale(const DeviceConfigurationKeyValueDataType* key_value);
+const ScaledNumberType* DeviceConfigurationKeyValueGetScaledNumber(const DeviceConfigurationKeyValueDataType* key_value
+);
 bool DeviceConfigurationKeyValueIsChangeable(const DeviceConfigurationKeyValueDataType* key_value);
 
 #ifdef __cplusplus

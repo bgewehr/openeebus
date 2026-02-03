@@ -1,26 +1,13 @@
+include(${CMAKE_CURRENT_LIST_DIR}/src/common/eebus_data/eebus_data_sources.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/src/common/eebus_date_time/eebus_date_time_sources.cmake)
+
 set(SOURCES
   src/cli/eebus_cli.c
+  src/cli/eebus_cli_eg_lpc.c
+  src/cli/eebus_cli_ma_mpc.c
   src/common/debug.c
   src/common/eebus_device_info.c
-  src/common/eebus_data/eebus_data_date_time.c
-  src/common/eebus_data/eebus_data_base.c
-  src/common/eebus_data/eebus_data_bool.c
-  src/common/eebus_data/eebus_data_choice.c
-  src/common/eebus_data/eebus_data_choice_root.c
-  src/common/eebus_data/eebus_data_container.c
-  src/common/eebus_data/eebus_data_enum.c
-  src/common/eebus_data/eebus_data_list.c
-  src/common/eebus_data/eebus_data_numeric.c
-  src/common/eebus_data/eebus_data_sequence.c
-  src/common/eebus_data/eebus_data_simple.c
-  src/common/eebus_data/eebus_data_string.c
-  src/common/eebus_data/eebus_data_stub.c
-  src/common/eebus_data/eebus_data_tag.c
-  src/common/eebus_data/eebus_data_util.c
-  src/common/eebus_date_time/eebus_date.c
-  src/common/eebus_date_time/eebus_date_time.c
-  src/common/eebus_date_time/eebus_duration.c
-  src/common/eebus_date_time/eebus_time.c
+  src/common/eebus_math/eebus_math.c
   src/common/json_impl_cjson.c
   src/common/message_buffer.c
   src/common/service_details.c
@@ -81,7 +68,6 @@ set(SOURCES
   src/spine/model/model.c
   src/spine/model/node_management_types.c
   src/spine/model/possible_operations_types.c
-  src/spine/model/scaled_number.c
   src/spine/model/specification_version.c
   src/spine/model/subscription_management_types.c
   src/spine/model/usecase_information_types.c
@@ -89,6 +75,7 @@ set(SOURCES
   src/spine/node_management/node_management_binding.c
   src/spine/node_management/node_management_destination_list.c
   src/spine/node_management/node_management_detailed_discovery.c
+  src/spine/node_management/node_management_remote.c
   src/spine/node_management/node_management_subscription.c
   src/spine/node_management/node_management_usecase.c
   src/spine/subscription/subscription_manager.c
@@ -107,6 +94,9 @@ set(SOURCES
   src/use_case/actor/mu/mpc/mu_mpc_measurement.c
   src/use_case/actor/mu/mpc/mu_mpc_monitor.c
   src/use_case/actor/mu/mpc/mu_mpc_public.c
+  src/use_case/model/load_limit_types.c
+  src/use_case/model/mpc_types.c
+  src/use_case/model/scaled_value.c
   src/use_case/specialization/device_configuration/device_configuration_client.c
   src/use_case/specialization/device_configuration/device_configuration_common.c
   src/use_case/specialization/device_configuration/device_configuration_server.c
@@ -121,16 +111,21 @@ set(SOURCES
   src/use_case/specialization/load_control/load_control_client.c
   src/use_case/specialization/load_control/load_control_common.c
   src/use_case/specialization/load_control/load_control_server.c
-  src/use_case/specialization/load_control/load_limit.c
   src/use_case/specialization/measurement/measurement_client.c
   src/use_case/specialization/measurement/measurement_common.c
   src/use_case/specialization/measurement/measurement_server.c
   src/use_case/use_case.c
 )
 
+list(APPEND SOURCES ${EEBUS_DATE_TIME_SOURCES})
+list(APPEND SOURCES ${EEBUS_DATA_SOURCES})
+
 set(HEADERS
   src/cli/eebus_cli.h
+  src/cli/eebus_cli_internal.h
   src/cli/eebus_cli_interface.h
+  src/cli/eebus_cli_eg_lpc.h
+  src/cli/eebus_cli_ma_mpc.h
   src/common/api/eebus_mutex_interface.h
   src/common/api/eebus_queue_interface.h
   src/common/api/eebus_timer_interface.h
@@ -138,14 +133,13 @@ set(HEADERS
   src/common/debug.h
   src/common/eebus_device_info.h
   src/common/eebus_assert.h
-  src/common/eebus_data/eebus_data_base.h
-  src/common/eebus_data/eebus_data_simple.h
   src/common/eebus_timer/eebus_timer.h
   src/common/eebus_errors.h
   src/common/eebus_malloc.h
   src/common/json.h
   src/common/message_buffer.h
   src/common/eebus_arguments.h
+  src/common/eebus_math/eebus_math.h
   src/common/eebus_mutex/eebus_mutex.h
   src/common/eebus_queue/eebus_queue.h
   src/common/eebus_thread/eebus_thread.h
@@ -226,6 +220,7 @@ set(HEADERS
   src/spine/feature/feature_address_container.h
   src/spine/feature/feature_local.h
   src/spine/feature/feature_remote.h
+  src/spine/feature/feature_remote_internal.h
   src/spine/feature/feature.h
   src/spine/feature/feature_functions.h
   src/spine/feature/operations.h
@@ -298,7 +293,6 @@ set(HEADERS
   src/spine/model/power_sequences_types.inc
   src/spine/model/result_types.h
   src/spine/model/result_types.inc
-  src/spine/model/scaled_number.h
   src/spine/model/sensing_types.h
   src/spine/model/sensing_types.inc
   src/spine/model/setpoint_types.h
@@ -330,9 +324,8 @@ set(HEADERS
   src/spine/model/version_types.inc
   src/spine/node_management/node_management.h
   src/spine/node_management/node_management_internal.h
+  src/spine/node_management/node_management_remote.h
   src/spine/subscription/subscription_manager.h
-  src/use_case/api/types.h
-  src/use_case/api/mpc_types.h
   src/use_case/api/ma_mpc_listener_interface.h
   src/use_case/actor/common/load_control.h
   src/use_case/actor/cs/lpc/cs_lpc_events.h
@@ -349,6 +342,9 @@ set(HEADERS
   src/use_case/actor/mu/mpc/mu_mpc_internal.h
   src/use_case/actor/mu/mpc/mu_mpc_monitor.h
   src/use_case/actor/mu/mpc/mu_mpc_measurement.h
+  src/use_case/model/mpc_types.h
+  src/use_case/model/scaled_value.h
+  src/use_case/model/load_limit_types.h
   src/use_case/specialization/device_configuration/device_configuration_client.h
   src/use_case/specialization/device_configuration/device_configuration_common.h
   src/use_case/specialization/device_configuration/device_configuration_server.h
@@ -363,12 +359,14 @@ set(HEADERS
   src/use_case/specialization/load_control/load_control_client.h
   src/use_case/specialization/load_control/load_control_common.h
   src/use_case/specialization/load_control/load_control_server.h
-  src/use_case/specialization/load_control/load_limit.h
   src/use_case/specialization/measurement/measurement_client.h
   src/use_case/specialization/measurement/measurement_common.h
   src/use_case/specialization/measurement/measurement_server.h
   src/use_case/use_case.h
 )
+
+list(APPEND HEADERS ${EEBUS_DATE_TIME_HEADERS})
+list(APPEND HEADERS ${EEBUS_DATA_HEADERS})
 
 if (FREERTOS)
   list(APPEND SOURCES

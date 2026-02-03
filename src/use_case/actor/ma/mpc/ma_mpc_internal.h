@@ -24,7 +24,7 @@
 #include <stdbool.h>
 
 #include "src/use_case/api/ma_mpc_listener_interface.h"
-#include "src/use_case/api/types.h"
+#include "src/use_case/model/scaled_value.h"
 #include "src/use_case/specialization/device_diagnosis/device_diagnosis_client.h"
 #include "src/use_case/use_case.h"
 

@@ -18,6 +18,7 @@
  * @brief Entity Remote implementation
  */
 
+#include "src/common/array_util.h"
 #include "src/common/eebus_malloc.h"
 #include "src/common/string_util.h"
 #include "src/spine/api/device_remote_interface.h"
@@ -46,6 +47,7 @@ static FeatureRemoteObject* GetFeatureWithTypeAndRole(
     const EntityRemoteObject* self, FeatureTypeType feature_type, RoleType role);
 static FeatureRemoteObject* GetFeatureWithId(const EntityRemoteObject* self, const uint32_t* feature_id);
 static const Vector* GetFeatures(const EntityRemoteObject* self);
+static bool HasUseCaseSupport(const EntityRemoteObject* self, const UseCaseFilterType* use_case_filter);
 
 static const EntityRemoteInterface entity_remote_methods = {
     .entity_interface = {
@@ -64,6 +66,7 @@ static const EntityRemoteInterface entity_remote_methods = {
     .get_feature_with_type_and_role = GetFeatureWithTypeAndRole,
     .get_feature_with_id            = GetFeatureWithId,
     .get_features                   = GetFeatures,
+    .has_use_case_support           = HasUseCaseSupport,
 };
 
 static void EntityRemoteConstruct(EntityRemote* self, DeviceRemoteObject* device, EntityTypeType type,
@@ -155,4 +158,36 @@ FeatureRemoteObject* GetFeatureWithId(const EntityRemoteObject* self, const uint
   return NULL;
 }
 
-const Vector* GetFeatures(const EntityRemoteObject* self) { return &ENTITY_REMOTE(self)->features; }
+const Vector* GetFeatures(const EntityRemoteObject* self) {
+  return &ENTITY_REMOTE(self)->features;
+}
+
+bool HasUseCaseSupport(const EntityRemoteObject* self, const UseCaseFilterType* use_case_filter) {
+  EntityRemote* const enr = ENTITY_REMOTE(self);
+
+  NodeManagementRemoteObject* nm = DEVICE_REMOTE_GET_NODE_MANAGEMENT(enr->device);
+  if (nm == NULL) {
+    return false;
+  }
+
+  const NodeManagementUseCaseDataType* const use_case_data
+      = FEATURE_REMOTE_GET_DATA(FEATURE_REMOTE_OBJECT(nm), kFunctionTypeNodeManagementUseCaseData);
+  if (use_case_data == NULL) {
+    return false;
+  }
+
+  const EntityAddressType* entity_addr = ENTITY_GET_ADDRESS(ENTITY_OBJECT(self));
+
+  const FeatureAddressType addr = {
+      .device      = entity_addr->device,
+      .entity      = entity_addr->entity,
+      .entity_size = entity_addr->entity_size,
+  };
+
+  return NodeManagementUseCaseDataHasUseCaseSupport(
+      use_case_data,
+      &addr,
+      use_case_filter->actor,
+      use_case_filter->use_case_name_id
+  );
+}

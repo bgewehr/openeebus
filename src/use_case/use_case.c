@@ -67,8 +67,17 @@ void UseCaseDestruct(UseCaseObject* self) {
   if (use_case->event_handler != NULL) {
     EventUnsubscribe(kEventHandlerLevelApplication, use_case->event_handler, self);
   }
+}
 
-  // TODO: Check if use case info from should be removed from entity here
+bool IsVaildEntityType(const UseCase* self, EntityTypeType entity_type) {
+  const UseCaseInfo* const info = self->info;
+  for (size_t i = 0; i < info->valid_entity_types_size; ++i) {
+    if (info->valid_entity_types[i] == entity_type) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 bool UseCaseIsEntityCompatible(const UseCaseObject* self, const EntityRemoteObject* remote_entity) {
@@ -82,6 +91,23 @@ bool UseCaseIsEntityCompatible(const UseCaseObject* self, const EntityRemoteObje
   const UseCaseInfo* const info    = uc->info;
   for (size_t i = 0; i < info->valid_entity_types_size; ++i) {
     if (info->valid_entity_types[i] == entity_type) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool UseCaseIsUseCaseCompatible(const UseCaseObject* self, const UseCaseFilterType* use_case_filter) {
+  const UseCase* const use_case = USE_CASE(self);
+
+  if (use_case_filter == NULL) {
+    return false;
+  }
+
+  for (size_t i = 0; i < use_case->info->valid_actor_types_size; ++i) {
+    if ((use_case_filter->actor == use_case->info->valid_actor_types[i])
+        && (use_case_filter->use_case_name_id == use_case->info->use_case_name_id)) {
       return true;
     }
   }

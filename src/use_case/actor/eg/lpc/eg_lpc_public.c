@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "src/use_case/api/types.h"
+#include "src/use_case/model/load_limit_types.h"
 
 #include "src/spine/model/entity_types.h"
 #include "src/use_case/actor/common/load_control.h"
 #include "src/use_case/actor/eg/lpc/eg_lpc.h"
 #include "src/use_case/actor/eg/lpc/eg_lpc_internal.h"
+#include "src/use_case/model/load_limit_types.h"
 #include "src/use_case/specialization/device_configuration/device_configuration_client.h"
 #include "src/use_case/specialization/device_diagnosis/device_diagnosis_client.h"
 #include "src/use_case/specialization/load_control/load_control_client.h"
-#include "src/use_case/specialization/load_control/load_limit.h"
 #include "src/use_case/use_case.h"
 
 //-------------------------------------------------------------------------------------------//
@@ -39,7 +39,7 @@ EebusError EgLpcGetActivePowerConsumptionLimitInternal(
   const UseCase* const use_case = USE_CASE(self);
 
   EntityRemoteObject* const remote_entity
-      = UseCaseGetRemoteEntityWithAddress(USE_CASE_OBJECT(self), remote_entity_addr);
+      = USE_CASE_GET_REMOTE_ENTITY_WITH_ADDRESS(USE_CASE_OBJECT(self), remote_entity_addr);
 
   if (remote_entity == NULL) {
     return kEebusErrorNoChange;
@@ -97,7 +97,7 @@ EebusError EgLpcSetActivePowerConsumptionLimitInternal(
   const UseCase* const use_case = USE_CASE(self);
 
   EntityRemoteObject* const remote_entity
-      = UseCaseGetRemoteEntityWithAddress(USE_CASE_OBJECT(self), remote_entity_addr);
+      = USE_CASE_GET_REMOTE_ENTITY_WITH_ADDRESS(USE_CASE_OBJECT(self), remote_entity_addr);
 
   if (remote_entity == NULL) {
     return kEebusErrorNoChange;
@@ -146,7 +146,7 @@ EebusError EgLpcGetFailsafeConsumptionActivePowerLimitInternal(
   const UseCase* const use_case = USE_CASE(self);
 
   EntityRemoteObject* const remote_entity
-      = UseCaseGetRemoteEntityWithAddress(USE_CASE_OBJECT(self), remote_entity_addr);
+      = USE_CASE_GET_REMOTE_ENTITY_WITH_ADDRESS(USE_CASE_OBJECT(self), remote_entity_addr);
 
   if (remote_entity == NULL) {
     return kEebusErrorNoChange;
@@ -166,19 +166,11 @@ EebusError EgLpcGetFailsafeConsumptionActivePowerLimitInternal(
       .value_type = &(DeviceConfigurationKeyValueTypeType){kDeviceConfigurationKeyValueTypeTypeScaledNumber},
   };
 
-  const DeviceConfigurationKeyValueDataType* key_value
+  const DeviceConfigurationKeyValueDataType* const key_value
       = DeviceConfigurationCommonGetKeyValueWithFilter(&dcc.device_cfg_common, &filter);
 
-  if ((key_value == NULL) || (key_value->value == NULL) || (key_value->value->scaled_number == NULL)) {
-    return kEebusErrorNoChange;
-  }
-
-  *power_limit = (ScaledValue){
-      .value = DeviceConfigurationKeyValueGetNumber(key_value),
-      .scale = DeviceConfigurationKeyValueGetScale(key_value),
-  };
-
-  return kEebusErrorOk;
+  const ScaledNumberType* const scaled_number = DeviceConfigurationKeyValueGetScaledNumber(key_value);
+  return ScaledValueInitWithScaledNumber(power_limit, scaled_number);
 }
 
 EebusError EgLpcGetFailsafeConsumptionActivePowerLimit(
@@ -209,7 +201,7 @@ EebusError EgLpcSetFailsafeConsumptionActivePowerLimitInternal(
   const UseCase* const use_case = USE_CASE(self);
 
   EntityRemoteObject* const remote_entity
-      = UseCaseGetRemoteEntityWithAddress(USE_CASE_OBJECT(self), remote_entity_addr);
+      = USE_CASE_GET_REMOTE_ENTITY_WITH_ADDRESS(USE_CASE_OBJECT(self), remote_entity_addr);
 
   if (remote_entity == NULL) {
     return kEebusErrorNoChange;
@@ -281,7 +273,7 @@ EebusError EgLpcGetFailsafeDurationMinimumInternal(
   const UseCase* const use_case = USE_CASE(self);
 
   EntityRemoteObject* const remote_entity
-      = UseCaseGetRemoteEntityWithAddress(USE_CASE_OBJECT(self), remote_entity_addr);
+      = USE_CASE_GET_REMOTE_ENTITY_WITH_ADDRESS(USE_CASE_OBJECT(self), remote_entity_addr);
 
   if (remote_entity == NULL) {
     return kEebusErrorNoChange;
@@ -300,10 +292,6 @@ EebusError EgLpcGetFailsafeDurationMinimumInternal(
 
   const DeviceConfigurationKeyValueDataType* const key_value
       = DeviceConfigurationCommonGetKeyValueWithFilter(&dcc.device_cfg_common, &filter);
-
-  if ((key_value == NULL) || (key_value->value == NULL) || (key_value->value->duration == NULL)) {
-    return kEebusErrorNotAvailable;
-  }
 
   return DeviceConfigurationKeyValueGetDuration(key_value, duration);
 }
@@ -336,7 +324,7 @@ EebusError EgLpcSetFailsafeDurationMinimumInternal(
   const UseCase* const use_case = USE_CASE(self);
 
   EntityRemoteObject* const remote_entity
-      = UseCaseGetRemoteEntityWithAddress(USE_CASE_OBJECT(self), remote_entity_addr);
+      = USE_CASE_GET_REMOTE_ENTITY_WITH_ADDRESS(USE_CASE_OBJECT(self), remote_entity_addr);
 
   if (remote_entity == NULL) {
     return kEebusErrorNoChange;

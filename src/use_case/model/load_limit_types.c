@@ -18,25 +18,39 @@
  * @brief Load Limit helper functions implementation
  */
 
+#include <stdio.h>
+
+#include "src/common/eebus_date_time/eebus_date_time.h"
 #include "src/common/eebus_errors.h"
-
 #include "src/spine/model/loadcontrol_types.h"
-
-#include "src/use_case/api/types.h"
+#include "src/use_case/model/load_limit_types.h"
+#include "src/use_case/model/scaled_value.h"
 
 EebusError LoadLimitInitWithLoadControlLimitData(LoadLimit* self, const LoadControlLimitDataType* limit_data) {
   if (!LoadControlLimitIsValid(limit_data)) {
     return kEebusErrorOther;
   }
 
-  const ScaledValue power_limit_value = {LoadControlLimitGetValue(limit_data), LoadControlLimitGetScale(limit_data)};
-  DurationType power_limit_duration   = {0};
-  LoadControlLimitGetDuration(limit_data, &power_limit_duration);
+  const ScaledNumberType* const power_limit_value = LoadControlLimitGetValue(limit_data);
 
-  self->value         = power_limit_value;
+  const EebusError err = ScaledValueInitWithScaledNumber(&self->value, power_limit_value);
+  if (err != kEebusErrorOk) {
+    return err;
+  }
+
   self->is_changeable = LoadControlLimitIsLimitChangeable(limit_data);
   self->is_active     = LoadControlLimitIsActive(limit_data);
-  self->duration      = power_limit_duration;
 
+  // TODO: Handle unlimited duration (missing time period means "unlimited")
+  LoadControlLimitGetDuration(limit_data, &self->duration);
   return kEebusErrorOk;
+}
+
+void LoadLimitPrint(const LoadLimit* self) {
+  printf("{\n");
+  ScaledValuePrint("  value         = %s,\n", &self->value);
+  EebusDurationPrint("  duration      = %s\n", &self->duration);
+  printf("  is_changeable = %s\n", self->is_changeable ? "true" : "false");
+  printf("  is_active     = %s\n", self->is_active ? "true" : "false");
+  printf("}\n");
 }

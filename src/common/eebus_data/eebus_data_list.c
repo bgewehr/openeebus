@@ -15,13 +15,17 @@
  */
 /**
  * @file
- * @brief EEEBUS Data List implementation
+ * @brief EEEBUS Data List and EEBUS Data List Simple implementation.
+ * The only difference between List and List Simple is that
+ * List Simple does not have identifiers and WritePartial method acts like
+ * WriteElements one
  */
 
 #include <stdbool.h>
 #include <string.h>
 
 #include "src/common/api/eebus_data_interface.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_assert.h"
 #include "src/common/eebus_data/eebus_data_base.h"
 #include "src/common/eebus_data/eebus_data_list.h"
@@ -92,6 +96,40 @@ const EebusDataInterface eebus_data_list_methods = {
     .write                 = Write,
     .write_elements        = EebusDataBaseWriteElements,
     .write_partial         = WritePartial,
+    .delete_elements       = DeleteElements,
+    .delete_partial        = DeletePartial,
+    .delete_               = Delete,
+};
+
+static EebusError WritePartialSimple(
+    const EebusDataCfg* cfg,
+    void* base_addr,
+    const void* src_base_addr,
+    const EebusDataCfg* selectors_cfg,
+    const void* selectors_base_addr,
+    SelectorsMatcher selectors_matcher
+);
+
+const EebusDataInterface eebus_data_list_simple_methods = {
+    .create_empty          = CreateEmpty,
+    .parse                 = EebusDataBaseParse,
+    .print_unformatted     = EebusDataBasePrintUnformatted,
+    .from_json_object_item = FromJsonObjectItem,
+    .from_json_object      = EebusDataBaseFromJsonObject,
+    .to_json_object_item   = ToJsonObjectItem,
+    .to_json_object        = EebusDataBaseToJsonObject,
+    .copy                  = EebusDataBaseCopy,
+    .copy_matching         = CopyMatching,
+    .compare               = Compare,
+    .is_null               = IsNull,
+    .is_empty              = IsEmpty,
+    .has_identifiers       = HasIdentifiers,
+    .selectors_match       = EebusDataBaseSelectorsMatch,
+    .identifiers_match     = EebusDataBaseIdentifiersMatch,
+    .read_elements         = ReadElements,
+    .write                 = Write,
+    .write_elements        = EebusDataBaseWriteElements,
+    .write_partial         = WritePartialSimple,
     .delete_elements       = DeleteElements,
     .delete_partial        = DeletePartial,
     .delete_               = Delete,
@@ -278,6 +316,11 @@ bool IsEmpty(const EebusDataCfg* cfg, const void* base_addr) {
 }
 
 bool HasIdentifiers(const EebusDataCfg* cfg, const void* base_addr) {
+  // Return false is required to handle differnet nested lists partial write separately
+  return false;
+}
+
+bool ListElementsHaveIdentifiers(const EebusDataCfg* cfg, const void* base_addr) {
   void*** const ar      = (void***)((uint8_t*)base_addr + cfg->offset);
   size_t* const ar_size = (size_t*)((uint8_t*)base_addr + cfg->size_offset);
 
@@ -380,11 +423,16 @@ EebusError CopyToAllData(const EebusDataCfg* cfg, void* base_addr, const void* s
   const size_t* const ar_size = (const size_t*)((const uint8_t*)base_addr + cfg->size_offset);
 
   const void*** const src_ar = (const void***)((const uint8_t*)src_base_addr + cfg->offset);
+  if (*src_ar == NULL) {
+    // Nothing to be copied — ok
+    return kEebusErrorOk;
+  }
 
   const EebusDataCfg* const ar_element_cfg = (EebusDataCfg*)cfg->metadata;
   // Write the non-null elements from src[0] to all of the list items
   for (size_t i = 0; i < *ar_size; ++i) {
-    const EebusError ret = EEBUS_DATA_WRITE_ELEMENTS(ar_element_cfg, (void*)&(*ar)[i], (void*)&(*src_ar)[0]);
+    const EebusError ret
+        = EEBUS_DATA_WRITE_PARTIAL(ar_element_cfg, (void*)&(*ar)[i], (void*)&(*src_ar)[0], NULL, NULL, NULL);
     if (ret != kEebusErrorOk) {
       return ret;
     }
@@ -438,7 +486,7 @@ EebusError MergeData(const EebusDataCfg* cfg, void* base_addr, const void* src_b
   for (size_t i = 0, j = *ar_size; i < *src_ar_size; ++i) {
     void** const el = GetItemMatchingIdentifiers(ar_element_cfg, new_ar, *ar_size, (*src_ar)[i]);
     if (el != NULL) {
-      ret = EEBUS_DATA_WRITE_ELEMENTS(ar_element_cfg, el, (void*)&(*src_ar)[i]);
+      ret = EEBUS_DATA_WRITE_PARTIAL(ar_element_cfg, el, (void*)&(*src_ar)[i], NULL, NULL, NULL);
     } else {
       ret = EEBUS_DATA_WRITE(ar_element_cfg, &new_ar[j++], (void*)&(*src_ar)[i]);
     }
@@ -467,9 +515,9 @@ EebusError WritePartial(
     const void* selectors_base_addr,
     SelectorsMatcher selectors_matcher
 ) {
-  if (!EEBUS_DATA_IS_NULL(selectors_cfg, selectors_base_addr)) {
+  if ((selectors_cfg != NULL) && (!EEBUS_DATA_IS_NULL(selectors_cfg, selectors_base_addr))) {
     return CopyToSelectedData(cfg, base_addr, src_base_addr, selectors_cfg, selectors_base_addr, selectors_matcher);
-  } else if (!EEBUS_DATA_HAS_IDENTIFIERS(cfg, src_base_addr)) {
+  } else if (!ListElementsHaveIdentifiers(cfg, src_base_addr)) {
     return CopyToAllData(cfg, base_addr, src_base_addr);
   } else {
     return MergeData(cfg, base_addr, src_base_addr);
@@ -773,4 +821,19 @@ void EebusDataListMatchIteratorNext(EebusDataListMatchIterator* self) {
       self->last,
       &self->data_to_match_base_addr
   );
+}
+
+static EebusError WritePartialSimple(
+    const EebusDataCfg* cfg,
+    void* base_addr,
+    const void* src_base_addr,
+    const EebusDataCfg* selectors_cfg,
+    const void* selectors_base_addr,
+    SelectorsMatcher selectors_matcher
+) {
+  UNUSED(selectors_cfg);
+  UNUSED(selectors_base_addr);
+  UNUSED(selectors_matcher);
+
+  return EEBUS_DATA_WRITE_ELEMENTS(cfg, base_addr, src_base_addr);
 }

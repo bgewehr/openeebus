@@ -24,8 +24,8 @@
 #include "src/common/eebus_errors.h"
 #include "src/spine/model/common_data_types.h"
 #include "src/spine/model/measurement_types.h"
-#include "src/use_case/api/mpc_types.h"
-#include "src/use_case/api/types.h"
+#include "src/use_case/model/mpc_types.h"
+#include "src/use_case/model/scaled_value.h"
 #include "src/use_case/specialization/electrical_connection/electrical_connection_server.h"
 #include "src/use_case/specialization/measurement/measurement_server.h"
 

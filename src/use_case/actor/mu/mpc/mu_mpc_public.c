@@ -16,7 +16,7 @@
 #include "src/common/array_util.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_internal.h"
-#include "src/use_case/api/types.h"
+#include "src/use_case/model/scaled_value.h"
 #include "src/use_case/specialization/measurement/measurement_server.h"
 #include "src/use_case/use_case.h"
 

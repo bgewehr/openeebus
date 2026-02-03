@@ -11,12 +11,17 @@ if(WIN32)
   set_property(TARGET ${TEST_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 endif()
 
+include(${MAIN_PROJ_SOURCES_PATH}/common/eebus_date_time/eebus_date_time_sources.cmake)
+include(${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_sources.cmake)
+
 target_sources(
   ${TEST_NAME}
   PRIVATE
   ${GTEST_SOURCES}
 
   # Main project sources needed for feature local interface
+  ${EEBUS_DATE_TIME_SOURCES}
+  ${EEBUS_DATA_SOURCES}
   ${MAIN_PROJ_SOURCES_PATH}/spine/feature/feature_local.c
   ${MAIN_PROJ_SOURCES_PATH}/spine/feature/feature_address_container.c
   ${MAIN_PROJ_SOURCES_PATH}/spine/feature/feature.c
@@ -46,23 +51,6 @@ target_sources(
   ${MAIN_PROJ_SOURCES_PATH}/common/string_util.c
   ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_list.c
   ${MAIN_PROJ_SOURCES_PATH}/common/json_impl_cjson.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_sequence.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_container.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_util.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_date_time.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_tag.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_enum.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_numeric.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_string.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_bool.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_stub.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_choice.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_base.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_simple.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_date_time/eebus_duration.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_date_time/eebus_date.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_date_time/eebus_time.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_date_time/eebus_date_time.c
   ${MAIN_PROJ_SOURCES_PATH}/spine/feature/pending_write_request.c
 
   # Mocks sources

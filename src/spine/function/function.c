@@ -47,9 +47,17 @@ static FunctionType GetFunctionType(const FunctionObject* self);
 static const void* GetData(const FunctionObject* self);
 static CmdType* CreateReplyCmd(const FunctionObject* self);
 static CmdType* CreateNotifyCmd(
-    const FunctionObject* self, const FilterType* filter_partial, const FilterType* filter_delete);
+    const FunctionObject* self,
+    const void* new_data,
+    const FilterType* filter_partial,
+    const FilterType* filter_delete
+);
 static CmdType* CreateWriteCmd(
-    const FunctionObject* self, const FilterType* filter_partial, const FilterType* filter_delete);
+    const FunctionObject* self,
+    const void* new_data,
+    const FilterType* filter_partial,
+    const FilterType* filter_delete
+);
 static void* DataCopy(const FunctionObject* self);
 static EebusError UpdateData(FunctionObject* self, const void* new_data, const FilterType* filter_partial,
     const FilterType* filter_delete, bool wr_remote, bool persist);
@@ -71,7 +79,8 @@ static const FunctionInterface function_methods = {
 };
 
 static void FunctionConstruct(Function* self, FunctionType type);
-static EebusError AddDataToWriteCmd(const Function* self, CmdType* cmd, const FilterType* filter_partial);
+static EebusError
+AddDataToWriteCmd(const Function* self, CmdType* cmd, const void* data, const FilterType* filter_partial);
 static size_t GetFiltersNum(const FilterType* filter_partial, const FilterType* filter_delete);
 static EebusError AddFiltersToWriteCmd(
     const Function* self, CmdType* cmd, const FilterType* filter_partial, const FilterType* filter_delete);
@@ -202,15 +211,19 @@ CmdType* CreateReplyCmd(const FunctionObject* self) {
 }
 
 CmdType* CreateNotifyCmd(
-    const FunctionObject* self, const FilterType* filter_partial, const FilterType* filter_delete) {
-  return FUNCTION_CREATE_WRITE_CMD(self, filter_partial, filter_delete);
+    const FunctionObject* self,
+    const void* new_data,
+    const FilterType* filter_partial,
+    const FilterType* filter_delete
+) {
+  return FUNCTION_CREATE_WRITE_CMD(self, new_data, filter_partial, filter_delete);
 }
 
-EebusError AddDataToWriteCmd(const Function* self, CmdType* cmd, const FilterType* filter_partial) {
+EebusError AddDataToWriteCmd(const Function* self, CmdType* cmd, const void* data, const FilterType* filter_partial) {
   const EebusDataCfg* const cfg = ModelGetDataCfg(self->type);
 
   cmd->data_choice_type_id = self->type;
-  return EEBUS_DATA_COPY(cfg, &self->data, &cmd->data_choice);
+  return EEBUS_DATA_COPY(cfg, &data, &cmd->data_choice);
 }
 
 size_t GetFiltersNum(const FilterType* filter_partial, const FilterType* filter_delete) {
@@ -280,7 +293,12 @@ EebusError AddFiltersToWriteCmd(
   return kEebusErrorOk;
 }
 
-CmdType* CreateWriteCmd(const FunctionObject* self, const FilterType* filter_partial, const FilterType* filter_delete) {
+CmdType* CreateWriteCmd(
+    const FunctionObject* self,
+    const void* new_data,
+    const FilterType* filter_partial,
+    const FilterType* filter_delete
+) {
   const Function* const function = FUNCTION(self);
 
   CmdType* cmd = CmdCreateEmpty();
@@ -288,7 +306,7 @@ CmdType* CreateWriteCmd(const FunctionObject* self, const FilterType* filter_par
     return NULL;
   }
 
-  if ((AddDataToWriteCmd(function, cmd, filter_partial) != kEebusErrorOk)
+  if ((AddDataToWriteCmd(function, cmd, new_data, filter_partial) != kEebusErrorOk)
       || (AddFiltersToWriteCmd(function, cmd, filter_partial, filter_delete))) {
     CmdDelete(cmd);
     return NULL;

@@ -21,7 +21,6 @@
 #include "src/spine/model/loadcontrol_types.h"
 
 #include "src/common/eebus_errors.h"
-#include "src/spine/model/scaled_number.h"
 
 bool LoadControlLimitIsValid(const LoadControlLimitDataType* limit) {
   if (limit == NULL) {
@@ -72,28 +71,10 @@ EebusError LoadControlLimitGetDuration(const LoadControlLimitDataType* limit, Du
   return kEebusErrorOk;
 }
 
-int64_t LoadControlLimitGetValue(const LoadControlLimitDataType* limit) {
+const ScaledNumberType* LoadControlLimitGetValue(const LoadControlLimitDataType* limit) {
   if (limit == NULL) {
-    return 0;
+    return NULL;
   }
 
-  int64_t value = 0;
-  if (ScaledNumberGetNumber(limit->value, &value) != kEebusErrorOk) {
-    return 0;
-  }
-
-  return value;
-}
-
-int8_t LoadControlLimitGetScale(const LoadControlLimitDataType* limit) {
-  if (limit == NULL) {
-    return 0;
-  }
-
-  int8_t scale = 0;
-  if (ScaledNumberGetScale(limit->value, &scale) != kEebusErrorOk) {
-    return 0;
-  }
-
-  return scale;
+  return limit->value;
 }

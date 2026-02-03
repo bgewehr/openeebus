@@ -34,7 +34,7 @@ EebusError MaMpcGetMeasurementDataInternal(
   const UseCase* const use_case = USE_CASE(self);
 
   EntityRemoteObject* const remote_entity
-      = UseCaseGetRemoteEntityWithAddress(USE_CASE_OBJECT(self), remote_entity_addr);
+      = USE_CASE_GET_REMOTE_ENTITY_WITH_ADDRESS(USE_CASE_OBJECT(self), remote_entity_addr);
 
   if (remote_entity == NULL) {
     return kEebusErrorNoChange;

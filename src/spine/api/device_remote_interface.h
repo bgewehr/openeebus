@@ -34,6 +34,7 @@ extern "C" {
 #include "src/spine/api/sender_interface.h"
 #include "src/spine/model/network_management_types.h"
 #include "src/spine/model/node_management_types.h"
+#include "src/spine/node_management/node_management_remote.h"
 
 /**
  * @brief Device Remote Interface
@@ -79,6 +80,7 @@ struct DeviceRemoteInterface {
       RoleType role
   );
   EebusError (*handle_spine_messsage)(DeviceRemoteObject* self, MessageBuffer* msg);
+  NodeManagementRemoteObject* (*get_node_management)(const DeviceRemoteObject* self);
   SenderObject* (*get_sender)(const DeviceRemoteObject* self);
   NodeManagementUseCaseDataType* (*use_cases_data_copy)(const DeviceRemoteObject* self);
   void (*update_device)(DeviceRemoteObject* self, const NetworkManagementDeviceDescriptionDataType* description);
@@ -153,6 +155,11 @@ struct DeviceRemoteObject {
  * @brief Device Remote Handle Spine Messsage caller definition
  */
 #define DEVICE_REMOTE_HANDLE_SPINE_MESSSAGE(obj, msg) (DEVICE_REMOTE_INTERFACE(obj)->handle_spine_messsage(obj, msg))
+
+/**
+ * @brief Device Remote Get Node Management caller definition
+ */
+#define DEVICE_REMOTE_GET_NODE_MANAGEMENT(obj) (DEVICE_REMOTE_INTERFACE(obj)->get_node_management(obj))
 
 /**
  * @brief Device Remote Get Sender caller definition

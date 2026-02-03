@@ -24,6 +24,7 @@
 
 #include "src/common/api/eebus_timer_interface.h"
 #include "src/common/eebus_malloc.h"
+#include "src/common/eebus_timer/eebus_timer.h"
 
 static void Destruct(EebusTimerObject* self);
 static void Start(EebusTimerObject* self, uint32_t timeout_ms, bool autoreload);
@@ -54,6 +55,10 @@ EebusTimerMock* EebusTimerMockCreate(void) {
   mock->gmock = new EebusTimerGMock();
 
   return mock;
+}
+
+EebusTimerObject* EebusTimerCreate(EebusTimerTimeoutCallback cb, void* ctx) {
+  return EEBUS_TIMER_OBJECT(EebusTimerMockCreate());
 }
 
 void Destruct(EebusTimerObject* self) {

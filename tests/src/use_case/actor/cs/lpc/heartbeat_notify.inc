@@ -1,6 +1,5 @@
-#include <stdint.h>
 
-static constexpr uint8_t heartbeat_notify[] = R"({
+static constexpr char heartbeat_notify[] = R"({
   "datagram": [
     {
       "header": [
@@ -10,7 +9,7 @@ static constexpr uint8_t heartbeat_notify[] = R"({
         {
           "addressSource": [
             {
-              "device": "d:_n:Demo_ControlBox-123456789"
+              "device": "d:_n:HEMS_123456789"
             },
             {
               "entity": [
@@ -25,7 +24,7 @@ static constexpr uint8_t heartbeat_notify[] = R"({
         {
           "addressDestination": [
             {
-              "device": "d:_i:Demo_HP234567890"
+              "device": "d:_n:HeatPump_123456789"
             },
             {
               "entity": [
@@ -38,7 +37,7 @@ static constexpr uint8_t heartbeat_notify[] = R"({
           ]
         },
         {
-          "msgCounter": 54
+          "msgCounter": 23
         },
         {
           "cmdClassifier": "notify"
@@ -56,7 +55,7 @@ static constexpr uint8_t heartbeat_notify[] = R"({
                     "timestamp": "2025-03-03T16:39:59Z"
                   },
                   {
-                    "heartbeatCounter": 42
+                    "heartbeatCounter": 2
                   },
                   {
                     "heartbeatTimeout": "PT1M"

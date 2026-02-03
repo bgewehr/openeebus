@@ -11,33 +11,21 @@ if(WIN32)
   set_property(TARGET ${TEST_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 endif()
 
+include(${MAIN_PROJ_SOURCES_PATH}/common/eebus_date_time/eebus_date_time_sources.cmake)
+include(${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_sources.cmake)
+
 target_sources(
   ${TEST_NAME}
   PRIVATE
   ${GTEST_SOURCES}
 
   # Main project sources
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_date_time.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_base.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_bool.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_choice.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_choice_root.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_container.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_enum.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_list.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_numeric.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_sequence.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_simple.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_string.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_stub.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_tag.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_data/eebus_data_util.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_date_time/eebus_date.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_date_time/eebus_date_time.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_date_time/eebus_duration.c
-  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_date_time/eebus_time.c
+  ${EEBUS_DATE_TIME_SOURCES}
+  ${EEBUS_DATA_SOURCES}
+  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_device_info.c
   ${MAIN_PROJ_SOURCES_PATH}/common/json_impl_cjson.c
   ${MAIN_PROJ_SOURCES_PATH}/common/message_buffer.c
+  ${MAIN_PROJ_SOURCES_PATH}/common/eebus_math/eebus_math.c
   ${MAIN_PROJ_SOURCES_PATH}/common/eebus_mutex/eebus_mutex.c
   ${MAIN_PROJ_SOURCES_PATH}/common/eebus_queue/eebus_queue.c
   ${MAIN_PROJ_SOURCES_PATH}/common/eebus_thread/eebus_thread.c
@@ -80,7 +68,6 @@ target_sources(
   ${MAIN_PROJ_SOURCES_PATH}/spine/model/model.c
   ${MAIN_PROJ_SOURCES_PATH}/spine/model/node_management_types.c
   ${MAIN_PROJ_SOURCES_PATH}/spine/model/possible_operations_types.c
-  ${MAIN_PROJ_SOURCES_PATH}/spine/model/scaled_number.c
   ${MAIN_PROJ_SOURCES_PATH}/spine/model/specification_version.c
   ${MAIN_PROJ_SOURCES_PATH}/spine/model/subscription_management_types.c
   ${MAIN_PROJ_SOURCES_PATH}/spine/model/usecase_information_types.c
@@ -88,6 +75,7 @@ target_sources(
   ${MAIN_PROJ_SOURCES_PATH}/spine/node_management/node_management_binding.c
   ${MAIN_PROJ_SOURCES_PATH}/spine/node_management/node_management_destination_list.c
   ${MAIN_PROJ_SOURCES_PATH}/spine/node_management/node_management_detailed_discovery.c
+  ${MAIN_PROJ_SOURCES_PATH}/spine/node_management/node_management_remote.c
   ${MAIN_PROJ_SOURCES_PATH}/spine/node_management/node_management_subscription.c
   ${MAIN_PROJ_SOURCES_PATH}/spine/node_management/node_management_usecase.c
   ${MAIN_PROJ_SOURCES_PATH}/spine/subscription/subscription_manager.c
@@ -95,6 +83,8 @@ target_sources(
   ${MAIN_PROJ_SOURCES_PATH}/use_case/actor/cs/lpc/cs_lpc_events.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/actor/cs/lpc/cs_lpc_public.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/actor/cs/lpc/cs_lpc.c
+  ${MAIN_PROJ_SOURCES_PATH}/use_case/model/load_limit_types.c
+  ${MAIN_PROJ_SOURCES_PATH}/use_case/model/scaled_value.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/device_configuration/device_configuration_common.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/device_configuration/device_configuration_server.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/device_diagnosis/device_diagnosis_client.c
@@ -107,7 +97,6 @@ target_sources(
   ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/load_control/load_control_client.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/load_control/load_control_common.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/load_control/load_control_server.c
-  ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/load_control/load_limit.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/use_case.c
 
   # Mocks sources
@@ -117,6 +106,7 @@ target_sources(
 
   # Test helpers
   ${CMAKE_SOURCE_DIR}/src/spine/function_data.c
+  ${CMAKE_SOURCE_DIR}/src/use_case/use_case_test_fixture.cpp
 
   cs_lpc_test.cpp
 )

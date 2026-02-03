@@ -87,6 +87,13 @@ static const FeatureLocalInterface feature_local_methods = {
      .tick                                   = FeatureLocalTick,
  };
 
+static EebusError FunctionUpdateNotifySubscribers(
+    const FeatureLocal* self,
+    const FunctionObject* function,
+    const void* new_data,
+    const FilterType* filter_partial,
+    const FilterType* filter_delete
+);
 static SenderObject* GetRemoteDeviceSender(const FeatureLocal* self, const FeatureAddressType* remote_addr);
 static EebusError ProcessRead(FeatureLocal* self, const Message* msg);
 static void PublishDataUpdateEvent(
@@ -400,13 +407,14 @@ void FeatureLocalCleanRemoteDeviceCaches(FeatureLocalObject* self, const DeviceA
 EebusError FunctionUpdateNotifySubscribers(
     const FeatureLocal* self,
     const FunctionObject* function,
+    const void* new_data,
     const FilterType* filter_partial,
     const FilterType* filter_delete
 ) {
   DeviceLocalObject* const device      = FEATURE_LOCAL_GET_DEVICE(FEATURE_LOCAL_OBJECT(self));
   const FeatureAddressType* const addr = FEATURE_GET_ADDRESS(FEATURE_OBJECT(self));
 
-  const CmdType* const cmd = FUNCTION_CREATE_WRITE_CMD(function, filter_partial, filter_delete);
+  const CmdType* const cmd = FUNCTION_CREATE_NOTIFY_CMD(function, new_data, filter_partial, filter_delete);
   if (cmd == NULL) {
     return kEebusErrorMemoryAllocate;
   }
@@ -433,7 +441,7 @@ EebusError FeatureLocalUpdateData(
     return err;
   }
 
-  return FunctionUpdateNotifySubscribers(FEATURE_LOCAL(self), function, filter_partial, filter_delete);
+  return FunctionUpdateNotifySubscribers(FEATURE_LOCAL(self), function, data, filter_partial, filter_delete);
 }
 
 void FeatureLocalUpdatePendingWriteRequestTime(FeatureLocalObject* self) {
@@ -766,7 +774,7 @@ EebusError ProcessWriteFunctionData(FeatureLocal* self, const Message* msg) {
     return err;
   }
 
-  FunctionUpdateNotifySubscribers(self, function, NULL, NULL);
+  FunctionUpdateNotifySubscribers(self, function, new_data, NULL, NULL);
 
   PublishDataUpdateEvent(self, msg->feature_remote, function_type, new_data, kCommandClassifierTypeWrite);
   return kEebusErrorOk;

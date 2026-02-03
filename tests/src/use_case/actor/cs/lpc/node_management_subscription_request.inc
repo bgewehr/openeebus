@@ -1,6 +1,5 @@
-#include <stdint.h>
 
-static constexpr uint8_t node_management_subscription_request[] = R"({
+static constexpr char node_management_subscription_request[] = R"({
   "datagram": [
     {
       "header": [
@@ -10,7 +9,7 @@ static constexpr uint8_t node_management_subscription_request[] = R"({
         {
           "addressSource": [
             {
-              "device": "d:_n:Demo_ControlBox-123456789"
+              "device": "d:_n:HEMS_123456789"
             },
             {
               "entity": [
@@ -25,7 +24,7 @@ static constexpr uint8_t node_management_subscription_request[] = R"({
         {
           "addressDestination": [
             {
-              "device": "d:_n:Demo_HEMS-123456789"
+              "device": "d:_n:HeatPump_123456789"
             },
             {
               "entity": [
@@ -60,7 +59,7 @@ static constexpr uint8_t node_management_subscription_request[] = R"({
                       {
                         "clientAddress": [
                           {
-                            "device": "d:_n:Demo_ControlBox-123456789"
+                            "device": "d:_n:HEMS_123456789"
                           },
                           {
                             "entity": [
@@ -75,7 +74,7 @@ static constexpr uint8_t node_management_subscription_request[] = R"({
                       {
                         "serverAddress": [
                           {
-                            "device": "d:_n:Demo_HEMS-123456789"
+                            "device": "d:_n:HeatPump_123456789"
                           },
                           {
                             "entity": [

@@ -27,10 +27,15 @@
 
 static void Destruct(UseCaseObject* self);
 static bool IsEntityCompatible(const UseCaseObject* self, const EntityRemoteObject* remote_entity);
+static bool IsUseCaseCompatible(const UseCaseObject* self, const UseCaseFilterType* use_case_filter);
+static EntityRemoteObject*
+GetRemoteEntityWithAddress(const UseCaseObject* self, const EntityAddressType* remote_entity_addr);
 
 static const UseCaseInterface use_case_methods = {
-    .destruct             = Destruct,
-    .is_entity_compatible = IsEntityCompatible,
+    .destruct                       = Destruct,
+    .is_entity_compatible           = IsEntityCompatible,
+    .is_use_case_compatible         = IsUseCaseCompatible,
+    .get_remote_entity_with_address = GetRemoteEntityWithAddress,
 };
 
 static void UseCaseMockConstruct(UseCaseMock* self);
@@ -59,4 +64,14 @@ void Destruct(UseCaseObject* self) {
 bool IsEntityCompatible(const UseCaseObject* self, const EntityRemoteObject* remote_entity) {
   UseCaseMock* const mock = USE_CASE_MOCK(self);
   return mock->gmock->IsEntityCompatible(self, remote_entity);
+}
+
+bool IsUseCaseCompatible(const UseCaseObject* self, const UseCaseFilterType* use_case_filter) {
+  UseCaseMock* const mock = USE_CASE_MOCK(self);
+  return mock->gmock->IsUseCaseCompatible(self, use_case_filter);
+}
+
+EntityRemoteObject* GetRemoteEntityWithAddress(const UseCaseObject* self, const EntityAddressType* remote_entity_addr) {
+  UseCaseMock* const mock = USE_CASE_MOCK(self);
+  return mock->gmock->GetRemoteEntityWithAddress(self, remote_entity_addr);
 }

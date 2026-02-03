@@ -22,8 +22,6 @@
 
 #include <string.h>
 
-#include "src/spine/model/scaled_number.h"
-
 bool DeviceConfigurationKeyValueIsValid(const DeviceConfigurationKeyValueDataType* key_value) {
   if (key_value == NULL) {
     return false;
@@ -46,30 +44,13 @@ DeviceConfigurationKeyValueGetDuration(const DeviceConfigurationKeyValueDataType
   return kEebusErrorOk;
 }
 
-int64_t DeviceConfigurationKeyValueGetNumber(const DeviceConfigurationKeyValueDataType* key_value) {
+const ScaledNumberType* DeviceConfigurationKeyValueGetScaledNumber(const DeviceConfigurationKeyValueDataType* key_value
+) {
   if ((key_value == NULL) || (key_value->value == NULL)) {
-    return false;
+    return NULL;
   }
 
-  int64_t number;
-  if (ScaledNumberGetNumber(key_value->value->scaled_number, &number) != kEebusErrorOk) {
-    return 0;
-  }
-
-  return number;
-}
-
-int8_t DeviceConfigurationKeyValueGetScale(const DeviceConfigurationKeyValueDataType* key_value) {
-  if ((key_value == NULL) || (key_value->value == NULL)) {
-    return false;
-  }
-
-  int8_t scale;
-  if (ScaledNumberGetScale(key_value->value->scaled_number, &scale) != kEebusErrorOk) {
-    return 0;
-  }
-
-  return scale;
+  return key_value->value->scaled_number;
 }
 
 bool DeviceConfigurationKeyValueIsChangeable(const DeviceConfigurationKeyValueDataType* key_value) {

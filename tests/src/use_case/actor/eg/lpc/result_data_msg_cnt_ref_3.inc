@@ -1,3 +1,4 @@
+
 static constexpr char result_data_msg_cnt_ref_3[] = R"({
   "datagram": [
     {
@@ -8,7 +9,7 @@ static constexpr char result_data_msg_cnt_ref_3[] = R"({
         {
           "addressSource": [
             {
-              "device": "d:_n:Demo_HEMS-123456789"
+              "device": "d:_n:HeatPump_123456789"
             },
             {
               "entity": [
@@ -23,7 +24,7 @@ static constexpr char result_data_msg_cnt_ref_3[] = R"({
         {
           "addressDestination": [
             {
-              "device": "d:_n:Demo_ControlBox-123456789"
+              "device": "d:_n:HEMS_123456789"
             },
             {
               "entity": [
@@ -39,7 +40,7 @@ static constexpr char result_data_msg_cnt_ref_3[] = R"({
           "msgCounter": 7
         },
         {
-          "msgCounterReference": 3
+          "msgCounterReference": 33
         },
         {
           "cmdClassifier": "result"

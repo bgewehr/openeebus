@@ -32,8 +32,10 @@
 #include "src/use_case/use_case.h"
 
 static const UseCaseInterface lpc_use_case_methods = {
-    .destruct             = UseCaseDestruct,
-    .is_entity_compatible = UseCaseIsEntityCompatible,
+    .destruct                       = UseCaseDestruct,
+    .is_entity_compatible           = UseCaseIsEntityCompatible,
+    .is_use_case_compatible         = UseCaseIsUseCaseCompatible,
+    .get_remote_entity_with_address = UseCaseGetRemoteEntityWithAddress,
 };
 
 static const UseCaseActorType valid_actor_types[] = {kUseCaseActorTypeControllableSystem};

@@ -24,7 +24,7 @@
 #include "src/spine/entity/entity_local.h"
 #include "src/spine/model/electrical_connection_types.h"
 #include "src/use_case/api/cs_lpc_listener_interface.h"
-#include "src/use_case/api/types.h"
+#include "src/use_case/model/load_limit_types.h"
 #include "src/use_case/use_case.h"
 
 #ifdef __cplusplus

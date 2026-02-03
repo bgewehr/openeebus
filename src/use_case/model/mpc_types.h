@@ -15,11 +15,11 @@
  */
 /**
  * @file
- * @brief MPC (MA and MU) type declarations and constants
+ * @brief MPC (MA and MU) type declarations, constants and utilities
  */
 
-#ifndef SRC_USE_CASE_API_MPC_TYPES_H_
-#define SRC_USE_CASE_API_MPC_TYPES_H_
+#ifndef SRC_USE_CASE_MODEL_MPC_TYPES_H_
+#define SRC_USE_CASE_MODEL_MPC_TYPES_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,8 +57,22 @@ enum MuMpcMeasurementNameId {
 
 typedef enum MuMpcMeasurementNameId MuMpcMeasurementNameId;
 
+/**
+ * @brief Get the MU MPC state with the state name
+ * @param name Name of the state
+ * @return Pointer to the MU MPC state, or NULL if not found
+ */
+const MuMpcMeasurementNameId* MuMpcMeasurementGetNameId(const char* name);
+
+/**
+ * @brief Get the name of the MU MPC state
+ * @param state MU MPC state
+ * @return Name of the state
+ */
+const char* MuMpcMeasurementGetName(MuMpcMeasurementNameId state);
+
 #ifdef __cplusplus
 }
 #endif  // __cplusplus
 
-#endif  // SRC_USE_CASE_API_MPC_TYPES_H_
+#endif  // SRC_USE_CASE_MODEL_MPC_TYPES_H_

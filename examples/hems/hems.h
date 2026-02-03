@@ -27,7 +27,7 @@
 #include "src/common/eebus_malloc.h"
 #include "src/service/api/service_reader_interface.h"
 #include "src/ship/api/tls_certificate_interface.h"
-#include "src/use_case/api/types.h"
+#include "src/use_case/model/scaled_value.h"
 
 typedef struct HemsObject HemsObject;
 

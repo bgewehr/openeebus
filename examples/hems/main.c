@@ -42,8 +42,7 @@ void GracefulTerminate(int signal) {
 }
 
 void MainLoop() {
-  int power_limit = 0;
-  char cmd[50]    = "";
+  char cmd[200] = "";
 
   // Ctrl + C from the console
   signal(SIGINT, &GracefulTerminate);

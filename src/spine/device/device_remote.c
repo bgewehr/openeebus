@@ -32,6 +32,7 @@
 #include "src/spine/device/sender.h"
 #include "src/spine/entity/entity_remote.h"
 #include "src/spine/feature/feature_remote.h"
+#include "src/spine/node_management/node_management_remote.h"
 
 typedef struct DeviceRemote DeviceRemote;
 
@@ -41,6 +42,7 @@ struct DeviceRemote {
 
   const char* ski;
   Vector entities;
+  NodeManagementRemoteObject* node_management;
   SenderObject* sender;
   DeviceLocalObject* local_device;
   DataReaderObject* data_reader;
@@ -67,6 +69,7 @@ static FeatureRemoteObject* GetFeatureWithTypeAndRole(
     RoleType role
 );
 static EebusError HandleSpineMesssage(DeviceRemoteObject* self, MessageBuffer* msg);
+NodeManagementRemoteObject* GetNodeManagement(const DeviceRemoteObject* self);
 static SenderObject* GetSender(const DeviceRemoteObject* self);
 static NodeManagementUseCaseDataType* UseCasesDataCopy(const DeviceRemoteObject* self);
 static void UpdateDevice(DeviceRemoteObject* self, const NetworkManagementDeviceDescriptionDataType* description);
@@ -96,6 +99,7 @@ static const DeviceRemoteInterface device_remote_methods = {
     .get_feature_with_address       = GetFeatureWithAddress,
     .get_feature_with_type_and_role = GetFeatureWithTypeAndRole,
     .handle_spine_messsage          = HandleSpineMesssage,
+    .get_node_management            = GetNodeManagement,
     .get_sender                     = GetSender,
     .use_cases_data_copy            = UseCasesDataCopy,
     .update_device                  = UpdateDevice,
@@ -111,6 +115,7 @@ AddEntityWithAddressAndType(DeviceRemote* self, const EntityAddressType* addr, E
 static const char* DeviceInfoGetDeviceAddress(const NodeManagementDetailedDiscoveryDeviceInformationType* device_info);
 static bool EntityIdsMatch(const EntityAddressType* entity_addr, const FeatureAddressType* feature_addr);
 static void EntityRemoteAddFeaturesWithInfo(
+    DeviceRemote* self,
     EntityRemoteObject* entity,
     const NodeManagementDetailedDiscoveryFeatureInformationType* const* feature_info,
     size_t feature_info_size
@@ -171,10 +176,8 @@ void DeviceRemoteConstruct(DeviceRemote* self, DeviceLocalObject* local_device, 
 
   const uint32_t nm_feature_id = ENTITY_GET_NEXT_FEATURE_ID(ENTITY_OBJECT(device_info_entity));
 
-  FeatureRemoteObject* const nm
-      = FeatureRemoteCreate(nm_feature_id, device_info_entity, kFeatureTypeTypeNodeManagement, kRoleTypeSpecial);
-
-  ENTITY_REMOTE_ADD_FEATURE(device_info_entity, nm);
+  self->node_management = NodeManagementRemoteCreate(nm_feature_id, device_info_entity);
+  ENTITY_REMOTE_ADD_FEATURE(device_info_entity, FEATURE_REMOTE_OBJECT(self->node_management));
 }
 
 DeviceRemoteObject* DeviceRemoteCreate(DeviceLocalObject* local_device, const char* ski, SenderObject* sender) {
@@ -288,6 +291,10 @@ SenderObject* GetSender(const DeviceRemoteObject* self) {
   return DEVICE_REMOTE(self)->sender;
 }
 
+NodeManagementRemoteObject* GetNodeManagement(const DeviceRemoteObject* self) {
+  return DEVICE_REMOTE(self)->node_management;
+}
+
 NodeManagementUseCaseDataType* UseCasesDataCopy(const DeviceRemoteObject* self) {
   const EntityAddressType entity_addr = DeviceInfoEntityAddress(self);
   const FeatureRemoteObject* const nm = DEVICE_REMOTE_GET_FEATURE_WITH_TYPE_AND_ROLE(
@@ -338,6 +345,7 @@ const char* DeviceInfoGetDeviceAddress(const NodeManagementDetailedDiscoveryDevi
 }
 
 FeatureRemoteObject* FeatureRemoteCreateWithInfo(
+    DeviceRemote* self,
     EntityRemoteObject* entity,
     const NodeManagementDetailedDiscoveryFeatureInformationType* feature_info
 ) {
@@ -364,7 +372,15 @@ FeatureRemoteObject* FeatureRemoteCreateWithInfo(
 
   const RoleType role = *feature_description->role;
 
-  FeatureRemoteObject* const fr = FeatureRemoteCreate(feature_id, entity, feature_type, role);
+  FeatureRemoteObject* fr = NULL;
+  if ((feature_type == kFeatureTypeTypeNodeManagement) && (role == kRoleTypeSpecial)) {
+    self->node_management = NodeManagementRemoteCreate(feature_id, entity);
+
+    fr = FEATURE_REMOTE_OBJECT(self->node_management);
+  } else {
+    fr = FeatureRemoteCreate(feature_id, entity, feature_type, role);
+  }
+
   FEATURE_SET_DESCRIPTION(FEATURE_OBJECT(fr), feature_description->description);
 
   if (feature_description->max_response_delay != NULL) {
@@ -394,6 +410,7 @@ bool EntityIdsMatch(const EntityAddressType* entity_addr, const FeatureAddressTy
 }
 
 void EntityRemoteAddFeaturesWithInfo(
+    DeviceRemote* self,
     EntityRemoteObject* entity,
     const NodeManagementDetailedDiscoveryFeatureInformationType* const* feature_info,
     size_t feature_info_size
@@ -403,7 +420,7 @@ void EntityRemoteAddFeaturesWithInfo(
     const EntityAddressType* const entity_addr   = ENTITY_GET_ADDRESS(ENTITY_OBJECT(entity));
 
     if (EntityIdsMatch(entity_addr, feature_addr)) {
-      FeatureRemoteObject* const fr = FeatureRemoteCreateWithInfo(entity, feature_info[i]);
+      FeatureRemoteObject* const fr = FeatureRemoteCreateWithInfo(self, entity, feature_info[i]);
       if (fr != NULL) {
         ENTITY_REMOTE_ADD_FEATURE(entity, fr);
       }
@@ -445,7 +462,7 @@ AddEntityAndFeatures(DeviceRemoteObject* self, bool init, const NodeManagementDe
 
     ENTITY_SET_DESCRIPTION(ENTITY_OBJECT(entity), ei->description->description);
     ENTITY_REMOTE_REMOVE_ALL_FEATURES(entity);
-    EntityRemoteAddFeaturesWithInfo(entity, data->feature_information, data->feature_information_size);
+    EntityRemoteAddFeaturesWithInfo(dr, entity, data->feature_information, data->feature_information_size);
   }
 
   return new_data;

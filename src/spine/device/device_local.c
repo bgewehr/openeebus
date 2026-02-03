@@ -20,6 +20,7 @@
 
 #include "device.h"
 #include "src/common/debug.h"
+#include "src/common/eebus_assert.h"
 #include "src/common/eebus_device_info.h"
 #include "src/common/eebus_malloc.h"
 #include "src/common/eebus_mutex/eebus_mutex.h"
@@ -302,22 +303,22 @@ void DeviceLocalTick(DeviceLocalObject* self) {
   }
 }
 
-void HandleQueueMessage(DeviceLocalObject* self) {
+EebusError HandleQueueMessage(DeviceLocalObject* self) {
   DeviceLocal* const dl = DEVICE_LOCAL(self);
 
   DeviceLocalQueueMessage queue_msg;
-  const EebusError queue_recv_ret = EEBUS_QUEUE_RECEIVE(dl->msg_queue, &queue_msg, kTimeoutInfinite);
+  EebusError err = EEBUS_QUEUE_RECEIVE(dl->msg_queue, &queue_msg, kTimeoutInfinite);
 
-  if (queue_recv_ret != kEebusErrorOk) {
+  if (err != kEebusErrorOk) {
     DEVICE_LOCAL_DEBUG_PRINTF("%s(), error receiving the message from queue\n", __func__);
-    return;
+    return err;
   }
 
   if (queue_msg.type == kDeviceLocalQueueMsgTypeDataReceived) {
     DatagramType* const datagram = DatagramParse((const char*)queue_msg.msg_buf.data);
 
     EEBUS_MUTEX_LOCK(dl->mutex);
-    ProcessDatagram(self, datagram, queue_msg.remote_device);
+    err = ProcessDatagram(self, datagram, queue_msg.remote_device);
     EEBUS_MUTEX_UNLOCK(dl->mutex);
 
     DatagramDelete(datagram);
@@ -325,12 +326,17 @@ void HandleQueueMessage(DeviceLocalObject* self) {
   } else if (queue_msg.type == kDeviceLocalQueueMsgTypeTimerTick) {
     EEBUS_MUTEX_LOCK(dl->mutex);
     DeviceLocalTick(self);
+    err = kEebusErrorOk;
     EEBUS_MUTEX_UNLOCK(dl->mutex);
   } else if (queue_msg.type == kDeviceLocalQueueMsgTypeCancel) {
     DEVICE_LOCAL_DEBUG_PRINTF("%s(), cancelled\n", __func__);
+    err = kEebusErrorOk;
   } else {
     DEVICE_LOCAL_DEBUG_PRINTF("%s(), invalid queue message type\n", __func__);
+    err = kEebusErrorNotSupported;
   }
+
+  return err;
 }
 
 void* DeviceLocalLoop(void* parameters) {
@@ -721,6 +727,10 @@ void RemoveEntity(DeviceLocalObject* self, EntityLocalObject* entity) {
 EntityLocalObject* GetEntity(const DeviceLocalObject* self, const uint32_t* const* entity_ids, size_t entity_ids_size) {
   const DeviceLocal* const dl = DEVICE_LOCAL(self);
 
+  if ((entity_ids == NULL) || (entity_ids_size == 0)) {
+    return NULL;
+  }
+
   for (size_t i = 0; i < VectorGetSize(&dl->entities); ++i) {
     EntityLocalObject* const entity = (EntityLocalObject*)VectorGetElement(&dl->entities, i);
     if (EntityAddressMatchIds(ENTITY_GET_ADDRESS(ENTITY_OBJECT(entity)), entity_ids, entity_ids_size)) {
@@ -751,6 +761,23 @@ const Vector* GetEntities(const DeviceLocalObject* self) {
 }
 
 FeatureLocalObject* GetFeatureWithAddress(const DeviceLocalObject* self, const FeatureAddressType* feature_addr) {
+  const Device* const device = DEVICE(self);
+
+  if (device->address == NULL) {
+    EEBUS_ASSERT_ALWAYS();
+    return NULL;
+  }
+
+  if (feature_addr == NULL) {
+    return NULL;
+  }
+
+  if (feature_addr->device != NULL) {
+    if (strcmp(feature_addr->device, device->address) != 0) {
+      return NULL;
+    }
+  }
+
   const EntityLocalObject* const entity
       = DEVICE_LOCAL_GET_ENTITY(self, feature_addr->entity, feature_addr->entity_size);
 
@@ -854,7 +881,7 @@ EebusError ProcessDatagram(DeviceLocalObject* self, const DatagramType* datagram
       return kEebusErrorInputArgumentNull;
     }
 
-    const EebusError err = ProcessCmd(self, datagram, datagram->payload->cmd[i], remote_device);
+    err = ProcessCmd(self, datagram, datagram->payload->cmd[i], remote_device);
     if (err != kEebusErrorOk) {
       DEVICE_LOCAL_DEBUG_PRINTF("%s(), error processing command: %d\n", __func__, err);
       break;
