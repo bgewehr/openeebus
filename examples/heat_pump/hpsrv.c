@@ -28,6 +28,7 @@
 #include "src/common/eebus_malloc.h"
 
 #include "examples/heat_pump/cs_lpc_listener.h"
+#include "examples/heat_pump/cs_lpp_listener.h"
 #include "src/cli/eebus_cli.h"
 #include "src/common/array_util.h"
 #include "src/common/eebus_arguments.h"
@@ -36,6 +37,7 @@
 #include "src/ship/tls_certificate/tls_certificate.h"
 #include "src/spine/entity/entity_local.h"
 #include "src/use_case/actor/cs/lpc/cs_lpc.h"
+#include "src/use_case/actor/cs/lpp/cs_lpp.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc.h"
 
 static const int8_t kScaleDefault = -2;  // Default scale for measurements
@@ -52,6 +54,8 @@ struct Hpsrv {
   EebusServiceObject* service;
   CsLpListenerObject* cs_lpc_listener;
   CsLpUseCaseObject* cs_lpc;
+  CsLpListenerObject* cs_lpp_listener;
+  CsLpUseCaseObject* cs_lpp;
   MuMpcUseCaseObject* mu_mpc;
   EebusCliObject* cli;
 };
@@ -97,6 +101,8 @@ EebusError HpsrvConstruct(Hpsrv* self) {
   self->service         = NULL;
   self->cs_lpc_listener = NULL;
   self->cs_lpc          = NULL;
+  self->cs_lpp_listener = NULL;
+  self->cs_lpp          = NULL;
   self->mu_mpc          = NULL;
   self->cli             = NULL;
 
@@ -122,6 +128,22 @@ EebusError AddLpc(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObjec
   }
 
   EEBUS_CLI_SET_CS_LPC(self->cli, self->cs_lpc);
+  return kEebusErrorOk;
+}
+
+EebusError AddLpp(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
+  self->cs_lpp_listener = CsLppListenerCreate();
+  if (self->cs_lpp_listener == NULL) {
+    return kEebusErrorMemoryAllocate;
+  }
+
+  self->cs_lpp = CsLppUseCaseCreate(entity_local, kHpsrvElectricalConnectionId, self->cs_lpp_listener);
+  if (self->cs_lpp == NULL) {
+    CsLppListenerDelete(self->cs_lpp_listener);
+    self->cs_lpp_listener = NULL;
+    return kEebusErrorInit;
+  }
+
   return kEebusErrorOk;
 }
 
@@ -216,6 +238,25 @@ EebusError AddHeatPumpApplianceEntity(
   return kEebusErrorOk;
 }
 
+EebusError
+AddInverterEntity(Hpsrv* self, DeviceLocalObject* device_local, const uint32_t* entity_ids, size_t entity_id_size) {
+  EntityLocalObject* const entity
+      = EntityLocalCreate(device_local, kEntityTypeTypeInverter, entity_ids, entity_id_size, kHeartbeatTimeoutSeconds);
+
+  if (entity == NULL) {
+    return kEebusErrorMemoryAllocate;
+  }
+
+  const EebusError err = AddLpp(self, device_local, entity);
+  if (err != kEebusErrorOk) {
+    EntityLocalDelete(entity);
+    return err;
+  }
+
+  DEVICE_LOCAL_ADD_ENTITY(device_local, entity);
+  return kEebusErrorOk;
+}
+
 EebusError HpsrvStart(Hpsrv* hpsrv, int32_t port, const char* role, TlsCertificateObject* tls_certificate) {
   if (tls_certificate == NULL) {
     return kEebusErrorInputArgument;
@@ -241,6 +282,11 @@ EebusError HpsrvStart(Hpsrv* hpsrv, int32_t port, const char* role, TlsCertifica
   uint32_t entity_ids[1] = {VectorGetSize(DEVICE_LOCAL_GET_ENTITIES(device_local))};
 
   if (AddHeatPumpApplianceEntity(hpsrv, device_local, entity_ids, ARRAY_SIZE(entity_ids)) != kEebusErrorOk) {
+    return kEebusErrorOther;
+  }
+
+  uint32_t inverter_entity_ids[1] = {VectorGetSize(DEVICE_LOCAL_GET_ENTITIES(device_local))};
+  if (AddInverterEntity(hpsrv, device_local, inverter_entity_ids, ARRAY_SIZE(inverter_entity_ids)) != kEebusErrorOk) {
     return kEebusErrorOther;
   }
 
@@ -283,6 +329,12 @@ void Destruct(ServiceReaderObject* self) {
 
   UseCaseDelete(USE_CASE_OBJECT(hpsrv->mu_mpc));
   hpsrv->mu_mpc = NULL;
+
+  UseCaseDelete(USE_CASE_OBJECT(hpsrv->cs_lpp));
+  hpsrv->cs_lpp = NULL;
+
+  CsLppListenerDelete(hpsrv->cs_lpp_listener);
+  hpsrv->cs_lpp_listener = NULL;
 
   UseCaseDelete(USE_CASE_OBJECT(hpsrv->cs_lpc));
   hpsrv->cs_lpc = NULL;

@@ -40,6 +40,8 @@ struct EebusCli {
   EebusCliHandlerObject* cs_lpc_cli;
   /** EG LPC CLI instance to deal with */
   EebusCliHandlerObject* eg_lpc_cli;
+  /** EG LPP CLI instance to deal with */
+  EebusCliHandlerObject* eg_lpp_cli;
   /** MA MPC CLI instance to deal with */
   EebusCliHandlerObject* ma_mpc_cli;
   /** MU MPC CLI instance to deal with */
@@ -54,6 +56,8 @@ static void
 SetEgLpc(EebusCliObject* self, EgLpUseCaseObject* eg_lpc_use_case, const EntityAddressType* remote_entity_address);
 static void SetMuMpc(EebusCliObject* self, MuMpcUseCaseObject* mu_mpc_use_case);
 static void
+SetEgLpp(EebusCliObject* self, EgLpUseCaseObject* eg_lpp_use_case, const EntityAddressType* remote_entity_address);
+static void
 SetMaMpc(EebusCliObject* self, MaMpcUseCaseObject* ma_mpc_use_case, const EntityAddressType* remote_entity_address);
 static void HandleCmd(const EebusCliObject* self, char* cmd);
 
@@ -61,6 +65,7 @@ static const EebusCliInterface eebus_cli_methods = {
     .destruct   = Destruct,
     .set_cs_lpc = SetCsLpc,
     .set_eg_lpc = SetEgLpc,
+    .set_eg_lpp = SetEgLpp,
     .set_mu_mpc = SetMuMpc,
     .set_ma_mpc = SetMaMpc,
     .handle_cmd = HandleCmd,
@@ -74,6 +79,7 @@ EebusError EebusCliConstruct(EebusCli* self) {
 
   self->cs_lpc_cli = NULL;
   self->eg_lpc_cli = NULL;
+  self->eg_lpp_cli = NULL;
   self->mu_mpc_cli = NULL;
   self->ma_mpc_cli = NULL;
 
@@ -102,6 +108,9 @@ void Destruct(EebusCliObject* self) {
 
   MuMpcCliDelete(eebus_cli->mu_mpc_cli);
   eebus_cli->mu_mpc_cli = NULL;
+
+  EgLpCliDelete(eebus_cli->eg_lpp_cli);
+  eebus_cli->eg_lpp_cli = NULL;
 
   EgLpCliDelete(eebus_cli->eg_lpc_cli);
   eebus_cli->eg_lpc_cli = NULL;
@@ -141,6 +150,23 @@ static void SetMuMpc(EebusCliObject* self, MuMpcUseCaseObject* mu_mpc_use_case) 
   // Release the previously created CLI instance and create a new one
   MuMpcCliDelete(eebus_cli->mu_mpc_cli);
   eebus_cli->mu_mpc_cli = MuMpcCliCreate(mu_mpc_use_case);
+}
+
+void SetEgLpp(
+    EebusCliObject* self,
+    EgLpUseCaseObject* eg_lpp_use_case,
+    const EntityAddressType* remote_entity_address
+) {
+  EebusCli* const eebus_cli = EEBUS_CLI(self);
+
+  // Release the previously created CLI instance
+  EgLpCliDelete(eebus_cli->eg_lpp_cli);
+  eebus_cli->eg_lpp_cli = NULL;
+
+  // Create a new CLI instance if remote entity address is not NULL
+  if (remote_entity_address != NULL) {
+    eebus_cli->eg_lpp_cli = EgLpCliCreate(kEnergyDirectionTypeProduce, eg_lpp_use_case, remote_entity_address);
+  }
 }
 
 void SetMaMpc(
@@ -187,6 +213,8 @@ void HandleCmd(const EebusCliObject* self, char* cmd) {
     handler = eebus_cli->cs_lpc_cli;
   } else if (strcmp(tokens[0], "eg_lpc") == 0) {
     handler = eebus_cli->eg_lpc_cli;
+  } else if (strcmp(tokens[0], "eg_lpp") == 0) {
+    handler = eebus_cli->eg_lpp_cli;
   } else if (strcmp(tokens[0], "mu_mpc") == 0) {
     handler = eebus_cli->mu_mpc_cli;
   } else if (strcmp(tokens[0], "ma_mpc") == 0) {

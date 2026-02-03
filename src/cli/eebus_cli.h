@@ -49,6 +49,15 @@
  * eg_lpc start heartbeat
  * eg_lpc stop heartbeat
  *
+ * EG LPP:
+ * eg_lpp set power_limit 1500.1 PT3H true
+ * eg_lpp get power_limit
+ * eg_lpp set failsafe_limit 3500.5
+ * eg_lpp get failsafe_limit
+ * eg_lpp set failsafe_duration PT1H01M5S
+ * eg_lpp start heartbeat
+ * eg_lpp stop heartbeat
+ *
  * MU MPC:
  * // MU MPC commands format:
  * // mu_mpc get <measurement_name>

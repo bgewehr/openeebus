@@ -1,5 +1,6 @@
 EebusCli
 void Destruct()
 void SetEgLpc(EgLpcUseCaseObject* eg_lpc_use_case, const EntityAddressType* remote_entity_address)
+void SetEgLpp(EgLpcUseCaseObject* eg_lpp_use_case, const EntityAddressType* remote_entity_address)
 void SetMaMpc(MaMpcUseCaseObject* ma_mpc_use_case, const EntityAddressType* remote_entity_address)
 void HandleCmd(char* cmd) const
