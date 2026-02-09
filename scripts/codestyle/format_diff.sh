@@ -23,13 +23,39 @@
 #   src/service/configuration.h
 IGNORE_FILE=".format_diff_ignore"
 
+# Verbose mode - can be enabled via -v flag or VERBOSE environment variable
+VERBOSE="${VERBOSE:-0}"
+
+# Print debug message if verbose mode is enabled
+debug_print() {
+  if [ "$VERBOSE" = "1" ]; then
+    echo "[DEBUG] $*" >&2
+  fi
+}
+
 # Function to check for clang-format version. Fails if not found
 get_clang_format_cmd() {
+  # Check if clang-format is available
+  local CLANG_FORMAT_BINARY="clang-format"
+  if command -v clang-format-18 >/dev/null 2>&1; then
+    CLANG_FORMAT_BINARY="clang-format-18"
+    debug_print "Found clang-format-18 at: $(command -v clang-format-18)"
+  elif command -v clang-format >/dev/null 2>&1; then
+    CLANG_FORMAT_BINARY="clang-format"
+    debug_print "Found clang-format at: $(command -v clang-format)"
+  else
+    echo "Error: clang-format or clang-format-18 not found. Please install clang-format."
+    exit 1
+  fi
+  debug_print "clang-format version: $($(command -v ${CLANG_FORMAT_BINARY}) --version)"
+
   # Check if git-clang-format is available
   if command -v git-clang-format-18 >/dev/null 2>&1; then
-    echo "git-clang-format-18 --binary $(command -v clang-format-18)"
+    debug_print "Found git-clang-format-18 at: $(command -v git-clang-format-18)"
+    echo "git-clang-format-18 --binary $(command -v ${CLANG_FORMAT_BINARY})"
   elif command -v git-clang-format >/dev/null 2>&1; then
-    echo "git-clang-format --binary $(command -v clang-format)"
+    debug_print "Found git-clang-format at: $(command -v git-clang-format)"
+    echo "git-clang-format --binary $(command -v ${CLANG_FORMAT_BINARY})"
   else
     echo "Error: git-clang-format or git-clang-format-18 not found. Please install clang-format."
     exit 1
@@ -58,16 +84,20 @@ element_not_in_list() {
 # file exists
 get_ignorelist() {
   if ! [[ -f "$IGNORE_FILE" ]]; then
+    debug_print "No ignore file found at: $IGNORE_FILE"
     echo ""
     return 1
   fi
 
+  debug_print "Reading ignore patterns from: $IGNORE_FILE"
   while IFS= read -r line; do
     if [[ -z "$line" ]]; then
       continue
     fi
 
+    debug_print "Processing ignore pattern: $line"
     while IFS= read -r -d $'\0' file_to_ignore; do
+      debug_print "  Ignoring file: $file_to_ignore"
       echo "$file_to_ignore"
     done < <(find . -wholename "$line" -print0)
   done <"$IGNORE_FILE"
@@ -100,9 +130,12 @@ filter_ignored_files() {
 format_diff() {
   local branch_out_point="$1"
 
+  debug_print "Branch out point: $branch_out_point"
+
   # Check if there are modified files matching the pattern
   local all_diffs
   all_diffs=$(grep -E '\.(c|cpp|h|hpp)$' code_diff)
+  debug_print "Modified C/C++ files: $(echo -n "$all_diffs" | wc -l) files"
 
   local diffs
   diffs=$(filter_ignored_files "$all_diffs")
@@ -112,16 +145,25 @@ format_diff() {
     return 0
   fi
 
+  debug_print "Files to check after filtering:"
+  if [ "$VERBOSE" = "1" ]; then
+    echo "$diffs" | while read -r file; do
+      debug_print "  $file"
+    done
+  fi
+
   local clang_format_cmd
   local formatted_files
 
   # Run git clang-format for c, cpp, h and hpp files
   if clang_format_cmd=$(get_clang_format_cmd); then
+    debug_print "Running command: $clang_format_cmd $branch_out_point <files>"
     # ${diffs} can't be quoted here in current state (can only handle source
     # files without space in the name)
     # We want error output as well, since clang-format can error out on files
     # and say that no files were changed
     formatted_files=$(2>&1 $clang_format_cmd "${branch_out_point}" ${diffs})
+    debug_print "Command output: $formatted_files"
   else
     # clang_format_cmd contains error message
     formatted_files=$clang_format_cmd
@@ -161,21 +203,35 @@ format_diff() {
 # the most commonly used main branch
 get_main_branch() {
   if ! [ -f .main_branch ]; then
+    debug_print "No .main_branch file found, defaulting to origin/master"
     echo "origin/master"
     return
   fi
 
-  cat .main_branch
+  local main_branch
+  main_branch=$(cat .main_branch)
+  debug_print "Main branch from .main_branch: $main_branch"
+  echo "$main_branch"
 }
 
-# Check if a repository root directory has been passed to the script
-if [ -n "$1" ]; then
-  ROOT="$1"
-else
-  ROOT="."
-fi
+# Parse command line arguments
+ROOT="."
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -v|--verbose)
+      VERBOSE=1
+      debug_print "Verbose mode enabled"
+      shift
+      ;;
+    *)
+      ROOT="$1"
+      shift
+      ;;
+  esac
+done
 
 # Error out if we can't switch directory
+debug_print "Changing to directory: ${ROOT}"
 if ! cd "${ROOT}"; then
   echo "Could not enter directory: ${ROOT}"
 
@@ -191,6 +247,7 @@ MAIN_BRANCH=$(get_main_branch)
 echo "Checking clang-format against \"${MAIN_BRANCH}\" ..."
 
 # Find the common ancestor between the current branch and the branch-out point
+debug_print "Running: git merge-base ${MAIN_BRANCH} HEAD"
 if ! BRANCH_OUT_POINT=$(git merge-base "${MAIN_BRANCH}" HEAD); then
   echo "Incorrect branch ${MAIN_BRANCH}"
   if [ -n "$CI" ]; then
@@ -198,9 +255,17 @@ if ! BRANCH_OUT_POINT=$(git merge-base "${MAIN_BRANCH}" HEAD); then
   fi
   exit 1
 fi
+debug_print "Merge base: $BRANCH_OUT_POINT"
 
 # Generate diff of modified files against the main
+debug_print "Running: git diff --name-only ${MAIN_BRANCH} --diff-filter=d"
 git diff --name-only "${MAIN_BRANCH}" --diff-filter=d >code_diff
+if [ "$VERBOSE" = "1" ]; then
+  debug_print "Modified files:"
+  while read -r file; do
+    debug_print "  $file"
+  done <code_diff
+fi
 
 # Call the function to format the modified parts of source files
 format_diff "${BRANCH_OUT_POINT}"
