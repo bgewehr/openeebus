@@ -117,6 +117,7 @@ jobs:
         with:
           path: C:\vcpkg\installed
           key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
+          restore-keys: vcpkg-${{ runner.os }}
 
       - name: Configure
         shell: pwsh
