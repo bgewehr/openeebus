@@ -103,21 +103,25 @@ jobs:
     name: Build (Windows)
     runs-on: windows-latest
     needs: tests
+    env:
+      VCPKG_ROOT: C:\vcpkg
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Install dependencies
-        shell: pwsh
-        run: |
-          $env:VCPKG_ROOT = $env:VCPKG_INSTALLATION_ROOT
-          vcpkg install openssl:x64-windows libwebsockets:x64-windows cjson:x64-windows pthreads:x64-windows mdnsresponder:x64-windows
+      - name: Cache vcpkg packages
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        with:
+          path: C:\vcpkg\installed
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}
 
       - name: Configure
         shell: pwsh
         run: |
-          $env:VCPKG_ROOT = $env:VCPKG_INSTALLATION_ROOT
-          cmake -B build -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT\scripts\buildsystems\vcpkg.cmake"
+          cmake -B build `
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT\scripts\buildsystems\vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows `
+            -DVCPKG_INSTALLED_DIR="$env:VCPKG_ROOT\installed"
 
       - name: Build
         run: cmake --build build --config Release
