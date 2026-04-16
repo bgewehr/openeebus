@@ -38,6 +38,7 @@
 #include "src/spine/entity/entity_local.h"
 #include "src/use_case/actor/cs/lpc/cs_lpc.h"
 #include "src/use_case/actor/cs/lpp/cs_lpp.h"
+#include "src/use_case/actor/gcp/mgcp/gcp_mgcp.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc.h"
 
 static const int8_t kScaleDefault = -2;  // Default scale for measurements
@@ -57,6 +58,7 @@ struct Hpsrv {
   CsLpListenerObject* cs_lpp_listener;
   CsLpUseCaseObject* cs_lpp;
   MuMpcUseCaseObject* mu_mpc;
+  GcpMgcpUseCaseObject* gcp_mgcp;
   EebusCliObject* cli;
 };
 
@@ -104,6 +106,7 @@ EebusError HpsrvConstruct(Hpsrv* self) {
   self->cs_lpp_listener = NULL;
   self->cs_lpp          = NULL;
   self->mu_mpc          = NULL;
+  self->gcp_mgcp        = NULL;
   self->cli             = NULL;
 
   self->cli = EebusCliCreate();
@@ -264,6 +267,93 @@ AddInverterEntity(Hpsrv* self, DeviceLocalObject* device_local, const uint32_t* 
   return kEebusErrorOk;
 }
 
+EebusError AddGcpMgcp(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
+  static const GcpMgcpMeasurementConfig measurement_default_cfg = {
+      .value_source = kMeasurementValueSourceTypeMeasuredValue,
+  };
+
+  static const GcpMgcpMonitorEnergyConfig energy_cfg = {
+      .energy_feed_in_cfg  = &measurement_default_cfg,
+      .energy_consumed_cfg = &measurement_default_cfg,
+  };
+
+  static const GcpMgcpMonitorCurrentConfig current_cfg = {
+      .current_phase_a_cfg = &measurement_default_cfg,
+      .current_phase_b_cfg = &measurement_default_cfg,
+      .current_phase_c_cfg = &measurement_default_cfg,
+  };
+
+  static const GcpMgcpMonitorVoltageConfig voltage_cfg = {
+      .voltage_phase_a_cfg  = &measurement_default_cfg,
+      .voltage_phase_b_cfg  = &measurement_default_cfg,
+      .voltage_phase_c_cfg  = &measurement_default_cfg,
+      .voltage_phase_ab_cfg = &measurement_default_cfg,
+      .voltage_phase_bc_cfg = &measurement_default_cfg,
+      .voltage_phase_ac_cfg = &measurement_default_cfg,
+  };
+
+  static const GcpMgcpMonitorFrequencyConfig frequency_cfg = {
+      .frequency_cfg = {.value_source = kMeasurementValueSourceTypeMeasuredValue},
+  };
+
+  static const GcpMgcpConfig cfg = {
+      .power_cfg = {
+          .phases          = kElectricalConnectionPhaseNameTypeAbc,
+          .power_total_cfg = {.value_source = kMeasurementValueSourceTypeMeasuredValue},
+      },
+      .energy_cfg    = &energy_cfg,
+      .current_cfg   = &current_cfg,
+      .voltage_cfg   = &voltage_cfg,
+      .frequency_cfg = &frequency_cfg,
+  };
+
+  self->gcp_mgcp = GcpMgcpUseCaseCreate(entity_local, kHpsrvElectricalConnectionId, &cfg);
+  if (self->gcp_mgcp == NULL) {
+    return kEebusErrorInit;
+  }
+
+  const ScaledValue zero_power = {.value = 0, .scale = kScaleDefault};
+  EebusError err = GcpMgcpSetMeasurementDataCache(self->gcp_mgcp, kGcpPowerTotal, &zero_power, NULL, NULL);
+  if (err != kEebusErrorOk) {
+    return err;
+  }
+
+  err = GcpMgcpUpdate(self->gcp_mgcp);
+  if (err != kEebusErrorOk) {
+    return err;
+  }
+
+  EEBUS_CLI_SET_GCP_MGCP(self->cli, self->gcp_mgcp);
+  return kEebusErrorOk;
+}
+
+EebusError AddGridConnectionPointEntity(
+    Hpsrv* self,
+    DeviceLocalObject* device_local,
+    const uint32_t* entity_ids,
+    size_t entity_id_size
+) {
+  EntityLocalObject* const entity = EntityLocalCreate(
+      device_local,
+      kEntityTypeTypeGridConnectionPointOfPremises,
+      entity_ids,
+      entity_id_size,
+      kHeartbeatTimeoutSeconds
+  );
+
+  if (entity == NULL) {
+    return kEebusErrorMemoryAllocate;
+  }
+
+  if (AddGcpMgcp(self, device_local, entity) != kEebusErrorOk) {
+    EntityLocalDelete(entity);
+    return kEebusErrorInit;
+  }
+
+  DEVICE_LOCAL_ADD_ENTITY(device_local, entity);
+  return kEebusErrorOk;
+}
+
 EebusError HpsrvStart(Hpsrv* hpsrv, int32_t port, const char* role, TlsCertificateObject* tls_certificate) {
   if (tls_certificate == NULL) {
     return kEebusErrorInputArgument;
@@ -294,6 +384,11 @@ EebusError HpsrvStart(Hpsrv* hpsrv, int32_t port, const char* role, TlsCertifica
 
   uint32_t inverter_entity_ids[1] = {VectorGetSize(DEVICE_LOCAL_GET_ENTITIES(device_local))};
   if (AddInverterEntity(hpsrv, device_local, inverter_entity_ids, ARRAY_SIZE(inverter_entity_ids)) != kEebusErrorOk) {
+    return kEebusErrorOther;
+  }
+
+  uint32_t gcp_entity_ids[1] = {VectorGetSize(DEVICE_LOCAL_GET_ENTITIES(device_local))};
+  if (AddGridConnectionPointEntity(hpsrv, device_local, gcp_entity_ids, ARRAY_SIZE(gcp_entity_ids)) != kEebusErrorOk) {
     return kEebusErrorOther;
   }
 
@@ -348,6 +443,9 @@ void Destruct(ServiceReaderObject* self) {
 
   CsLpcListenerDelete(hpsrv->cs_lpc_listener);
   hpsrv->cs_lpc_listener = NULL;
+
+  GcpMgcpUseCaseDelete(hpsrv->gcp_mgcp);
+  hpsrv->gcp_mgcp = NULL;
 
   EebusServiceConfigDelete(hpsrv->cfg);
   hpsrv->cfg = NULL;
@@ -531,6 +629,115 @@ EebusError HpsrvSetAcFrequency(HpsrvObject* self, int32_t ac_frequency) {
   }
 
   return MuMpcUpdate(hpsrv->mu_mpc);
+}
+
+EebusError HpsrvSetGcpMgcpPowerTotal(HpsrvObject* self, int32_t power_total) {
+  Hpsrv* const hpsrv = HPSRV(self);
+
+  const ScaledValue value = {.value = power_total, .scale = kScaleDefault};
+  EebusError err          = GcpMgcpSetMeasurementDataCache(hpsrv->gcp_mgcp, kGcpPowerTotal, &value, NULL, NULL);
+  if (err != kEebusErrorOk) {
+    return err;
+  }
+
+  return GcpMgcpUpdate(hpsrv->gcp_mgcp);
+}
+
+EebusError HpsrvSetGcpMgcpEnergyFeedIn(HpsrvObject* self, int32_t energy_feed_in) {
+  Hpsrv* const hpsrv = HPSRV(self);
+
+  const ScaledValue value = {.value = energy_feed_in, .scale = kScaleDefault};
+  EebusError err          = GcpMgcpSetEnergyFeedInCache(hpsrv->gcp_mgcp, &value, NULL, NULL, NULL, NULL);
+  if (err != kEebusErrorOk) {
+    return err;
+  }
+
+  return GcpMgcpUpdate(hpsrv->gcp_mgcp);
+}
+
+EebusError HpsrvSetGcpMgcpEnergyConsumed(HpsrvObject* self, int32_t energy_consumed) {
+  Hpsrv* const hpsrv = HPSRV(self);
+
+  const ScaledValue value = {.value = energy_consumed, .scale = kScaleDefault};
+  EebusError err          = GcpMgcpSetEnergyConsumedCache(hpsrv->gcp_mgcp, &value, NULL, NULL, NULL, NULL);
+  if (err != kEebusErrorOk) {
+    return err;
+  }
+
+  return GcpMgcpUpdate(hpsrv->gcp_mgcp);
+}
+
+EebusError HpsrvSetGcpMgcpCurrentPerPhase(
+    HpsrvObject* self,
+    int32_t current_phase_a,
+    int32_t current_phase_b,
+    int32_t current_phase_c
+) {
+  Hpsrv* const hpsrv = HPSRV(self);
+
+  const GcpMeasurementNameId names[] = {kGcpCurrentPhaseA, kGcpCurrentPhaseB, kGcpCurrentPhaseC};
+  const int32_t values[]             = {current_phase_a, current_phase_b, current_phase_c};
+
+  for (size_t i = 0; i < ARRAY_SIZE(names); ++i) {
+    const ScaledValue sv = {.value = values[i], .scale = kScaleDefault};
+    EebusError err       = GcpMgcpSetMeasurementDataCache(hpsrv->gcp_mgcp, names[i], &sv, NULL, NULL);
+    if (err != kEebusErrorOk) {
+      return err;
+    }
+  }
+
+  return GcpMgcpUpdate(hpsrv->gcp_mgcp);
+}
+
+EebusError HpsrvSetGcpMgcpVoltagePerPhase(
+    HpsrvObject* self,
+    int32_t voltage_phase_a,
+    int32_t voltage_phase_b,
+    int32_t voltage_phase_c,
+    int32_t voltage_phase_ab,
+    int32_t voltage_phase_bc,
+    int32_t voltage_phase_ac
+) {
+  Hpsrv* const hpsrv = HPSRV(self);
+
+  const GcpMeasurementNameId names[] = {
+      kGcpVoltagePhaseA,
+      kGcpVoltagePhaseB,
+      kGcpVoltagePhaseC,
+      kGcpVoltagePhaseAb,
+      kGcpVoltagePhaseBc,
+      kGcpVoltagePhaseAc,
+  };
+  const int32_t values[] = {
+      voltage_phase_a,
+      voltage_phase_b,
+      voltage_phase_c,
+      voltage_phase_ab,
+      voltage_phase_bc,
+      voltage_phase_ac,
+  };
+
+  for (size_t i = 0; i < ARRAY_SIZE(names); ++i) {
+    const ScaledValue sv = {.value = values[i], .scale = kScaleDefault};
+    EebusError err       = GcpMgcpSetMeasurementDataCache(hpsrv->gcp_mgcp, names[i], &sv, NULL, NULL);
+    if (err != kEebusErrorOk) {
+      return err;
+    }
+  }
+
+  return GcpMgcpUpdate(hpsrv->gcp_mgcp);
+}
+
+EebusError HpsrvSetGcpMgcpFrequency(HpsrvObject* self, int32_t frequency) {
+  Hpsrv* const hpsrv = HPSRV(self);
+
+  const ScaledValue value = {.value = frequency, .scale = kScaleDefault};
+  EebusError err          = GcpMgcpSetMeasurementDataCache(hpsrv->gcp_mgcp, kGcpFrequency, &value, NULL, NULL);
+  if (err != kEebusErrorOk) {
+    return err;
+  }
+
+  return GcpMgcpUpdate(hpsrv->gcp_mgcp);
 }
 
 void HpsrvHandleCmd(HpsrvObject* self, char* cmd) {

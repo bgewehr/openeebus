@@ -29,6 +29,7 @@
 
 #include "examples/hems/eg_lpc_listener.h"
 #include "examples/hems/eg_lpp_listener.h"
+#include "examples/hems/ma_mgcp_listener.h"
 #include "examples/hems/ma_mpc_listener.h"
 #include "src/cli/eebus_cli.h"
 #include "src/common/eebus_arguments.h"
@@ -37,6 +38,7 @@
 #include "src/spine/entity/entity_local.h"
 #include "src/use_case/actor/eg/lpc/eg_lpc.h"
 #include "src/use_case/actor/eg/lpp/eg_lpp.h"
+#include "src/use_case/actor/ma/mgcp/ma_mgcp.h"
 #include "src/use_case/actor/ma/mpc/ma_mpc.h"
 
 /** EEBUS Home Energy Manager Service type definition */
@@ -55,6 +57,8 @@ struct Hems {
   EgLpListenerObject* eg_lpp_listener;
   MaMpcUseCaseObject* ma_mpc;
   MaMpcListenerObject* ma_mpc_listener;
+  MaMgcpUseCaseObject* ma_mgcp;
+  MaMgcpListenerObject* ma_mgcp_listener;
   EebusCliObject* cli;
 };
 
@@ -86,15 +90,17 @@ EebusError HemsConstruct(Hems* self) {
   // Override "virtual functions table"
   SERVICE_READER_INTERFACE(self) = &hpsrv_methods;
 
-  self->cfg             = NULL;
-  self->service         = NULL;
-  self->eg_lpc          = NULL;
-  self->eg_lpc_listener = NULL;
-  self->eg_lpp          = NULL;
-  self->eg_lpp_listener = NULL;
-  self->ma_mpc          = NULL;
-  self->ma_mpc_listener = NULL;
-  self->cli             = NULL;
+  self->cfg              = NULL;
+  self->service          = NULL;
+  self->eg_lpc           = NULL;
+  self->eg_lpc_listener  = NULL;
+  self->eg_lpp           = NULL;
+  self->eg_lpp_listener  = NULL;
+  self->ma_mpc           = NULL;
+  self->ma_mpc_listener  = NULL;
+  self->ma_mgcp          = NULL;
+  self->ma_mgcp_listener = NULL;
+  self->cli              = NULL;
 
   self->cli = EebusCliCreate();
   if (self->cli == NULL) {
@@ -158,6 +164,22 @@ EebusError AddMaMpc(Hems* self, DeviceLocalObject* device_local, EntityLocalObje
   return kEebusErrorOk;
 }
 
+EebusError AddMaMgcp(Hems* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
+  self->ma_mgcp_listener = MaMgcpListenerCreate(HEMS_OBJECT(self));
+  if (self->ma_mgcp_listener == NULL) {
+    return kEebusErrorMemoryAllocate;
+  }
+
+  self->ma_mgcp = MaMgcpUseCaseCreate(entity_local, self->ma_mgcp_listener);
+  if (self->ma_mgcp == NULL) {
+    MaMgcpListenerDelete(self->ma_mgcp_listener);
+    self->ma_mgcp_listener = NULL;
+    return kEebusErrorInit;
+  }
+
+  return kEebusErrorOk;
+}
+
 EebusError HemsStart(Hems* hems, int32_t port, const char* role, TlsCertificateObject* tls_certificate) {
   if (tls_certificate == NULL) {
     return kEebusErrorInputArgument;
@@ -205,6 +227,12 @@ EebusError HemsStart(Hems* hems, int32_t port, const char* role, TlsCertificateO
     return err;
   }
 
+  err = AddMaMgcp(hems, device_local, entity);
+  if (err != kEebusErrorOk) {
+    EntityLocalDelete(entity);
+    return err;
+  }
+
   DEVICE_LOCAL_ADD_ENTITY(device_local, entity);
   EEBUS_SERVICE_START(hems->service);
 
@@ -243,7 +271,13 @@ void Destruct(ServiceReaderObject* self) {
     hems->service = NULL;
   }
 
-  UseCaseDelete(USE_CASE_OBJECT(hems->ma_mpc));
+  MaMgcpUseCaseDelete(hems->ma_mgcp);
+  hems->ma_mgcp = NULL;
+
+  MaMgcpListenerDelete(hems->ma_mgcp_listener);
+  hems->ma_mgcp_listener = NULL;
+
+  MaMpcUseCaseDelete(hems->ma_mpc);
   hems->ma_mpc = NULL;
 
   MaMpcListenerDelete(hems->ma_mpc_listener);
@@ -260,12 +294,6 @@ void Destruct(ServiceReaderObject* self) {
 
   EgLpcListenerDelete(hems->eg_lpc_listener);
   hems->eg_lpc_listener = NULL;
-
-  MaMpcUseCaseDelete(hems->ma_mpc);
-  hems->ma_mpc = NULL;
-
-  MaMpcListenerDelete(hems->ma_mpc_listener);
-  hems->ma_mpc_listener = NULL;
 
   EebusServiceConfigDelete(hems->cfg);
   hems->cfg = NULL;
@@ -351,6 +379,17 @@ void HemsSetMaMpcRemoteEntity(HemsObject* self, const EntityAddressType* entity_
 
   MaMpcUseCaseObject* const ma_mpc = (entity_addr == NULL) ? NULL : hems->ma_mpc;
   EEBUS_CLI_SET_MA_MPC(hems->cli, ma_mpc, entity_addr);
+}
+
+void HemsSetMaMgcpRemoteEntity(HemsObject* self, const EntityAddressType* entity_addr) {
+  Hems* const hems = HEMS(self);
+
+  if (hems->cli == NULL) {
+    return;
+  }
+
+  MaMgcpUseCaseObject* const ma_mgcp = (entity_addr == NULL) ? NULL : hems->ma_mgcp;
+  EEBUS_CLI_SET_MA_MGCP(hems->cli, ma_mgcp, entity_addr);
 }
 
 void HemsHandleCmd(HemsObject* self, char* cmd) {
