@@ -20,7 +20,7 @@ static const EnumMapping hvac_system_function_type_lut[] = {
     {"cooling", kHvacSystemFunctionTypeTypeCooling},
     {"ventilation", kHvacSystemFunctionTypeTypeVentilation},
     {"dhw", kHvacSystemFunctionTypeTypeDhw},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping hvac_operation_mode_type_lut[] = {
@@ -28,7 +28,7 @@ static const EnumMapping hvac_operation_mode_type_lut[] = {
     {"on", kHvacOperationModeTypeTypeOn},
     {"off", kHvacOperationModeTypeTypeOff},
     {"eco", kHvacOperationModeTypeTypeEco},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping hvac_overrun_type_lut[] = {
@@ -42,7 +42,7 @@ static const EnumMapping hvac_overrun_type_lut[] = {
     {"oneTimeVentilation", kHvacOverrunTypeTypeOneTimeVentilation},
     {"hvacSystemOff", kHvacOverrunTypeTypeHvacSystemOff},
     {"valveKick", kHvacOverrunTypeTypeValveKick},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping hvac_overrun_status_lut[] = {
@@ -50,7 +50,7 @@ static const EnumMapping hvac_overrun_status_lut[] = {
     {"running", kHvacOverrunStatusTypeRunning},
     {"finished", kHvacOverrunStatusTypeFinished},
     {"inactive", kHvacOverrunStatusTypeInactive},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg hvac_system_function_data_cfg[] = {

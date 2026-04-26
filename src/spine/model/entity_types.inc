@@ -67,7 +67,7 @@ static const EnumMapping entity_type_lut[] = {
     {"PVString", kEntityTypeTypePVString},
     {"GridGuard", kEntityTypeTypeGridGuard},
     {"ControllableSystem", kEntityTypeTypeControllableSystem},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 #endif  // SRC_SPINE_MODEL_ENTITY_TYPES_INC_

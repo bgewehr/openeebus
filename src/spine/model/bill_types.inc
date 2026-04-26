@@ -14,13 +14,13 @@
 
 static const EnumMapping bill_type_lut[] = {
     {"chargingSummary", kBillTypeTypeChargingSummary},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping bill_position_type_lut[] = {
     {"gridElectricEnergy", kBillPositionTypeTypeGridElectricEnergy},
     {"selfProducedElectricEnergy", kBillPositionTypeTypeSelfProducedElectricEnergy},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping bill_cost_type_lut[] = {
@@ -29,7 +29,7 @@ static const EnumMapping bill_cost_type_lut[] = {
     {"co2Emission", kBillCostTypeTypeCo2Emission},
     {"renewableEnergy", kBillCostTypeTypeRenewableEnergy},
     {"radioactiveWaste", kBillCostTypeTypeRadioactiveWaste},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg bill_value_cfg[] = {

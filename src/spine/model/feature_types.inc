@@ -33,7 +33,7 @@ static const EnumMapping role_lut[] = {
     {"client", kRoleTypeClient},
     {"server", kRoleTypeServer},
     {"special", kRoleTypeSpecial},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping feature_type_lut[] = {
@@ -69,7 +69,7 @@ static const EnumMapping feature_type_lut[] = {
     {"Bill", kFeatureTypeTypeBill},
     {"Identification", kFeatureTypeTypeIdentification},
     {"StateInformation", kFeatureTypeTypeStateInformation},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping feature_specific_usage_lut[] = {
@@ -87,7 +87,7 @@ static const EnumMapping feature_specific_usage_lut[] = {
     {"FlexibleChosenForecast", FeatureSpecificUsageTypeFlexibleChosenForecast},
     {"FlexibleOptionalForecast", FeatureSpecificUsageTypeFlexibleOptionalForecast},
     {"OptionalSequenceBasedImmediateControl", FeatureSpecificUsageTypeOptionalSequenceBasedImmediateControl},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 #endif  // SRC_SPINE_MODEL_FEATURE_TYPES_INC_

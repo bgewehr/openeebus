@@ -21,21 +21,21 @@ static const EnumMapping network_management_feature_set_lut[] = {
     {"router", kNetworkManagementFeatureSetTypeRouter},
     {"smart", kNetworkManagementFeatureSetTypeSmart},
     {"simple", kNetworkManagementFeatureSetTypeSimple},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping network_management_process_state_state_lut[] = {
     {"succeeded", kNetworkManagementProcessStateStateTypeSucceeded},
     {"failed", kNetworkManagementProcessStateStateTypeFailed},
     {"aborted", kNetworkManagementProcessStateStateTypeAborted},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping network_management_state_change_lut[] = {
     {"added", kNetworkManagementStateChangeTypeAdded},
     {"removed", kNetworkManagementStateChangeTypeRemoved},
     {"modified", kNetworkManagementStateChangeTypeModified},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg network_management_add_node_call_cfg[] = {

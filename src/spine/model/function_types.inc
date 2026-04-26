@@ -158,7 +158,7 @@ static const EnumMapping function_lut[] = {
     {"timeTableDescriptionListData", kFunctionTypeTimeTableDescriptionListData},
     {"timeTableListData", kFunctionTypeTimeTableListData},
     {"useCaseInformationListData", kFunctionTypeUseCaseInformationListData},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg function_property_cfg[] = {

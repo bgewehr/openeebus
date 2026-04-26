@@ -32,14 +32,14 @@ static const EnumMapping task_management_job_state_lut[] = {
     {"pending", kTaskManagementJobStateTypePending},
     {"completed", kTaskManagementJobStateTypeCompleted},
     {"invalid", kTaskManagementJobStateTypeInvalid},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping task_management_job_source_lut[] = {
     {"InternalMechanism", kTaskManagementJobSourceTypeInternalMechanism},
     {"UserInteraction", kTaskManagementJobSourceTypeUserInteraction},
     {"ExternalConfiguration", kTaskManagementJobSourceTypeExternalConfiguration},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg task_management_hvac_related_cfg[] = {

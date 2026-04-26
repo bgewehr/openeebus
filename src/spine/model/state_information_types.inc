@@ -44,7 +44,7 @@ static const EnumMapping state_information_lut[] = {
     {"dcVoltageBelowLimit", kStateInformationTypeDcVoltageBelowLimit},
     {"hardwareTestFailure", kStateInformationTypeHardwareTestFailure},
     {"genericInternalError", kStateInformationTypeGenericInternalError},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping state_information_functionality_lut[] = {
@@ -61,7 +61,7 @@ static const EnumMapping state_information_functionality_lut[] = {
     {"throttled", kStateInformationFunctionalityTypeThrottled},
     {"shuttingDown", kStateInformationFunctionalityTypeShuttingDown},
     {"manualShutdown", kStateInformationFunctionalityTypeManualShutdown},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping state_information_failure_lut[] = {
@@ -83,13 +83,13 @@ static const EnumMapping state_information_failure_lut[] = {
     {"dcVoltageBelowLimit", kStateInformationFailureTypeDcVoltageBelowLimit},
     {"hardwareTestFailure", kStateInformationFailureTypeHardwareTestFailure},
     {"genericInternalError", kStateInformationFailureTypeGenericInternalError},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping state_information_category_lut[] = {
     {"functionality", kStateInformationCategoryTypeFunctionality},
     {"failure", kStateInformationCategoryTypeFailure},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg state_information_data_cfg[] = {

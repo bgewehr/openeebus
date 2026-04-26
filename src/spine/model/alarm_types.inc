@@ -17,7 +17,7 @@ static const EnumMapping alarm_type_lut[] = {
     {"alarmCancelled", kAlarmTypeTypeAlarmCancelled},
     {"underThreshold", kAlarmTypeTypeUnderThreshold},
     {"overThreshold", kAlarmTypeTypeOverThreshold},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg alarm_data_cfg[] = {

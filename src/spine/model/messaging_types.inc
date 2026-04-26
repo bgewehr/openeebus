@@ -19,7 +19,7 @@ static const EnumMapping messaging_type_lut[] = {
     {"alarm", kMessagingTypeTypeAlarm},
     {"emergency", kMessagingTypeTypeEmergency},
     {"obsolete", kMessagingTypeTypeObsolete},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg messaging_data_cfg[] = {

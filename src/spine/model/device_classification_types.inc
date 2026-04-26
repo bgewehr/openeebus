@@ -18,7 +18,7 @@ static const EnumMapping power_source_lut[] = {
     {"mains3Phase", kPowerSourceTypeMains3Phase},
     {"battery", kPowerSourceTypeBattery},
     {"dc", kPowerSourceTypeDc},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg device_classification_manufacturer_data_cfg[] = {

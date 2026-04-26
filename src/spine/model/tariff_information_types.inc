@@ -18,13 +18,13 @@ static const EnumMapping tier_boundary_type_lut[] = {
     {"powerBoundary", kTierBoundaryTypeTypePowerBoundary},
     {"energyBoundary", kTierBoundaryTypeTypeEnergyBoundary},
     {"countBoundary", kTierBoundaryTypeTypeCountBoundary},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping tier_type_lut[] = {
     {"fixedCost", kTierTypeTypeFixedCost},
     {"dynamicCost", kTierTypeTypeDynamicCost},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping incentive_type_lut[] = {
@@ -32,7 +32,7 @@ static const EnumMapping incentive_type_lut[] = {
     {"relativeCost", kIncentiveTypeTypeRelativeCost},
     {"renewableEnergyPercentage", kIncentiveTypeTypeRenewableEnergyPercentage},
     {"co2Emission", kIncentiveTypeTypeCo2Emission},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping incentive_value_type_lut[] = {
@@ -40,7 +40,7 @@ static const EnumMapping incentive_value_type_lut[] = {
     {"averageValue", kIncentiveValueTypeTypeAverageValue},
     {"minValue", kIncentiveValueTypeTypeMinvalue},
     {"maxValue", kIncentiveValueTypeTypeMaxvalue},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg tariff_overall_constraints_data_cfg[] = {

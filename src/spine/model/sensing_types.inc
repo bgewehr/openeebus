@@ -49,7 +49,7 @@ static const EnumMapping sensing_state_lut[] = {
     {"notDetected", kSensingStateTypeNotDetected},
     {"alarmed", kSensingStateTypeAlarmed},
     {"notAlarmed", kSensingStateTypeNotAlarmed},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping sensing_type_lut[] = {
@@ -69,7 +69,7 @@ static const EnumMapping sensing_type_lut[] = {
     {"alarmSensor", kSensingTypeTypeAlarmSensor},
     {"powerAlarmSensor", kSensingTypeTypePowerAlarmSensor},
     {"dayNightIndicator", kSensingTypeTypeDayNightIndicator},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg sensing_data_cfg[] = {

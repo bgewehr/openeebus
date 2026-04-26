@@ -21,7 +21,7 @@ static const EnumMapping actuator_level_fct_lut[] = {
     {"percentageRelative", kActuatorLevelFctTypePercentageRelative},
     {"absolut", kActuatorLevelFctTypeAbsolut},
     {"relative", kActuatorLevelFctTypeRelative},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg actuator_level_data_cfg[] = {

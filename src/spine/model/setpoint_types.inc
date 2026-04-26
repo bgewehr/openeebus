@@ -15,7 +15,7 @@
 static const EnumMapping setpoint_type_lut[] = {
     {"valueAbsolute", kSetpointTypeTypeValueAbsolute},
     {"valueRelative", kSetpointTypeTypeValueRelative},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg setpoint_data_cfg[] = {

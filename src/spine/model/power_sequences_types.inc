@@ -26,14 +26,14 @@ static const EnumMapping power_time_slot_value_type_lut[] = {
     {"energyExpectedValue", kPowerTimeSlotValueTypeTypeEnergyExpectedValue},
     {"energyStandardDeviation", kPowerTimeSlotValueTypeTypeEnergyStandardDeviation},
     {"energySkewness", kPowerTimeSlotValueTypeTypeEnergySkewness},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping power_sequence_scope_lut[] = {
     {"forecast", kPowerSequenceScopeTypeForecast},
     {"measurement", kPowerSequenceScopeTypeMeasurement},
     {"recommendation", kPowerSequenceScopeTypeRecommendation},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping power_sequence_state_lut[] = {
@@ -45,7 +45,7 @@ static const EnumMapping power_sequence_state_lut[] = {
     {"inactive", kPowerSequenceStateTypeInactive},
     {"completed", kPowerSequenceStateTypeCompleted},
     {"invalid", kPowerSequenceStateTypeInvalid},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg power_time_slot_schedule_data_cfg[] = {

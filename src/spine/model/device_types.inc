@@ -31,7 +31,7 @@ static const EnumMapping device_type_lut[] = {
     {"EnergyManagementSystem", kDeviceTypeTypeEnergyManagementSystem},
     {"Inverter", kDeviceTypeTypeInverter},
     {"ChargingStation", kDeviceTypeTypeChargingStation},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 #endif  // SRC_SPINE_MODEL_DEVICE_TYPES_INC_

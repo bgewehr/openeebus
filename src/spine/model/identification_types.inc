@@ -17,7 +17,7 @@ static const EnumMapping identification_type_lut[] = {
     {"eui48", kIdentificationTypeTypeEui48},
     {"eui64", kIdentificationTypeTypeEui64},
     {"userRfidTag", kIdentificationTypeTypeUserrfidtag},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg identification_data_cfg[] = {

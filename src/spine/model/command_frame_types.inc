@@ -57,7 +57,7 @@ static const EnumMapping command_classifier_lut[] = {
     {"write", kCommandClassifierTypeWrite},
     {"call", kCommandClassifierTypeCall},
     {"result", kCommandClassifierTypeResult},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg cmd_control_cfg[] = {

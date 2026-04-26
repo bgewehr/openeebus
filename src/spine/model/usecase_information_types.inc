@@ -39,7 +39,7 @@ static const EnumMapping use_case_actor_lut[] = {
     {"PVSystem", kUseCaseActorTypePVSystem},
     {"SmartAppliance", kUseCaseActorTypeSmartAppliance},
     {"VisualizationAppliance", kUseCaseActorTypeVisualizationAppliance},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping use_case_name_lut[] = {
@@ -81,7 +81,7 @@ static const EnumMapping use_case_name_lut[] = {
     {"visualizationOfAggregatedBatteryData", kUseCaseNameTypeVisualizationOfAggregatedBatteryData},
     {"visualizationOfAggregatedPhotovoltaicData", kUseCaseNameTypeVisualizationOfAggregatedPhotovoltaicData},
     {"visualizationOfHeatingAreaName", kUseCaseNameTypeVisualizationOfHeatingAreaName},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg scenario_support_element_data_cfg
