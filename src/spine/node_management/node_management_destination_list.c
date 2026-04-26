@@ -19,11 +19,15 @@
  */
 
 #include "src/common/array_util.h"
+#include "src/common/eebus_arguments.h"
 #include "src/spine/api/device_local_interface.h"
 #include "src/spine/api/message.h"
 #include "src/spine/node_management/node_management_internal.h"
 
 EebusError RequestDestinationListData(NodeManagement* self, const char* remote_device_addr, SenderObject* sender) {
+  UNUSED(self);
+  UNUSED(remote_device_addr);
+  UNUSED(sender);
   return kEebusErrorNotImplemented;
 }
 
@@ -45,6 +49,8 @@ EebusError ProcessReadDestinationListData(NodeManagement* self, const Message* m
 }
 
 EebusError ProcessReplyDestinationListData(NodeManagement* self, const Message* msg) {
+  UNUSED(self);
+  UNUSED(msg);
   return kEebusErrorNotImplemented;
 }
 

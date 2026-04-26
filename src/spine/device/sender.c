@@ -22,6 +22,7 @@
 
 #include "src/common/array_util.h"
 #include "src/common/debug.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_malloc.h"
 #include "src/common/json.h"
 #include "src/ship/api/data_writer_interface.h"
@@ -158,6 +159,7 @@ SenderObject* SenderCreate(DataWriterObject* writer) {
 }
 
 void Destruct(SenderObject* self) {
+  UNUSED(self);
   // Nothing to be deallocated yet
 }
 

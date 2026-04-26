@@ -18,6 +18,7 @@
  * @brief Data Reader implementation
  */
 
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_malloc.h"
 #include "src/common/message_buffer.h"
 #include "src/ship/api/data_reader_interface.h"
@@ -60,6 +61,7 @@ DataReaderObject* DataReaderCreate(DeviceRemoteObject* device_remote) {
 }
 
 void Destruct(DataReaderObject* self) {
+  UNUSED(self);
   // Nothing to be deallocated here
 }
 

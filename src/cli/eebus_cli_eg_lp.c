@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "src/cli/eebus_cli_eg_lp.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_bool/eebus_bool.h"
 #include "src/common/eebus_date_time/eebus_date_time.h"
 #include "src/use_case/model/scaled_value.h"
@@ -132,6 +133,9 @@ void Destruct(EebusCliHandlerObject* self) {
 //
 //-------------------------------------------------------------------------------------------//
 void HandleCmdGetPowerLimit(const EgLpCli* self, const char* const* tokens, size_t num_tokens) {
+  UNUSED(tokens);
+  UNUSED(num_tokens);
+
   LoadLimit limit = {0};
   if (EgLpGetActivePowerLimit(self->eg_lp, self->entity_addr, &limit) != kEebusErrorOk) {
     printf("%s getting power limit failed\n", self->cmd_name_caps);
@@ -145,6 +149,9 @@ void HandleCmdGetPowerLimit(const EgLpCli* self, const char* const* tokens, size
 }
 
 void HandleCmdGetFailsafeLimit(const EgLpCli* self, const char* const* tokens, size_t num_tokens) {
+  UNUSED(tokens);
+  UNUSED(num_tokens);
+
   ScaledValue power_limit = {0};
   if (EgLpGetFailsafeActivePowerLimit(self->eg_lp, self->entity_addr, &power_limit) != kEebusErrorOk) {
     printf("%s getting failsafe limit failed\n", self->cmd_name_caps);
@@ -156,6 +163,9 @@ void HandleCmdGetFailsafeLimit(const EgLpCli* self, const char* const* tokens, s
 }
 
 void HandleCmdGetFailsafeDuration(const EgLpCli* self, const char* const* tokens, size_t num_tokens) {
+  UNUSED(tokens);
+  UNUSED(num_tokens);
+
   DurationType duration = {0};
   if (EgLpGetFailsafeDurationMinimum(self->eg_lp, self->entity_addr, &duration) != kEebusErrorOk) {
     printf("%s getting failsafe duration failed\n", self->cmd_name_caps);

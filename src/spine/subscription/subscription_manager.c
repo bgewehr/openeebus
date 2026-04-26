@@ -18,6 +18,7 @@
  * @brief Subscription Manager implementation
  */
 
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_malloc.h"
 #include "src/spine/api/device_local_interface.h"
 #include "src/spine/api/feature_link.h"
@@ -244,6 +245,8 @@ void RemoveEntitySubscriptions(SubscriptionManagerObject* self, EntityRemoteObje
 }
 
 Vector* GetFeatureSubscriptions(const SubscriptionManagerObject* self, FeatureAddressType feature_addr) {
+  UNUSED(self);
+  UNUSED(feature_addr);
   // TODO: Implement method
   return NULL;
 }

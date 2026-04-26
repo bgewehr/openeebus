@@ -19,7 +19,12 @@ project(${PROJECT_NAME} LANGUAGES C)
 
 option(OPTION_ASAN "Enable AddressSanitizer" OFF)
 
+set(PROJECT_COMPILE_OPTIONS "")
+set(PROJECT_ASAN_OPTIONS "")
+
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    list(APPEND PROJECT_COMPILE_OPTIONS -Wall -Wextra -Werror)
+
     if(OPTION_ASAN)
         message(STATUS "AddressSanitizer enabled")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fno-omit-frame-pointer -g3")

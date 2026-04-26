@@ -19,6 +19,7 @@
  */
 
 #include "src/common/array_util.h"
+#include "src/common/eebus_arguments.h"
 #include "src/spine/api/message.h"
 #include "src/spine/events/events.h"
 #include "src/spine/model/cmd.h"
@@ -70,6 +71,8 @@ EebusError ProcessReadUseCaseData(NodeManagement* self, const Message* msg) {
 }
 
 EebusError ProcessReplyUseCaseData(NodeManagement* self, const Message* msg) {
+  UNUSED(self);
+
   const NodeManagementUseCaseDataType* const usecase_data = (const NodeManagementUseCaseDataType*)msg->cmd->data_choice;
 
   FeatureRemoteObject* const fr = msg->feature_remote;

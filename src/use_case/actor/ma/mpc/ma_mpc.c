@@ -23,6 +23,7 @@
 #include <stddef.h>
 
 #include "src/common/array_util.h"
+#include "src/common/eebus_arguments.h"
 #include "src/spine/entity/entity_local.h"
 #include "src/spine/feature/feature_local.h"
 #include "src/spine/model/usecase_information_types.h"
@@ -105,6 +106,7 @@ static EebusError
 MaMpcUseCaseConstruct(MaMpcUseCase* self, EntityLocalObject* local_entity, MaMpcListenerObject* ma_mpc_listener);
 
 EebusError AddFeatures(UseCaseObject* self, EntityLocalObject* entity) {
+  UNUSED(self);
   // client features
   const FeatureTypeType client_features[] = {
       kFeatureTypeTypeElectricalConnection,

@@ -19,6 +19,7 @@
  */
 
 #include "src/common/array_util.h"
+#include "src/common/eebus_arguments.h"
 #include "src/use_case/api/ma_mpc_measurement_interface.h"
 #include "src/use_case/model/mpc_types.h"
 #include "src/use_case/specialization/electrical_connection/electrical_connection_client.h"
@@ -311,6 +312,8 @@ bool CheckPhaseSpecificData(
     const EnergyDirectionType* energy_direction,
     const MeasurementDataType* item
 ) {
+  UNUSED(mcl);
+
   if ((item->value == NULL) || (item->value->number == NULL) || (item->measurement_id == NULL)) {
     return false;
   }
@@ -420,6 +423,8 @@ EebusError GetEnergyStrategy(
     ElectricalConnectionClient* eccl,
     ScaledValue* value
 ) {
+  UNUSED(eccl);
+
   const MeasurementDescriptionDataType filter = {
       .measurement_type = &measurement->measurement_type,
       .commodity_type   = &(CommodityTypeType){kCommodityTypeTypeElectricity},
@@ -457,6 +462,9 @@ EebusError GetFrequencyStrategy(
     ElectricalConnectionClient* eccl,
     ScaledValue* value
 ) {
+  UNUSED(measurement);
+  UNUSED(eccl);
+
   const MeasurementDescriptionDataType filter = {
       .measurement_type = &(MeasurementTypeType){kMeasurementTypeTypeFrequency},
       .commodity_type   = &(CommodityTypeType){kCommodityTypeTypeElectricity},

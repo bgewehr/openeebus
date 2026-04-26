@@ -105,6 +105,8 @@ EebusError HemsConstruct(Hems* self) {
 }
 
 EebusError AddEgLpc(Hems* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
+  UNUSED(device_local);
+
   self->eg_lpc_listener = EgLpcListenerCreate(HEMS_OBJECT(self));
   if (self->eg_lpc_listener == NULL) {
     return kEebusErrorMemoryAllocate;
@@ -121,6 +123,8 @@ EebusError AddEgLpc(Hems* self, DeviceLocalObject* device_local, EntityLocalObje
 }
 
 EebusError AddEgLpp(Hems* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
+  UNUSED(device_local);
+
   self->eg_lpp_listener = EgLppListenerCreate(HEMS_OBJECT(self));
   if (self->eg_lpp_listener == NULL) {
     return kEebusErrorMemoryAllocate;
@@ -137,6 +141,8 @@ EebusError AddEgLpp(Hems* self, DeviceLocalObject* device_local, EntityLocalObje
 }
 
 EebusError AddMaMpc(Hems* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
+  UNUSED(device_local);
+
   self->ma_mpc_listener = MaMpcListenerCreate(HEMS_OBJECT(self));
   if (self->ma_mpc_listener == NULL) {
     return kEebusErrorMemoryAllocate;
@@ -301,6 +307,7 @@ void OnShipStateUpdate(ServiceReaderObject* self, const char* ski, SmeState stat
 
 bool IsWaitingForTrustAllowed(const ServiceReaderObject* self, const char* ski) {
   UNUSED(self);
+  UNUSED(ski);
 
   return true;
 }

@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "src/common/api/eebus_data_interface.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_assert.h"
 #include "src/common/eebus_errors.h"
 #include "src/common/eebus_malloc.h"
@@ -49,6 +50,8 @@ bool EebusDataSimpleIsNull(const EebusDataCfg* cfg, const void* base_addr) {
 }
 
 bool EebusDataSimpleIsEmpty(const EebusDataCfg* cfg, const void* base_addr) {
+  UNUSED(cfg);
+  UNUSED(base_addr);
   // There is no specific value for simple data to be trated as "empty"
   return false;
 }

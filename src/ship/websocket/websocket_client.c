@@ -18,6 +18,8 @@
  * @brief Websocket Uri implementation
  */
 
+#include "src/common/eebus_arguments.h"
+#include "src/common/eebus_malloc.h"
 #include "src/common/eebus_thread/eebus_thread.h"
 #include "src/common/string_util.h"
 #include "src/ship/websocket/websocket.h"
@@ -67,7 +69,7 @@ static EebusError WebsocketClientConstruct(
 static void* WebsocketClientLoop(void* parameters);
 static struct lws_client_connect_info* WebsocketClientConnectInfoCreate(WebsocketClient* self);
 static struct lws_context* WebsocketClientLwsContextCreate(WebsocketClient* self);
-static EebusError WebsocketClientParse(WebsocketClient* self, char* uri);
+static EebusError WebsocketClientParse(WebsocketClient* self);
 static EebusError WebsocketClientTryStart(WebsocketClient* self);
 static int WebsocketClientOnClientEstablished(WebsocketClient* self);
 static int WebsocketClientOnClientConnectionError(WebsocketClient* self, const char* in, size_t len);
@@ -198,7 +200,7 @@ struct lws_context* WebsocketClientLwsContextCreate(WebsocketClient* self) {
   return lws_create_context(&lws_ctx_creation_info);
 }
 
-EebusError WebsocketClientParse(WebsocketClient* self, char* uri) {
+EebusError WebsocketClientParse(WebsocketClient* self) {
   const char* path     = NULL;
   const char* protocol = NULL;
 
@@ -225,7 +227,7 @@ EebusError WebsocketClientParse(WebsocketClient* self, char* uri) {
 EebusError WebsocketClientTryStart(WebsocketClient* self) {
   Websocket* const ws = WEBSOCKET(self);
 
-  if (WebsocketClientParse(self, self->uri) != kEebusErrorOk) {
+  if (WebsocketClientParse(self) != kEebusErrorOk) {
     WEBSOCKET_DEBUG_PRINTF("%s(), error parsing uri\n", __func__);
     return kEebusErrorParse;
   }
@@ -363,6 +365,7 @@ int WebsocketClientServiceCallback(
     void* in,
     size_t len
 ) {
+  UNUSED(user);
   WebsocketClient* const ws = lws_context_user(lws_get_context(wsi));
 
   WEBSOCKET_DEBUG_PRINTF("%s(), reason = %s\n", __func__, WebsocketLwsReasonToString(reason));

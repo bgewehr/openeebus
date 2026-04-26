@@ -115,6 +115,8 @@ EebusError HpsrvConstruct(Hpsrv* self) {
 }
 
 EebusError AddLpc(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
+  UNUSED(device_local);
+
   self->cs_lpc_listener = CsLpcListenerCreate();
   if (self->cs_lpc_listener == NULL) {
     return kEebusErrorMemoryAllocate;
@@ -132,6 +134,8 @@ EebusError AddLpc(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObjec
 }
 
 EebusError AddLpp(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
+  UNUSED(device_local);
+
   self->cs_lpp_listener = CsLppListenerCreate();
   if (self->cs_lpp_listener == NULL) {
     return kEebusErrorMemoryAllocate;
@@ -149,6 +153,8 @@ EebusError AddLpp(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObjec
 }
 
 EebusError AddMpc(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
+  UNUSED(device_local);
+
   static const MuMpcMeasurementConfig measurement_default_cfg = {
       .value_source = kMeasurementValueSourceTypeMeasuredValue,
   };
@@ -363,12 +369,16 @@ void OnRemoteSkiDisconnected(ServiceReaderObject* self, EebusServiceObject* serv
 
 void OnRemoteServicesUpdate(ServiceReaderObject* self, EebusServiceObject* service, const Vector* entries) {
   UNUSED(self);
+  UNUSED(service);
+  UNUSED(entries);
 
   // Optional: print the remote services
 }
 
 void OnShipIdUpdate(ServiceReaderObject* self, const char* ski, const char* shipd_id) {
   UNUSED(self);
+  UNUSED(ski);
+  UNUSED(shipd_id);
 }
 
 void OnShipStateUpdate(ServiceReaderObject* self, const char* ski, SmeState state) {
@@ -379,6 +389,7 @@ void OnShipStateUpdate(ServiceReaderObject* self, const char* ski, SmeState stat
 
 bool IsWaitingForTrustAllowed(const ServiceReaderObject* self, const char* ski) {
   UNUSED(self);
+  UNUSED(ski);
 
   return true;
 }

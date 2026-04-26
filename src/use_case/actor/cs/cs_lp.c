@@ -23,6 +23,7 @@
 #include <stddef.h>
 
 #include "src/common/array_util.h"
+#include "src/common/eebus_arguments.h"
 #include "src/spine/entity/entity_local.h"
 #include "src/spine/feature/feature_local.h"
 #include "src/spine/model/loadcontrol_types.h"
@@ -357,6 +358,7 @@ EebusError AddDeviceConfigurationFeature(CsLpUseCase* self, EntityLocalObject* e
 }
 
 EebusError AddDeviceDiagnosisFeature(CsLpUseCase* self, EntityLocalObject* entity) {
+  UNUSED(self);
   FeatureLocalObject* const fl
       = ENTITY_LOCAL_ADD_FEATURE_WITH_TYPE_AND_ROLE(entity, kFeatureTypeTypeDeviceDiagnosis, kRoleTypeServer);
   FEATURE_LOCAL_SET_FUNCTION_OPERATIONS(fl, kFunctionTypeDeviceDiagnosisHeartbeatData, true, false);

@@ -19,6 +19,7 @@
  */
 
 #include "src/common/api/eebus_data_interface.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_assert.h"
 #include "src/common/eebus_data/eebus_data_base.h"
 #include "src/common/eebus_data/eebus_data_list.h"
@@ -90,6 +91,10 @@ CopyMatching(const EebusDataCfg* cfg, const void* base_addr, void* dst_base_addr
 
 bool SelectorsMatch(const EebusDataCfg* cfg, const void* base_addr, const EebusDataCfg* selectors_cfg,
     const void* selectors_base_addr) {
+  UNUSED(cfg);
+  UNUSED(base_addr);
+  UNUSED(selectors_cfg);
+  UNUSED(selectors_base_addr);
   EEBUS_ASSERT_ALWAYS();
   return false;
 }

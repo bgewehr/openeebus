@@ -20,6 +20,7 @@
 
 #include <string.h>
 
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_malloc.h"
 #include "src/service/api/service_reader_interface.h"
 #include "src/service/service/eebus_service.h"
@@ -246,6 +247,7 @@ void OnHandleShipStateUpdate(ShipNodeReaderObject* self, const char* ski, SmeSta
 }
 
 bool IsWaitingForTrustAllowed(ShipNodeReaderObject* self, const char* ski) {
+  UNUSED(ski);
   return EEBUS_SERVICE(self)->is_pairing_possible;
 }
 
@@ -270,11 +272,15 @@ DeviceLocalObject* GetLocalDevice(const EebusServiceObject* self) {
 }
 
 const ConnectionState* GetConnectionStateWithSki(const EebusServiceObject* self, const char* ski) {
+  UNUSED(self);
+  UNUSED(ski);
   // TODO: Implement method
   return NULL;
 }
 
 const ServiceDetails* GetRemoteServiceDetailsWithSki(const EebusServiceObject* self, const char* ski) {
+  UNUSED(self);
+  UNUSED(ski);
   // TODO: Implement method
   return NULL;
 }

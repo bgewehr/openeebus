@@ -21,6 +21,7 @@
 #include <stdbool.h>
 
 #include "src/common/api/eebus_data_interface.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_assert.h"
 #include "src/common/eebus_data/eebus_data_simple.h"
 #include "src/common/eebus_errors.h"
@@ -60,6 +61,8 @@ const EebusDataInterface eebus_data_string_methods = {
 };
 
 void* CreateEmpty(const EebusDataCfg* cfg, void* base_addr) {
+  UNUSED(cfg);
+  UNUSED(base_addr);
   EEBUS_ASSERT_ALWAYS();
   return NULL;
 }

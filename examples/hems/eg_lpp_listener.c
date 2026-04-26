@@ -91,6 +91,7 @@ EgLpListenerObject* EgLppListenerCreate(HemsObject* hems) {
 }
 
 void Destruct(EgLpListenerObject* self) {
+  UNUSED(self);
   // Nothing to be deallocated yet
 }
 
@@ -101,6 +102,8 @@ void OnRemoteEntityConnect(EgLpListenerObject* self, const EntityAddressType* en
 }
 
 void OnRemoteEntityDisconnect(EgLpListenerObject* self, const EntityAddressType* entity_addr) {
+  UNUSED(entity_addr);
+
   EgLppListener* const lpp_listener = EG_LP_LISTENER(self);
 
   // Currently only single remote entity is supported,

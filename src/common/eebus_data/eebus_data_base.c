@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "src/common/api/eebus_data_interface.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_assert.h"
 #include "src/common/eebus_errors.h"
 #include "src/common/eebus_malloc.h"
@@ -118,6 +119,7 @@ EebusError EebusDataBaseCopyMatching(
     void* dst_base_addr,
     const void* data_to_match_base_addr
 ) {
+  UNUSED(data_to_match_base_addr);
   // No matching check is done by default
   return EEBUS_DATA_WRITE(cfg, dst_base_addr, base_addr);
 }
@@ -139,6 +141,10 @@ bool EebusDataBaseHasIdentifiers(const EebusDataCfg* cfg, const void* base_addr)
 
 bool EebusDataBaseSelectorsMatch(const EebusDataCfg* cfg, const void* base_addr, const EebusDataCfg* selectors_cfg,
     const void* selectors_base_addr) {
+  UNUSED(cfg);
+  UNUSED(base_addr);
+  UNUSED(selectors_cfg);
+  UNUSED(selectors_base_addr);
   // SelectorsMatch() currently is not supported by default
   EEBUS_ASSERT_ALWAYS();
   return false;
@@ -167,11 +173,19 @@ EebusError EebusDataBaseWriteElements(const EebusDataCfg* cfg, void* base_addr, 
 
 EebusError EebusDataBaseWritePartial(const EebusDataCfg* cfg, void* base_addr, void* src_base_addr,
     const EebusDataCfg* selectors_cfg, const void* selectors_base_addr, SelectorsMatcher selectors_matcher) {
+  UNUSED(selectors_cfg);
+  UNUSED(selectors_base_addr);
+  UNUSED(selectors_matcher);
+
   return EEBUS_DATA_WRITE_ELEMENTS(cfg, base_addr, src_base_addr);
 }
 
 void EebusDataBaseDeletePartial(const EebusDataCfg* cfg, void* base_addr, const EebusDataCfg* selectors_cfg,
     const void* selectors_base_addr, SelectorsMatcher selectors_matcher, const EebusDataCfg* elements_cfg,
     const void* elements_base_addr) {
+  UNUSED(selectors_cfg);
+  UNUSED(selectors_base_addr);
+  UNUSED(selectors_matcher);
+
   EEBUS_DATA_DELETE_ELEMENTS(cfg, base_addr, elements_cfg, elements_base_addr);
 }

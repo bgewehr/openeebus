@@ -28,6 +28,7 @@
 #include <string.h>
 
 #include "src/common/array_util.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_errors.h"
 #include "src/common/eebus_malloc.h"
 #include "src/common/json.h"
@@ -458,6 +459,7 @@ EebusError DataSerialize(const Data* data, cJSON* data_obj) {
 
 EebusError SmeConnectionAccessMethodsRequestSerialize(
     const AccessMethodsRequest* sme_access_metods_req, cJSON* access_metods_req_obj) {
+  UNUSED(sme_access_metods_req);
   cJSON* const access_methods_req_ar = cJSON_AddArrayToObject(access_metods_req_obj, "accessMethodsRequest");
 
   return (access_methods_req_ar != NULL) ? kEebusErrorOk : kEebusErrorMemory;

@@ -20,6 +20,7 @@
 
 #include "src/use_case/specialization/measurement/measurement_server.h"
 #include "src/common/array_util.h"
+#include "src/common/eebus_arguments.h"
 #include "src/spine/model/filter.h"
 #include "src/spine/model/measurement_types.h"
 
@@ -120,6 +121,7 @@ EebusError MeasurementServerUpdateMeasurementWithFilter(
     const MeasurementListDataSelectorsType* delete_selectors,
     const MeasurementDataElementsType* delete_elements
 ) {
+  UNUSED(filter);
   const MeasurementDataType* measurement_data[]   = {measurement};
   const MeasurementListDataType measurements_list = {measurement_data, ARRAY_SIZE(measurement_data)};
 

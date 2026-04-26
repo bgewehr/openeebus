@@ -25,6 +25,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_errors.h"
 #include "src/common/eebus_malloc.h"
 #include "src/common/string_util.h"
@@ -247,6 +248,10 @@ TlsCertificateObject* TlsCertificateLoadX509KeyPair(const char* cert_file, const
 
 TlsCertificateObject*
 TlsCertificateParseX509KeyPair(const char* cert_buf, size_t cert_buf_size, const char* key_buf, size_t key_buf_size) {
+  UNUSED(cert_buf);
+  UNUSED(cert_buf_size);
+  UNUSED(key_buf);
+  UNUSED(key_buf_size);
   return NULL;  // Not implemented
 }
 

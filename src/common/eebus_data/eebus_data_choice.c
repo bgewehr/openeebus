@@ -21,6 +21,7 @@
 #include <stdbool.h>
 
 #include "src/common/api/eebus_data_interface.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_assert.h"
 #include "src/common/eebus_data/eebus_data_base.h"
 #include "src/common/eebus_data/eebus_data_util.h"
@@ -72,11 +73,16 @@ const EebusDataInterface eebus_data_choice_methods = {
 };
 
 void* CreateEmpty(const EebusDataCfg* cfg, void* base_addr) {
+  UNUSED(cfg);
+  UNUSED(base_addr);
   EEBUS_ASSERT_ALWAYS();
   return NULL;
 }
 
 EebusError FromJsonObjectItem(const EebusDataCfg* cfg, void* base_addr, const JsonObject* json_item) {
+  UNUSED(cfg);
+  UNUSED(base_addr);
+  UNUSED(json_item);
   EEBUS_ASSERT_ALWAYS();
   return kEebusErrorOther;
 }
@@ -99,6 +105,9 @@ EebusError FromJsonObject(const EebusDataCfg* cfg, void* base_addr, const JsonOb
 }
 
 EebusError ToJsonObjectItem(const EebusDataCfg* cfg, const void* base_addr, JsonObject** json_item) {
+  UNUSED(cfg);
+  UNUSED(base_addr);
+  UNUSED(json_item);
   EEBUS_ASSERT_ALWAYS();
   return kEebusErrorOther;
 }
@@ -111,7 +120,7 @@ static EebusError ToJsonObject(const EebusDataCfg* cfg, const void* base_addr, J
 
   const int32_t* const type_id         = (const int32_t*)((const uint8_t*)base_addr + cfg->type_id_offset);
   const EebusDataCfg* const choice_cfg = (const EebusDataCfg*)cfg->metadata;
-  if (*type_id >= EebusDataGetCfgSize(choice_cfg)) {
+  if (*type_id >= (int32_t)EebusDataGetCfgSize(choice_cfg)) {
     return kEebusErrorInputArgumentOutOfRange;
   }
 
@@ -129,7 +138,8 @@ bool Compare(const EebusDataCfg* a_cfg, const void* a_base_addr, const EebusData
   const int32_t* const a_type_id = (const int32_t*)((const uint8_t*)a_base_addr + a_cfg->type_id_offset);
   const int32_t* const b_type_id = (const int32_t*)((const uint8_t*)b_base_addr + b_cfg->type_id_offset);
 
-  if ((*a_type_id >= EebusDataGetCfgSize(a_choice_cfg)) || (*b_type_id >= EebusDataGetCfgSize(b_choice_cfg))) {
+  if ((*a_type_id >= (int32_t)EebusDataGetCfgSize(a_choice_cfg))
+      || (*b_type_id >= (int32_t)EebusDataGetCfgSize(b_choice_cfg))) {
     EEBUS_ASSERT_ALWAYS();
     return false;
   }
@@ -144,7 +154,7 @@ bool IsNull(const EebusDataCfg* cfg, const void* base_addr) {
 
   const int32_t* const type_id = (const int32_t*)((const uint8_t*)base_addr + cfg->type_id_offset);
 
-  if (*type_id >= EebusDataGetCfgSize(choice_cfg)) {
+  if (*type_id >= (int32_t)EebusDataGetCfgSize(choice_cfg)) {
     EEBUS_ASSERT_ALWAYS();
     return kEebusErrorInputArgument;
   }
@@ -157,7 +167,7 @@ bool IsEmpty(const EebusDataCfg* cfg, const void* base_addr) {
 
   const int32_t* const type_id = (const int32_t*)((const uint8_t*)base_addr + cfg->type_id_offset);
 
-  if (*type_id >= EebusDataGetCfgSize(choice_cfg)) {
+  if (*type_id >= (int32_t)EebusDataGetCfgSize(choice_cfg)) {
     EEBUS_ASSERT_ALWAYS();
     return kEebusErrorInputArgument;
   }
@@ -166,23 +176,37 @@ bool IsEmpty(const EebusDataCfg* cfg, const void* base_addr) {
 }
 
 bool HasIdentifiers(const EebusDataCfg* cfg, const void* base_addr) {
+  UNUSED(cfg);
+  UNUSED(base_addr);
   EEBUS_ASSERT_ALWAYS();
   return false;
 }
 
 bool SelectorsMatch(const EebusDataCfg* cfg, const void* base_addr, const EebusDataCfg* selectors_cfg,
     const void* selectors_base_addr) {
+  UNUSED(cfg);
+  UNUSED(base_addr);
+  UNUSED(selectors_cfg);
+  UNUSED(selectors_base_addr);
   EEBUS_ASSERT_ALWAYS();
   return false;
 }
 
 bool IdentifiersMatch(const EebusDataCfg* cfg, const void* base_addr, const void* src_base_addr) {
+  UNUSED(cfg);
+  UNUSED(base_addr);
+  UNUSED(src_base_addr);
   EEBUS_ASSERT_ALWAYS();
   return false;
 }
 
 EebusError ReadElements(const EebusDataCfg* cfg, const void* base_addr, void* dst_base_addr,
     const EebusDataCfg* elements_cfg, const void* elements_base_addr) {
+  UNUSED(cfg);
+  UNUSED(base_addr);
+  UNUSED(dst_base_addr);
+  UNUSED(elements_cfg);
+  UNUSED(elements_base_addr);
   EEBUS_ASSERT_ALWAYS();
   return kEebusErrorOther;
 }
@@ -193,7 +217,7 @@ EebusError Write(const EebusDataCfg* cfg, void* base_addr, const void* src_base_
   const int32_t* const src_type_id = (const int32_t*)((const uint8_t*)src_base_addr + cfg->type_id_offset);
   int32_t* const type_id           = (int32_t*)((uint8_t*)base_addr + cfg->type_id_offset);
 
-  if (*src_type_id >= EebusDataGetCfgSize(choice_cfg)) {
+  if (*src_type_id >= (int32_t)EebusDataGetCfgSize(choice_cfg)) {
     EEBUS_ASSERT_ALWAYS();
     return kEebusErrorInputArgument;
   }
@@ -209,6 +233,10 @@ EebusError Write(const EebusDataCfg* cfg, void* base_addr, const void* src_base_
 
 void DeleteElements(
     const EebusDataCfg* cfg, void* base_addr, const EebusDataCfg* elements_cfg, const void* elements_base_addr) {
+  UNUSED(cfg);
+  UNUSED(base_addr);
+  UNUSED(elements_cfg);
+  UNUSED(elements_base_addr);
   EEBUS_ASSERT_ALWAYS();
 }
 
@@ -216,7 +244,7 @@ void Delete(const EebusDataCfg* cfg, void* base_addr) {
   const EebusDataCfg* const choice_cfg = (const EebusDataCfg*)cfg->metadata;
   const int32_t* const choice_type_id  = (const int32_t*)((const uint8_t*)base_addr + cfg->type_id_offset);
 
-  if (*choice_type_id >= EebusDataGetCfgSize(choice_cfg)) {
+  if (*choice_type_id >= (int32_t)EebusDataGetCfgSize(choice_cfg)) {
     EEBUS_ASSERT_ALWAYS();
     return;
   }
