@@ -14,7 +14,6 @@ ProcessorCount(PROCESSORS_NUM)
 
 set(CMAKE_ECLIPSE_MAKE_ARGUMENTS ${CMAKE_ECLIPSE_MAKE_ARGUMENTS} "--no-print-directory -j${PROCESSORS_NUM} -r -s" CACHE STRING "Make parameters")
 
-# Check if the build run from Jenkins or locally 
 project(${PROJECT_NAME} LANGUAGES C)
 
 option(OPTION_ASAN "Enable AddressSanitizer" OFF)
