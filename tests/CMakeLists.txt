@@ -76,14 +76,14 @@ else()
   add_library(cjson ALIAS PkgConfig::CJSON)
 endif()
 
-if(CMAKE_CXX_COMPILER_ID MATCHES GNU OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
 endif()
-if(CMAKE_C_COMPILER_ID MATCHES GNU OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
 endif()
 
-if(CMAKE_CXX_COMPILER_ID MATCHES GNU OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" OR CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 endif()
 
@@ -101,10 +101,12 @@ set(GTEST_SOURCES
   ${GTestFiles}
 )
 
-if(CMAKE_CXX_COMPILER_ID MATCHES GNU OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   set(PROJECT_COMPILE_OPTIONS
     -Wno-psabi
-    -Werror=return-type
+    -Wall
+    -Wextra
+    -Werror
     --coverage
     -fprofile-arcs
   )
@@ -132,7 +134,7 @@ if (NOT APPLE)
   set(GCOV "-lgcov")
 endif()
 
-if(CMAKE_CXX_COMPILER_ID MATCHES GNU OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" OR CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
   set(PROJECT_LINK_OPTIONS
     --coverage
     ${GCOV}
