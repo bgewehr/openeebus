@@ -50,9 +50,6 @@ TEST_P(EebusServiceConfigCreateTests, eebus_service_config_create_tests) {
 
   const char* device_type = GetParam().device_type;
 
-  const EntityTypeType* entity_types = GetParam().entity_types;
-  const size_t entity_types_size     = GetParam().entity_types_size;
-
   const int32_t port = GetParam().port;
 
   // Act: Initialise Configuration

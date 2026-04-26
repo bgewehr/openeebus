@@ -47,5 +47,5 @@ std::unique_ptr<FilterType, decltype(&FilterDelete)> FilterTestDataParse(const s
   }
 
   std::unique_ptr<FilterType, decltype(&FilterDelete)> filter{FilterParse(s_filter_delete.get()), FilterDelete};
-  return std::move(filter);
+  return filter;
 }

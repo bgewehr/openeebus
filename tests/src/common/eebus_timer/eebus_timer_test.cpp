@@ -25,9 +25,11 @@
 
 #include <string_view>
 
+#include "src/common/eebus_arguments.h"
 #include "tests/src/memory_leak.inc"
 
 static void EebusTimerTimeoutCallbackStub(void* eebus_timer) {
+  UNUSED(eebus_timer);
   return;
 }
 

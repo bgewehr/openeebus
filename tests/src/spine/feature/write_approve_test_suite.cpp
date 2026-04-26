@@ -16,6 +16,7 @@
 
 #include "tests/src/spine/feature/write_approve_test_suite.h"
 #include "src/common/api/eebus_timer_interface.h"
+#include "src/common/eebus_arguments.h"
 #include "src/spine/model/result_types.h"
 #include "tests/src/memory_leak.inc"
 
@@ -87,10 +88,10 @@ void WriteApproveTestSuite::TearDown() {
 
 Message WriteApproveTestSuite::CreateTestMessage(FunctionType data_type_id, uint64_t msg_counter) {
   // Create spine data with deleter
-  spine_data_ = std::unique_ptr<void, std::function<void(void*)>>{
+  spine_data_ = std::unique_ptr<void, std::function<void(void*)>>(
       ModelFunctionDataCreateEmpty(data_type_id),
       [data_type_id](void* p) -> void { ModelFunctionDataDelete(data_type_id, p); }
-  };
+  );
 
   // Create mock command with spine data
   cmd_mock_ = std::make_unique<CmdType>(CmdType{
@@ -145,7 +146,7 @@ void TryApproveWriteRequestBeforeTimeoutCallback(const Message* msg, void* ctx) 
   EXPECT_EQ(VectorGetSize(&feature_local->pending_write_requests), 1);
 
   // Check remaining time for all pending write requests
-  for (int i = 0; i < VectorGetSize(&feature_local->pending_write_requests); ++i) {
+  for (size_t i = 0; i < VectorGetSize(&feature_local->pending_write_requests); ++i) {
     PendingWriteRequestObject* pwr
         = (PendingWriteRequestObject*)VectorGetElement(&feature_local->pending_write_requests, i);
     EXPECT_EQ(PENDING_WRITE_REQUEST_GET_REMAINING_TIME(pwr), 1);
@@ -166,7 +167,7 @@ void TryApproveWriteRequestAfterTimeoutCallback(const Message* msg, void* ctx) {
   MsgCounterType msg_cnt = *msg->request_header->msg_cnt;
 
   // Check that all pending write requests are not expired yet
-  for (int i = 0; i < VectorGetSize(&feature_local->pending_write_requests); ++i) {
+  for (size_t i = 0; i < VectorGetSize(&feature_local->pending_write_requests); ++i) {
     PendingWriteRequestObject* pwr
         = (PendingWriteRequestObject*)VectorGetElement(&feature_local->pending_write_requests, i);
     EXPECT_EQ(PENDING_WRITE_REQUEST_HAS_EXPIRED(pwr), false);
@@ -208,8 +209,6 @@ void DenyWriteRequestCallback(const Message* msg, void* ctx) {
 }
 
 void TryApproveShouldPass(const Message* msg, void* ctx) {
-  FeatureLocal* feature_local = FEATURE_LOCAL(ctx);
-
   const char* ski = DEVICE_REMOTE_GET_SKI(msg->device_remote);
 
   MsgCounterType msg_cnt = *msg->request_header->msg_cnt;
@@ -219,8 +218,6 @@ void TryApproveShouldPass(const Message* msg, void* ctx) {
 }
 
 void TryApproveShouldFail(const Message* msg, void* ctx) {
-  FeatureLocal* feature_local = FEATURE_LOCAL(ctx);
-
   const char* ski = DEVICE_REMOTE_GET_SKI(msg->device_remote);
 
   MsgCounterType msg_cnt = *msg->request_header->msg_cnt;
@@ -230,8 +227,6 @@ void TryApproveShouldFail(const Message* msg, void* ctx) {
 }
 
 void DenyShouldPass(const Message* msg, void* ctx) {
-  FeatureLocal* feature_local = FEATURE_LOCAL(ctx);
-
   const char* ski = DEVICE_REMOTE_GET_SKI(msg->device_remote);
 
   MsgCounterType msg_cnt = *msg->request_header->msg_cnt;
@@ -245,8 +240,6 @@ void DenyShouldPass(const Message* msg, void* ctx) {
 }
 
 void DenyShouldFail(const Message* msg, void* ctx) {
-  FeatureLocal* feature_local = FEATURE_LOCAL(ctx);
-
   const char* ski = DEVICE_REMOTE_GET_SKI(msg->device_remote);
 
   MsgCounterType msg_cnt = *msg->request_header->msg_cnt;

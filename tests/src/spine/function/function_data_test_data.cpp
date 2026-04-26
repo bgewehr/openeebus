@@ -58,10 +58,10 @@ std::unique_ptr<FunctionData, decltype(&FunctionDataDelete)> FunctionDataTestDat
   }
 
   FunctionDataParse(fd.get(), s_unformatted.get());
-  return std::move(fd);
+  return fd;
 }
 
 std::unique_ptr<char[], decltype(&JsonFree)> FunctionDataTestDataPrint(const FunctionData* fd) {
   std::unique_ptr<char[], decltype(&JsonFree)> s{FunctionDataPrintUnformatted(fd), JsonFree};
-  return std::move(s);
+  return s;
 }

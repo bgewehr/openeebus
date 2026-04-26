@@ -106,6 +106,7 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU
     -Wno-psabi
     -Wall
     -Wextra
+    -Wno-missing-field-initializers
     -Werror
     --coverage
     -fprofile-arcs

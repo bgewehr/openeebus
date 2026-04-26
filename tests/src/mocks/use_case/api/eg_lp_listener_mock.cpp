@@ -7,6 +7,7 @@
 
 #include <gmock/gmock.h>
 
+#include "src/common/eebus_arguments.h"
 #include "src/use_case/api/eg_lp_listener_interface.h"
 
 static void Destruct(EgLpListenerObject* self);
@@ -90,6 +91,7 @@ void OnPowerLimitReceive(
     const DurationType* duration,
     bool is_active
 ) {
+  UNUSED(entity_addr);
   EgLpListenerMock* const mock = EG_LP_LISTENER_MOCK(self);
   mock->gmock->OnPowerLimitReceive(self, power_limit, duration, is_active);
 }
@@ -99,6 +101,7 @@ void OnFailsafePowerLimitReceive(
     const EntityAddressType* entity_addr,
     const ScaledValue* power_limit
 ) {
+  UNUSED(entity_addr);
   EgLpListenerMock* const mock = EG_LP_LISTENER_MOCK(self);
   mock->gmock->OnFailsafePowerLimitReceive(self, power_limit);
 }
@@ -108,11 +111,13 @@ void OnFailsafeDurationReceive(
     const EntityAddressType* entity_addr,
     const DurationType* duration
 ) {
+  UNUSED(entity_addr);
   EgLpListenerMock* const mock = EG_LP_LISTENER_MOCK(self);
   mock->gmock->OnFailsafeDurationReceive(self, duration);
 }
 
 void OnHeartbeatReceive(EgLpListenerObject* self, const EntityAddressType* entity_addr, uint64_t heartbeat_counter) {
+  UNUSED(entity_addr);
   EgLpListenerMock* const mock = EG_LP_LISTENER_MOCK(self);
   mock->gmock->OnHeartbeatReceive(self, heartbeat_counter);
 }

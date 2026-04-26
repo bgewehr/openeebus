@@ -19,6 +19,7 @@
 #include <iomanip>
 
 #include "src/common/array_util.h"
+#include "src/common/eebus_arguments.h"
 #include "src/spine/device/device_local.h"
 #include "src/spine/device/device_local_internal.h"
 #include "src/spine/entity/entity_local.h"
@@ -38,6 +39,7 @@ UseCaseTestFixture::UseCaseTestFixture(const char* type, const char* vendor, con
 }
 
 void LogMessage(const char* direction, const uint8_t* msg, size_t msg_size) {
+  UNUSED(msg_size);
   auto now  = std::chrono::system_clock::now();
   auto time = std::chrono::system_clock::to_time_t(now);
   auto ms   = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;

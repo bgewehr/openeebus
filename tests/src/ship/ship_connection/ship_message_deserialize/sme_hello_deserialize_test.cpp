@@ -45,7 +45,7 @@ MATCHER_P3(SmeHelloEq, phase, waiting, prolongation_request, "") {
     match = match && (waiting == nullptr);
   } else {
     match = match && (waiting != nullptr);
-    match = match && (*arg->waiting == *waiting);
+    match = match && (*arg->waiting == static_cast<uint32_t>(*waiting));
   }
 
   if (arg->prolongation_request == nullptr) {

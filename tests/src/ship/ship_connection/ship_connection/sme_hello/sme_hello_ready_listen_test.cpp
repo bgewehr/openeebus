@@ -117,8 +117,6 @@ TEST_P(
   EXPECT_CALL(*prr_timer_mock->gmock, Stop(sc.prolongation_request_reply_timer));
 
   // Calculate message size
-  const size_t msg_size      = msg_buf.data_size - 1;
-  const size_t ret_num_bytes = GetParam().msg_send_successful ? msg_size : 0;
   EXPECT_CALL(
       *ifp_mock->gmock,
       HandleShipStateUpdate(

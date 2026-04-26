@@ -22,6 +22,7 @@
 
 #include <gmock/gmock.h>
 
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_errors.h"
 #include "src/ship/api/websocket_creator_interface.h"
 #include "websocket_mock.h"
@@ -69,6 +70,8 @@ void Destruct(WebsocketCreatorObject* self) {
 }
 
 WebsocketObject* CreateWebsocket(WebsocketCreatorObject* self, WebsocketCallback cb, void* ctx) {
-  WebsocketCreatorMock* const mock = WEBSOCKET_CREATOR_MOCK(self);
+  UNUSED(self);
+  UNUSED(cb);
+  UNUSED(ctx);
   return WEBSOCKET_OBJECT(WebsocketMockCreate());
 }

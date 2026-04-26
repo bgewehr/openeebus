@@ -23,6 +23,7 @@
 #include <gmock/gmock.h>
 
 #include "src/common/api/eebus_timer_interface.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_errors.h"
 #include "src/common/eebus_timer/eebus_timer.h"
 
@@ -69,6 +70,8 @@ EebusTimerMock* EebusTimerMockCreate(void) {
 }
 
 EebusTimerObject* EebusTimerCreate(EebusTimerTimeoutCallback cb, void* ctx) {
+  UNUSED(cb);
+  UNUSED(ctx);
   return EEBUS_TIMER_OBJECT(EebusTimerMockCreate());
 }
 
