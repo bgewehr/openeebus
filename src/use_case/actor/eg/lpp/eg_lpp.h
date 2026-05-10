@@ -46,11 +46,11 @@ static inline void EgLppUseCaseDelete(EgLpUseCaseObject* eg_lpp_use_case) {
  * @brief Get the active power production limit
  *
  * @param self EG LPP Use Case instance to get the active power production limit with
- * @param remote_entity_addr Remote entity address of the e.g. EVSE
+ * @param remote_entity_addr Remote entity address of the e.g. Inverter
  * @param limit The active power production limit output buffer, shall not be NULL
  * @return kEebusErrorOk on success, error code otherwise
  */
-static inline EebusError EgLppGetActivePowerConsumptionLimit(
+static inline EebusError EgLppGetActiveProductionPowerLimit(
     const EgLpUseCaseObject* self,
     const EntityAddressType* remote_entity_addr,
     LoadLimit* limit
@@ -62,11 +62,11 @@ static inline EebusError EgLppGetActivePowerConsumptionLimit(
  * @brief Send the new active power production limit
  *
  * @param self EG LPP Use Case instance to send the active power production limit with
- * @param remote_entity_addr Remote entity address of the e.g. EVSE
+ * @param remote_entity_addr Remote entity address of the e.g. Inverter
  * @param limit The active power production limit to be sent
  * @return kEebusErrorOk on success, error code otherwise
  */
-static inline EebusError EgLppSetActivePowerConsumptionLimit(
+static inline EebusError EgLppSetActiveProductionPowerLimit(
     EgLpUseCaseObject* self,
     const EntityAddressType* remote_entity_addr,
     const LoadLimit* limit
@@ -84,11 +84,11 @@ static inline EebusError EgLppSetActivePowerConsumptionLimit(
  * @brief Get the Failsafe Limit for the produced active (real) power of the
  * Controllable System. This limit becomes activated in "init" state or "failsafe state".
  *
- * @param self EG LPP Use Case instance to get the Failsafe Limit with
+ * @param self EG LPP Use Case instance to get the Failsafe Production Limit with
  * @param power_limit Output buffer to store the Failsafe Power Limit value
  * @return kEebusErrorOk on success, error code otherwise
  */
-static inline EebusError EgLppGetFailsafeConsumptionActivePowerLimit(
+static inline EebusError EgLppGetFailsafeProductionActivePowerLimit(
     const EgLpUseCaseObject* self,
     const EntityAddressType* remote_entity_addr,
     ScaledValue* power_limit
@@ -97,13 +97,13 @@ static inline EebusError EgLppGetFailsafeConsumptionActivePowerLimit(
 }
 
 /**
- * @brief Send new Failsafe Consumption Active Power Limit
+ * @brief Send new Failsafe Production Active Power Limit
  *
- * @param remote_entity_addr Remote entity address of the e.g. EVSE
+ * @param remote_entity_addr Remote entity address of the e.g. Inverter
  * @param power_limit The new limit in W
  * @return kEebusErrorOk on success, error code otherwise
  */
-static inline EebusError EgLppSetFailsafeConsumptionActivePowerLimit(
+static inline EebusError EgLppSetFailsafeProductionActivePowerLimit(
     EgLpUseCaseObject* self,
     const EntityAddressType* remote_entity_addr,
     const ScaledValue* power_limit
@@ -115,7 +115,7 @@ static inline EebusError EgLppSetFailsafeConsumptionActivePowerLimit(
  * @brief Get the minimum time the Controllable System remains in "failsafe state" unless conditions
  * specified in this Use Case permit leaving the "failsafe state"
  *
- * @param remote_entity_addr Remote entity address of the e.g. EVSE
+ * @param remote_entity_addr Remote entity address of the e.g. Inverter
  * @param duration The duration output buffer, shall not be NULL
  * @return kEebusErrorOk on success, error code otherwise
  */
@@ -130,7 +130,7 @@ static inline EebusError EgLppGetFailsafeDurationMinimum(
 /**
  * @brief Send the new Failsafe Duration Minimum
  *
- * @param remote_entity_addr Remote entity address of the e.g. EVSE
+ * @param remote_entity_addr Remote entity address of the e.g. Inverter
  * @param duration The duration, must be in range between 2h and 24h
  * @return kEebusErrorOk on success, error code otherwise
  */
