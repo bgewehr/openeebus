@@ -120,7 +120,8 @@ class CsLppTestFixture : public UseCaseTestFixture {
 
     cs_lpp_listener_mock_.reset(CsLpListenerMockCreate());
     use_case_.reset(CsLppUseCaseCreate(entity, 0, CS_LP_LISTENER_OBJECT(cs_lpp_listener_mock_.get())));
-    CsLppSetProductionLimit(use_case_.get(), 4200, 0, false, true);
+    const ScaledValue initial_limit = {4200, 0};
+    CsLppSetActiveProductionPowerLimit(use_case_.get(), &initial_limit, false, true);
 
     DEVICE_LOCAL_ADD_ENTITY(device_local_.get(), entity);
 
@@ -237,7 +238,7 @@ class CsLppTestFixture : public UseCaseTestFixture {
     HandleMessage(receive::limits_write);
 
     LoadLimit limit{0};
-    EXPECT_EQ(CsLppGetProductionLimit(use_case_.get(), &limit), kEebusErrorOk);
+    EXPECT_EQ(CsLppGetActiveProductionPowerLimit(use_case_.get(), &limit), kEebusErrorOk);
     EXPECT_THAT(&limit.value, ScaledValueEq(100, 0));
   }
 
@@ -246,7 +247,7 @@ class CsLppTestFixture : public UseCaseTestFixture {
     HandleMessage(receive::negative_limits_write);
 
     LoadLimit limit{0};
-    EXPECT_EQ(CsLppGetProductionLimit(use_case_.get(), &limit), kEebusErrorOk);
+    EXPECT_EQ(CsLppGetActiveProductionPowerLimit(use_case_.get(), &limit), kEebusErrorOk);
     EXPECT_THAT(&limit.value, ScaledValueEq(100, 0));
   }
 
