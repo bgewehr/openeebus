@@ -93,7 +93,14 @@ bool UseCaseInformationMatch(const UseCaseInformationDataType* use_case_info, co
       .entity_size = addr->entity_size,
   };
 
-  bool match = FeatureAddressCompare(&addr_a, &addr_b);
+  bool match = true;
+  if ((addr_a.entity == NULL) || (addr_b.entity == NULL)) {
+    match = match && (addr_a.entity == addr_b.entity);
+    const size_t device_addr_len = strlen(addr_a.device);
+    match = match && (strncmp(addr_a.device, addr_b.device, device_addr_len) == 0);
+  } else {
+    match = match && FeatureAddressCompare(&addr_a, &addr_b);
+  }
 
   match = match && ActorMatch(use_case_info, actor);
   match = match && UseCaseNameIdMatch(use_case_info, use_case_name_id);
