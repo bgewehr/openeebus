@@ -42,6 +42,11 @@ struct MaMgcpListenerInterface {
       const ScaledValue* measurement_value,
       const EntityAddressType* remote_entity_addr
   );
+  void (*on_pv_curtailment_limit_factor_receive)(
+      MaMgcpListenerObject* self,
+      const ScaledValue* value,
+      const EntityAddressType* remote_entity_addr
+  );
 };
 
 struct MaMgcpListenerObject {
@@ -61,6 +66,9 @@ struct MaMgcpListenerObject {
 
 #define MA_MGCP_LISTENER_ON_MEASUREMENT_RECEIVE(obj, name_id, measurement_value, remote_entity_addr) \
   (MA_MGCP_LISTENER_INTERFACE(obj)->on_measurement_receive(obj, name_id, measurement_value, remote_entity_addr))
+
+#define MA_MGCP_LISTENER_ON_PV_CURTAILMENT_LIMIT_FACTOR_RECEIVE(obj, value, remote_entity_addr) \
+  (MA_MGCP_LISTENER_INTERFACE(obj)->on_pv_curtailment_limit_factor_receive(obj, value, remote_entity_addr))
 
 #ifdef __cplusplus
 }

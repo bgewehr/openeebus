@@ -21,6 +21,7 @@
 #ifndef SRC_USE_CASE_ACTOR_GCP_MGCP_GCP_MGCP_INTERNAL_H_
 #define SRC_USE_CASE_ACTOR_GCP_MGCP_GCP_MGCP_INTERNAL_H_
 
+#include <stdbool.h>
 #include <stddef.h>
 
 #include "src/common/api/eebus_mutex_interface.h"
@@ -43,9 +44,11 @@ struct GcpMgcpUseCase {
   /** Vector of GcpMgcpMonitorObject* (one per active scenario group) */
   Vector monitors;
 
-  /** Dynamically built scenario array (scenarios 2–7, up to 6 entries) */
-  UseCaseScenario use_case_scenarios[6];
+  /** Dynamically built scenario array (scenarios 1–7, up to 7 entries) */
+  UseCaseScenario use_case_scenarios[7];
   size_t use_case_scenarios_size;
+
+  bool has_scenario1;
 
   UseCaseInfo gcp_mgcp_use_case_info;
 

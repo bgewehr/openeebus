@@ -53,7 +53,17 @@ static const FeatureTypeType use_case_scenario_features[] = {
     kFeatureTypeTypeMeasurement,
 };
 
+static const FeatureTypeType use_case_scenario1_features[] = {
+    kFeatureTypeTypeDeviceConfiguration,
+};
+
 static const UseCaseScenario use_case_scenarios[] = {
+    {
+     .scenario             = (UseCaseScenarioSupportType)1,
+     .mandatory            = false,
+     .server_features      = use_case_scenario1_features,
+     .server_features_size = ARRAY_SIZE(use_case_scenario1_features),
+     },
     {
      .scenario             = (UseCaseScenarioSupportType)2,
      .mandatory            = true,
@@ -116,6 +126,7 @@ static EebusError AddFeatures(UseCaseObject* self, EntityLocalObject* entity) {
   const FeatureTypeType client_features[] = {
       kFeatureTypeTypeElectricalConnection,
       kFeatureTypeTypeMeasurement,
+      kFeatureTypeTypeDeviceConfiguration,
   };
 
   for (size_t i = 0; i < ARRAY_SIZE(client_features); ++i) {

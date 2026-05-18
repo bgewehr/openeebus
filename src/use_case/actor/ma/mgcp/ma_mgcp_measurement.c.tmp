@@ -1,0 +1,3 @@
+MaMgcpMeasurement
+GcpMeasurementNameId GetName() const
+EebusError GetDataValue(MeasurementClient* mcl, ElectricalConnectionClient* eccl, ScaledValue* measurement_value) const

@@ -37,6 +37,8 @@
 #include "src/spine/device/device_local_internal.h"
 #include "src/spine/entity/entity_local.h"
 #include "tests/src/json.h"
+#include "tests/src/use_case/actor/ma/mgcp/receive/device_configuration_description_reply.inc"
+#include "tests/src/use_case/actor/ma/mgcp/receive/device_configuration_key_value_reply.inc"
 #include "tests/src/use_case/actor/ma/mgcp/receive/discovery_request.inc"
 #include "tests/src/use_case/actor/ma/mgcp/receive/discovery_response.inc"
 #include "tests/src/use_case/actor/ma/mgcp/receive/electrical_connection_description_reply.inc"
@@ -49,11 +51,15 @@
 #include "tests/src/use_case/actor/ma/mgcp/receive/measurement_notify_power.inc"
 #include "tests/src/use_case/actor/ma/mgcp/receive/measurement_reply.inc"
 #include "tests/src/use_case/actor/ma/mgcp/receive/node_management_subscription_request.inc"
+#include "tests/src/use_case/actor/ma/mgcp/receive/result_data_msg_cnt_ref_11.inc"
 #include "tests/src/use_case/actor/ma/mgcp/receive/result_data_msg_cnt_ref_3.inc"
 #include "tests/src/use_case/actor/ma/mgcp/receive/result_data_msg_cnt_ref_5.inc"
 #include "tests/src/use_case/actor/ma/mgcp/receive/result_data_msg_cnt_ref_8.inc"
 #include "tests/src/use_case/actor/ma/mgcp/receive/use_case_reply.inc"
 #include "tests/src/use_case/actor/ma/mgcp/receive/use_case_request.inc"
+#include "tests/src/use_case/actor/ma/mgcp/send/device_configuration_description_read.inc"
+#include "tests/src/use_case/actor/ma/mgcp/send/device_configuration_key_value_read.inc"
+#include "tests/src/use_case/actor/ma/mgcp/send/device_configuration_subscription_call.inc"
 #include "tests/src/use_case/actor/ma/mgcp/send/discovery_read.inc"
 #include "tests/src/use_case/actor/ma/mgcp/send/discovery_reply.inc"
 #include "tests/src/use_case/actor/ma/mgcp/send/electrical_connection_description_read.inc"
@@ -143,13 +149,16 @@ TEST_F(MaMgcpTestFixture, MaMgcpTest) {
   // 5. Receive the result with message counter reference 3
   HandleMessage(receive::result_data_msg_cnt_ref_3);
 
-  // 6. Receive the Use Case reply and send electrical connection + measurement subscriptions and reads
+  // 6. Receive the Use Case reply and send electrical connection + measurement + device configuration subscriptions and
+  // reads
   ExpectSendMessage(send::electrical_connection_subscription_call);
   ExpectSendMessage(send::electrical_connection_description_read);
   ExpectSendMessage(send::electrical_connection_parameter_description_read);
   ExpectSendMessage(send::measurement_subscription_call);
   ExpectSendMessage(send::measurement_description_read);
   ExpectSendMessage(send::measurement_constraints_read);
+  ExpectSendMessage(send::device_configuration_subscription_call);
+  ExpectSendMessage(send::device_configuration_description_read);
   HandleMessage(receive::use_case_reply);
 
   // 7. Receive the result with message counter reference 5
@@ -171,13 +180,26 @@ TEST_F(MaMgcpTestFixture, MaMgcpTest) {
   // 12. Receive the measurement constraints reply
   HandleMessage(receive::measurement_constraints_reply);
 
-  // 13. Receive the measurement reply (power_total)
+  // 13. Receive the device configuration subscription result
+  HandleMessage(receive::result_data_msg_cnt_ref_11);
+
+  // 14. Receive the device configuration description reply and send the key value read
+  ExpectSendMessage(send::device_configuration_key_value_read);
+  HandleMessage(receive::device_configuration_description_reply);
+
+  // 15. Receive the measurement reply (power_total)
   EXPECT_CALL(*ma_mgcp_listener_mock_->gmock, OnMeasurementReceive(_, kGcpPowerTotal, ScaledValueEq(33000, -1), _))
       .WillOnce(Return());
 
   HandleMessage(receive::measurement_reply);
 
-  // 14. Receive the measurement notify (power_total)
+  // 16. Receive the device configuration key value reply
+  EXPECT_CALL(*ma_mgcp_listener_mock_->gmock, OnPvCurtailmentLimitFactorReceive(_, ScaledValueEq(75, 0), _))
+      .WillOnce(Return());
+
+  HandleMessage(receive::device_configuration_key_value_reply);
+
+  // 17. Receive the measurement notify (power_total)
   const std::map<GcpMeasurementNameId, ScaledValue> expected_power{
       {kGcpPowerTotal, {.value = 5000, .scale = 0}},
   };
@@ -185,7 +207,7 @@ TEST_F(MaMgcpTestFixture, MaMgcpTest) {
   ExpectMeasurementsReceive(ma_mgcp_listener_mock_->gmock, expected_power);
   HandleMessage(receive::measurement_notify_power);
 
-  // 15. Receive the measurement notify (energy)
+  // 18. Receive the measurement notify (energy)
   const std::map<GcpMeasurementNameId, ScaledValue> expected_energy{
       {  kGcpEnergyFeedIn, {.value = 200000, .scale = 0}},
       {kGcpEnergyConsumed, {.value = 800000, .scale = 0}},
@@ -194,7 +216,7 @@ TEST_F(MaMgcpTestFixture, MaMgcpTest) {
   ExpectMeasurementsReceive(ma_mgcp_listener_mock_->gmock, expected_energy);
   HandleMessage(receive::measurement_notify_energy);
 
-  // 16. Receive the measurement notify (current)
+  // 19. Receive the measurement notify (current)
   const std::map<GcpMeasurementNameId, ScaledValue> expected_current{
       {kGcpCurrentPhaseA, {.value = 15, .scale = -1}},
   };
@@ -202,7 +224,7 @@ TEST_F(MaMgcpTestFixture, MaMgcpTest) {
   ExpectMeasurementsReceive(ma_mgcp_listener_mock_->gmock, expected_current);
   HandleMessage(receive::measurement_notify_current);
 
-  // 17. Receive the measurement notify (frequency)
+  // 20. Receive the measurement notify (frequency)
   const std::map<GcpMeasurementNameId, ScaledValue> expected_frequency{
       {kGcpFrequency, {.value = 500, .scale = -1}},
   };
@@ -210,7 +232,8 @@ TEST_F(MaMgcpTestFixture, MaMgcpTest) {
   ExpectMeasurementsReceive(ma_mgcp_listener_mock_->gmock, expected_frequency);
   HandleMessage(receive::measurement_notify_frequency);
 
-  // 18. Get all measurements received via GetMeasurementData() and check the values
+  // 21. Get all measurements received via GetMeasurementData() and check the values,
+  //     and check the PV curtailment limit factor via MaMgcpGetPvCurtailmentLimitFactor()
   ScaledValue value;
   static constexpr uint32_t remote_entity_id = 1;
 
@@ -229,7 +252,10 @@ TEST_F(MaMgcpTestFixture, MaMgcpTest) {
     EXPECT_THAT(&value, ScaledValueEq(scaled_value.value, scaled_value.scale));
   }
 
-  // 19. Expect the remote entity disconnect event while tearing down the use case
+  EXPECT_EQ(MaMgcpGetPvCurtailmentLimitFactor(use_case_.get(), &remote_entity_addr, &value), kEebusErrorOk);
+  EXPECT_THAT(&value, ScaledValueEq(75, 0));
+
+  // 22. Expect the remote entity disconnect event while tearing down the use case
   EXPECT_CALL(*ma_mgcp_listener_mock_->gmock, OnRemoteEntityDisconnect(_, _));
 }
 

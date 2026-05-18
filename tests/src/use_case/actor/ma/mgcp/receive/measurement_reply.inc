@@ -39,10 +39,10 @@ static constexpr char measurement_reply[] = R"({
           ]
         },
         {
-          "msgCounter": 13
+          "msgCounter": 15
         },
         {
-          "msgCounterReference": 13
+          "msgCounterReference": 15
         },
         {
           "cmdClassifier": "reply"

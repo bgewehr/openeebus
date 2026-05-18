@@ -18,12 +18,13 @@
  * @brief Grid Connection Point MGCP use case (Monitoring of Grid Connection Point).
  *
  * Scenarios supported:
+ *   Scenario 1 — Publish PV feed-in power limitation factor     (optional)
  *   Scenario 2 — Monitor momentary power consumption/production (mandatory)
- *   Scenario 3 — Monitor total feed-in energy               (optional)
- *   Scenario 4 — Monitor total consumed energy              (optional)
- *   Scenario 5 — Monitor momentary current per phase        (optional)
- *   Scenario 6 — Monitor voltage per phase                  (optional)
- *   Scenario 7 — Monitor frequency                          (optional)
+ *   Scenario 3 — Monitor total feed-in energy                   (optional)
+ *   Scenario 4 — Monitor total consumed energy                  (optional)
+ *   Scenario 5 — Monitor momentary current per phase            (optional)
+ *   Scenario 6 — Monitor voltage per phase                      (optional)
+ *   Scenario 7 — Monitor frequency                              (optional)
  *
  * @code{.c}
  * GcpMgcpUseCaseObject* const gcp_mgcp =
@@ -44,6 +45,8 @@
 #ifndef SRC_USE_CASE_ACTOR_GCP_MGCP_GCP_MGCP_H_
 #define SRC_USE_CASE_ACTOR_GCP_MGCP_GCP_MGCP_H_
 
+#include <stdint.h>
+
 #include "src/common/eebus_malloc.h"
 #include "src/spine/entity/entity_local.h"
 #include "src/use_case/actor/gcp/mgcp/gcp_mgcp_monitor.h"
@@ -55,11 +58,26 @@ extern "C" {
 #endif  // __cplusplus
 
 /**
- * @brief GCP MGCP use case configuration (scenarios 2–7)
+ * @brief GCP MGCP Scenario 1 configuration
+ *
+ * Scenario 1 — Publish PV feed-in power limitation factor (DeviceConfiguration,
+ * key "pvCurtailmentLimitFactor", unit %). Presence of a non-NULL pointer in
+ * GcpMgcpConfig::pv_curtailment_cfg signals support for this scenario.
+ */
+typedef struct GcpMgcpPvCurtailmentConfig GcpMgcpPvCurtailmentConfig;
+
+struct GcpMgcpPvCurtailmentConfig {
+  uint8_t reserved; /**< Reserved for future extension */
+};
+
+/**
+ * @brief GCP MGCP use case configuration (scenarios 1–7)
  */
 typedef struct GcpMgcpConfig GcpMgcpConfig;
 
 struct GcpMgcpConfig {
+  /** Optional: Scenario 1 — PV curtailment limit factor; NULL = not supported */
+  const GcpMgcpPvCurtailmentConfig* pv_curtailment_cfg;
   /** Required: Scenario 2 — total active power */
   const GcpMgcpMonitorPowerConfig power_cfg;
   /** Optional: Scenarios 3 and/or 4 — grid energy; NULL = not supported */
@@ -180,6 +198,30 @@ EebusError GcpMgcpSetEnergyConsumedCache(
     const EebusDateTime* start_time,
     const EebusDateTime* end_time
 );
+
+/**
+ * @brief Publish the PV feed-in power limitation factor (Scenario 1)
+ *
+ * Updates the DeviceConfiguration key "pvCurtailmentLimitFactor" on the local
+ * server feature and notifies any subscribed remote entities.
+ *
+ * @param self  GCP MGCP use case instance
+ * @param value Curtailment factor (0–100 %); must not be NULL
+ * @return kEebusErrorOk on success, error code otherwise
+ */
+EebusError GcpMgcpSetPvCurtailmentLimitFactor(GcpMgcpUseCaseObject* self, const ScaledValue* value);
+
+/**
+ * @brief Read the current PV feed-in power limitation factor (Scenario 1)
+ *
+ * Reads the DeviceConfiguration key "pvCurtailmentLimitFactor" from the local
+ * server feature.
+ *
+ * @param self  GCP MGCP use case instance
+ * @param value Output buffer; must not be NULL
+ * @return kEebusErrorOk on success, error code otherwise
+ */
+EebusError GcpMgcpGetPvCurtailmentLimitFactor(const GcpMgcpUseCaseObject* self, ScaledValue* value);
 
 #ifdef __cplusplus
 }

@@ -35,7 +35,6 @@ struct GcpMgcpMonitor {
 
 #define GCP_MGCP_MONITOR(obj) ((GcpMgcpMonitor*)(obj))
 
-/* ---- interface forward declarations ---- */
 static void Destruct(GcpMgcpMonitorObject* self);
 static GcpMonitorNameId GetName(const GcpMgcpMonitorObject* self);
 static EebusError Configure(
@@ -62,8 +61,6 @@ struct MeasurementParam {
   const GcpMgcpMeasurementConfig* cfg;
 };
 
-/* ---- internal helpers ---- */
-
 static void MeasurementDeallocator(void* p) {
   GcpMgcpMeasurementDelete((GcpMgcpMeasurementObject*)p);
 }
@@ -78,7 +75,7 @@ static EebusError MonitorConstruct(GcpMgcpMonitor* self, GcpMonitorNameId name) 
 static EebusError AddMeasurements(GcpMgcpMonitor* self, const MeasurementParam* params, size_t params_size) {
   for (size_t i = 0; i < params_size; ++i) {
     if (params[i].cfg == NULL) {
-      continue; /* optional — skip */
+      continue; // optional — skip
     }
     GcpMgcpMeasurementObject* const m = GcpMgcpMeasurementCreate(params[i].name, params[i].cfg);
     if (m == NULL) {
@@ -107,8 +104,6 @@ static GcpMgcpMonitorObject* MonitorCreate(GcpMonitorNameId name, const Measurem
 
   return GCP_MGCP_MONITOR_OBJECT(monitor);
 }
-
-/* ---- interface implementations ---- */
 
 static void Destruct(GcpMgcpMonitorObject* self) {
   GcpMgcpMonitor* const monitor = GCP_MGCP_MONITOR(self);
@@ -194,14 +189,12 @@ static EebusError FlushMeasurementCache(GcpMgcpMonitorObject* self, MeasurementL
   return kEebusErrorOk;
 }
 
-/* ---- factory functions ---- */
-
 GcpMgcpMonitorObject* GcpMgcpMonitorPowerCreate(const GcpMgcpMonitorPowerConfig* cfg) {
   if (cfg == NULL) {
     return NULL;
   }
 
-  /* Power total uses the configured phases for the parameter description */
+  // Power total uses the configured phases for the parameter description
   GcpMgcpMonitor* const monitor = (GcpMgcpMonitor*)EEBUS_MALLOC(sizeof(GcpMgcpMonitor));
   if (monitor == NULL) {
     return NULL;
@@ -212,7 +205,7 @@ GcpMgcpMonitorObject* GcpMgcpMonitorPowerCreate(const GcpMgcpMonitorPowerConfig*
     return NULL;
   }
 
-  /* Create the total power measurement with the configured phases */
+  // Create the total power measurement with the configured phases
   GcpMgcpMeasurementObject* const m = GcpMgcpMeasurementPowerTotalCreate(cfg->phases, &cfg->power_total_cfg);
   if (m == NULL) {
     GcpMgcpMonitorDelete(GCP_MGCP_MONITOR_OBJECT(monitor));
@@ -261,7 +254,7 @@ GcpMgcpMonitorObject* GcpMgcpMonitorVoltageCreate(const GcpMgcpMonitorVoltageCon
     return NULL;
   }
 
-  /* Cross-phase voltage requires both contributing phases */
+  // Cross-phase voltage requires both contributing phases
   if ((cfg->voltage_phase_ab_cfg != NULL)
       && ((cfg->voltage_phase_a_cfg == NULL) || (cfg->voltage_phase_b_cfg == NULL))) {
     return NULL;

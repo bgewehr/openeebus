@@ -22,6 +22,7 @@
 #include "src/use_case/actor/ma/mgcp/ma_mgcp.h"
 #include "src/use_case/actor/ma/mgcp/ma_mgcp_internal.h"
 #include "src/use_case/actor/ma/mgcp/ma_mgcp_measurement.h"
+#include "src/use_case/specialization/device_configuration/device_configuration_client.h"
 #include "src/use_case/use_case.h"
 
 static EebusError MaMgcpGetMeasurementDataInternal(
@@ -58,6 +59,59 @@ static EebusError MaMgcpGetMeasurementDataInternal(
   return MA_MGCP_MEASUREMENT_GET_DATA_VALUE(measurement, &mcl, &ecl, measurement_value);
 }
 
+static EebusError MaMgcpGetPvCurtailmentLimitFactorInternal(
+    const MaMgcpUseCase* self,
+    const EntityAddressType* remote_entity_addr,
+    ScaledValue* value
+) {
+  const UseCase* const use_case = USE_CASE(self);
+
+  EntityRemoteObject* const remote_entity
+      = USE_CASE_GET_REMOTE_ENTITY_WITH_ADDRESS(USE_CASE_OBJECT(self), remote_entity_addr);
+
+  if (remote_entity == NULL) {
+    return kEebusErrorNoChange;
+  }
+
+  DeviceConfigurationClient dcc = {0};
+
+  const EebusError err = DeviceConfigurationClientConstruct(&dcc, use_case->local_entity, remote_entity);
+  if (err != kEebusErrorOk) {
+    return err;
+  }
+
+  const DeviceConfigurationKeyValueDescriptionDataType filter = {
+      .key_name   = &(DeviceConfigurationKeyNameType){kDeviceConfigurationKeyNameTypePvCurtailmentLimitFactor},
+      .value_type = &(DeviceConfigurationKeyValueTypeType){kDeviceConfigurationKeyValueTypeTypeScaledNumber},
+  };
+
+  const DeviceConfigurationKeyValueDataType* const key_value
+      = DeviceConfigurationCommonGetKeyValueWithFilter(&dcc.device_cfg_common, &filter);
+
+  const ScaledNumberType* const scaled_number = DeviceConfigurationKeyValueGetScaledNumber(key_value);
+  return ScaledValueInitWithScaledNumber(value, scaled_number);
+}
+
+EebusError MaMgcpGetPvCurtailmentLimitFactor(
+    const MaMgcpUseCaseObject* self,
+    const EntityAddressType* remote_entity_addr,
+    ScaledValue* value
+) {
+  const UseCase* const use_case = USE_CASE(self);
+
+  if (value == NULL) {
+    return kEebusErrorInputArgumentNull;
+  }
+
+  EebusError err = kEebusErrorOk;
+
+  DEVICE_LOCAL_LOCK(use_case->local_device);
+  err = MaMgcpGetPvCurtailmentLimitFactorInternal(MA_MGCP_USE_CASE(self), remote_entity_addr, value);
+  DEVICE_LOCAL_UNLOCK(use_case->local_device);
+
+  return err;
+}
+
 EebusError MaMgcpGetMeasurementData(
     const MaMgcpUseCaseObject* self,
     GcpMeasurementNameId measurement_name_id,
@@ -73,12 +127,14 @@ EebusError MaMgcpGetMeasurementData(
   EebusError err = kEebusErrorOk;
 
   DEVICE_LOCAL_LOCK(use_case->local_device);
+
   err = MaMgcpGetMeasurementDataInternal(
       MA_MGCP_USE_CASE(self),
       measurement_name_id,
       remote_entity_addr,
       measurement_value
   );
+
   DEVICE_LOCAL_UNLOCK(use_case->local_device);
 
   return err;

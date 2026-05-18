@@ -18,6 +18,7 @@
  * @brief Monitoring Appliance MGCP use case (Monitoring of Grid Connection Point)
  *
  * Scenarios supported:
+ *   Scenario 1 — Read PV feed-in power limitation factor
  *   Scenario 2 — Monitor momentary power consumption/production
  *   Scenario 3 — Monitor total feed-in energy
  *   Scenario 4 — Monitor total consumed energy
@@ -80,6 +81,19 @@ EebusError MaMgcpGetMeasurementData(
     GcpMeasurementNameId measurement_name_id,
     const EntityAddressType* remote_entity_addr,
     ScaledValue* measurement_value
+);
+
+/**
+ * @brief Read the PV feed-in power limitation factor from a remote entity (Scenario 1)
+ * @param self MA MGCP use case instance
+ * @param remote_entity_addr Remote entity address
+ * @param value Output buffer for the curtailment factor (0–100 %)
+ * @return kEebusErrorOk on success, error code otherwise
+ */
+EebusError MaMgcpGetPvCurtailmentLimitFactor(
+    const MaMgcpUseCaseObject* self,
+    const EntityAddressType* remote_entity_addr,
+    ScaledValue* value
 );
 
 #ifdef __cplusplus

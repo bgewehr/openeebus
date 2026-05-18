@@ -94,6 +94,22 @@ static void HandleCmdSet(const GcpMgcpCli* self, const char* const* tokens, size
 
   const char* const name = tokens[2];
 
+  if (strcmp(name, "pv_curtailment_limit_factor") == 0) {
+    ScaledValue value = {0};
+    if (ScaledValueParse(tokens[3], &value) != kEebusErrorOk) {
+      printf("Parsing GCP MGCP pv_curtailment_limit_factor value failed\n");
+      return;
+    }
+
+    if (GcpMgcpSetPvCurtailmentLimitFactor(self->gcp_mgcp, &value) != kEebusErrorOk) {
+      printf("Setting GCP MGCP pv_curtailment_limit_factor failed\n");
+      return;
+    }
+
+    printf("Setting GCP MGCP pv_curtailment_limit_factor succeeded\n");
+    return;
+  }
+
   const GcpMeasurementNameId* const name_id = GcpMgcpMeasurementGetNameId(name);
   if (name_id == NULL) {
     printf("Unknown measurement name for gcp_mgcp set: %s\n", name);
@@ -131,6 +147,18 @@ static void HandleCmdGet(const GcpMgcpCli* self, const char* const* tokens, size
   }
 
   const char* const name = tokens[2];
+
+  if (strcmp(name, "pv_curtailment_limit_factor") == 0) {
+    ScaledValue value = {0};
+    if (GcpMgcpGetPvCurtailmentLimitFactor(self->gcp_mgcp, &value) != kEebusErrorOk) {
+      printf("Getting GCP MGCP pv_curtailment_limit_factor failed\n");
+      return;
+    }
+
+    printf("GCP MGCP pv_curtailment_limit_factor: ");
+    ScaledValuePrint("value=%s\n", &value);
+    return;
+  }
 
   const GcpMeasurementNameId* const name_id = GcpMgcpMeasurementGetNameId(name);
   if (name_id == NULL) {

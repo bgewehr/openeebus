@@ -49,7 +49,6 @@ struct GcpMgcpMeasurement {
 
 #define MEASUREMENT(obj) ((GcpMgcpMeasurement*)(obj))
 
-/* ---- interface method forward declarations ---- */
 static void Destruct(GcpMgcpMeasurementObject* self);
 static GcpMeasurementNameId GetName(const GcpMgcpMeasurementObject* self);
 static EebusError GetDataValue(const GcpMgcpMeasurementObject* self, MeasurementServer* msrv, ScaledValue* value);
@@ -79,8 +78,6 @@ static const GcpMgcpMeasurementInterface measurement_methods = {
     .set_data_cache     = SetDataCache,
     .release_data_cache = ReleaseDataCache,
 };
-
-/* ---- construction ---- */
 
 static EebusError GcpMgcpMeasurementConstruct(
     GcpMgcpMeasurement* self,
@@ -136,8 +133,6 @@ static GcpMgcpMeasurementObject* GcpMgcpMeasurementCreateInternal(
 
   return GCP_MGCP_MEASUREMENT_OBJECT(m);
 }
-
-/* ---- interface implementations ---- */
 
 static void Destruct(GcpMgcpMeasurementObject* self) {
   GcpMgcpMeasurement* const m = MEASUREMENT(self);
@@ -239,8 +234,6 @@ static MeasurementDataType* ReleaseDataCache(GcpMgcpMeasurementObject* self) {
   return data;
 }
 
-/* ---- configuration strategies ---- */
-
 static EebusError
 EnsureElectricalConnectionDescription(ElectricalConnectionServer* ecsrv, ElectricalConnectionIdType ec_id) {
   if (ElectricalConnectionCommonGetDescriptionWithId(&ecsrv->el_connection_common, ec_id) != NULL) {
@@ -255,7 +248,6 @@ EnsureElectricalConnectionDescription(ElectricalConnectionServer* ecsrv, Electri
   return ElectricalConnectionServerAddDescriptionWithId(ecsrv, &desc, ec_id);
 }
 
-/* --- Scenario 2: Power --- */
 static EebusError ConfigurePower(
     GcpMgcpMeasurement* m,
     MeasurementServer* msrv,
@@ -293,7 +285,6 @@ static EebusError ConfigurePower(
   return ElectricalConnectionServerAddParameterDescription(ecsrv, &param_desc, &param_id);
 }
 
-/* --- Scenarios 3 & 4: Energy --- */
 static EebusError ConfigureEnergy(
     GcpMgcpMeasurement* m,
     MeasurementServer* msrv,
@@ -323,7 +314,6 @@ static EebusError ConfigureEnergy(
   return ElectricalConnectionServerAddParameterDescription(ecsrv, &param_desc, &param_id);
 }
 
-/* --- Scenario 5: Current --- */
 static EebusError ConfigureCurrent(
     GcpMgcpMeasurement* m,
     MeasurementServer* msrv,
@@ -360,7 +350,6 @@ static EebusError ConfigureCurrent(
   return ElectricalConnectionServerAddParameterDescription(ecsrv, &param_desc, &param_id);
 }
 
-/* --- Scenario 6: Voltage --- */
 static ElectricalConnectionPhaseNameType VoltagePhaseFrom(ElectricalConnectionPhaseNameType phases) {
   switch (phases) {
     case kElectricalConnectionPhaseNameTypeA: return kElectricalConnectionPhaseNameTypeA;
@@ -417,7 +406,6 @@ static EebusError ConfigureVoltage(
   return ElectricalConnectionServerAddParameterDescription(ecsrv, &param_desc, &param_id);
 }
 
-/* --- Scenario 7: Frequency --- */
 static EebusError ConfigureFrequency(
     GcpMgcpMeasurement* m,
     MeasurementServer* msrv,
@@ -445,8 +433,6 @@ static EebusError ConfigureFrequency(
   ElectricalConnectionParameterIdType param_id;
   return ElectricalConnectionServerAddParameterDescription(ecsrv, &param_desc, &param_id);
 }
-
-/* ---- public factory ---- */
 
 static ScopeTypeType GetEnergyScopeType(GcpMeasurementNameId name) {
   switch (name) {
@@ -485,7 +471,7 @@ GcpMgcpMeasurementPowerTotalCreate(ElectricalConnectionPhaseNameType phases, con
 GcpMgcpMeasurementObject* GcpMgcpMeasurementCreate(GcpMeasurementNameId name, const GcpMgcpMeasurementConfig* cfg) {
   switch (name) {
     case kGcpPowerTotal:
-      /* Power total: phases is set per-monitor via GcpMgcpMonitorPowerCreate */
+      // Power total: phases is set per-monitor via GcpMgcpMonitorPowerCreate
       return GcpMgcpMeasurementCreateInternal(
           name,
           kScopeTypeTypeACPowerTotal,

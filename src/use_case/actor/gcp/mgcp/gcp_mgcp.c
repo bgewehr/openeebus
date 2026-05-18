@@ -24,6 +24,7 @@
 #include "src/common/eebus_mutex/eebus_mutex.h"
 #include "src/use_case/actor/gcp/mgcp/gcp_mgcp_internal.h"
 #include "src/use_case/actor/gcp/mgcp/gcp_mgcp_monitor.h"
+#include "src/use_case/specialization/device_configuration/device_configuration_server.h"
 #include "src/use_case/specialization/electrical_connection/electrical_connection_server.h"
 #include "src/use_case/specialization/measurement/measurement_server.h"
 #include "src/use_case/use_case.h"
@@ -42,7 +43,20 @@ static const UseCaseInterface gcp_mgcp_use_case_methods = {
     .get_remote_entity_with_address = UseCaseGetRemoteEntityWithAddress,
 };
 
-/* ---- scenario helpers ---- */
+static EebusError AddGcpMgcpScenario1(GcpMgcpUseCase* self) {
+  self->has_scenario1 = true;
+
+  static const FeatureTypeType scenario1_features[] = {kFeatureTypeTypeDeviceConfiguration};
+
+  self->use_case_scenarios[self->use_case_scenarios_size++] = (UseCaseScenario){
+      .scenario             = (UseCaseScenarioSupportType)1,
+      .mandatory            = false,
+      .server_features      = scenario1_features,
+      .server_features_size = ARRAY_SIZE(scenario1_features),
+  };
+
+  return kEebusErrorOk;
+}
 
 static EebusError AddGcpMgcpScenario2(GcpMgcpUseCase* self, const GcpMgcpMonitorPowerConfig* power_cfg) {
   GcpMgcpMonitorObject* const power_monitor = GcpMgcpMonitorPowerCreate(power_cfg);
@@ -170,12 +184,34 @@ static EebusError AddGcpMgcpScenario7(GcpMgcpUseCase* self, const GcpMgcpMonitor
   return kEebusErrorOk;
 }
 
-/* ---- AddFeatures ---- */
+static EebusError AddDeviceConfigurationFeature(EntityLocalObject* entity) {
+  FeatureLocalObject* const fl
+      = ENTITY_LOCAL_ADD_FEATURE_WITH_TYPE_AND_ROLE(entity, kFeatureTypeTypeDeviceConfiguration, kRoleTypeServer);
+  if (fl == NULL) {
+    return kEebusErrorInit;
+  }
+
+  FEATURE_LOCAL_SET_FUNCTION_OPERATIONS(fl, kFunctionTypeDeviceConfigurationKeyValueDescriptionListData, true, false);
+  FEATURE_LOCAL_SET_FUNCTION_OPERATIONS(fl, kFunctionTypeDeviceConfigurationKeyValueListData, true, false);
+
+  DeviceConfigurationServer dcs;
+  if (DeviceConfigurationServerConstruct(&dcs, entity) != kEebusErrorOk) {
+    return kEebusErrorInit;
+  }
+
+  const DeviceConfigurationKeyValueDescriptionDataType description = {
+      .key_name   = &(DeviceConfigurationKeyNameType){kDeviceConfigurationKeyNameTypePvCurtailmentLimitFactor},
+      .value_type = &(DeviceConfigurationKeyValueTypeType){kDeviceConfigurationKeyValueTypeTypeScaledNumber},
+      .unit       = &(UnitOfMeasurementType){kUnitOfMeasurementTypepct},
+  };
+
+  return DeviceConfigurationServerAddKeyValueDescription(&dcs, &description);
+}
 
 static EebusError AddFeatures(UseCaseObject* self, EntityLocalObject* entity) {
   GcpMgcpUseCase* const gcp_mgcp = GCP_MGCP_USE_CASE(self);
 
-  /* ElectricalConnection server feature */
+  // ElectricalConnection server feature
   FeatureLocalObject* const ecfl
       = ENTITY_LOCAL_ADD_FEATURE_WITH_TYPE_AND_ROLE(entity, kFeatureTypeTypeElectricalConnection, kRoleTypeServer);
   if (ecfl == NULL) {
@@ -190,7 +226,7 @@ static EebusError AddFeatures(UseCaseObject* self, EntityLocalObject* entity) {
       false
   );
 
-  /* Measurement server feature */
+  // Measurement server feature
   FeatureLocalObject* const mfl
       = ENTITY_LOCAL_ADD_FEATURE_WITH_TYPE_AND_ROLE(entity, kFeatureTypeTypeMeasurement, kRoleTypeServer);
   if (mfl == NULL) {
@@ -233,16 +269,21 @@ static EebusError AddFeatures(UseCaseObject* self, EntityLocalObject* entity) {
   }
 
   MeasurementConstraintsDelete(measurement_constraints);
+
+  // DeviceConfiguration server feature (Scenario 1, optional)
+  if (gcp_mgcp->has_scenario1) {
+    const EebusError err = AddDeviceConfigurationFeature(entity);
+    if (err != kEebusErrorOk) {
+      return err;
+    }
+  }
+
   return kEebusErrorOk;
 }
-
-/* ---- monitor vector deallocator ---- */
 
 static void MonitorDeallocator(void* p) {
   GcpMgcpMonitorDelete((GcpMgcpMonitorObject*)p);
 }
-
-/* ---- construction ---- */
 
 static EebusError GcpMgcpUseCaseConstruct(
     GcpMgcpUseCase* self,
@@ -257,18 +298,28 @@ static EebusError GcpMgcpUseCaseConstruct(
 
   VectorConstructWithDeallocator(&self->monitors, MonitorDeallocator);
 
-  self->mutex = EebusMutexCreate();
+  self->mutex         = EebusMutexCreate();
+  self->has_scenario1 = false;
+
   if (self->mutex == NULL) {
     return kEebusErrorMemoryAllocate;
   }
 
-  /* Scenario 2: power total (mandatory) */
+  // Scenario 1: PV curtailment limit factor (optional)
+  if (cfg->pv_curtailment_cfg != NULL) {
+    const EebusError err = AddGcpMgcpScenario1(self);
+    if (err != kEebusErrorOk) {
+      return err;
+    }
+  }
+
+  // Scenario 2: power total (mandatory)
   EebusError err = AddGcpMgcpScenario2(self, &cfg->power_cfg);
   if (err != kEebusErrorOk) {
     return err;
   }
 
-  /* Scenarios 3 and/or 4: energy (optional) */
+  // Scenarios 3 and/or 4: energy (optional)
   if (cfg->energy_cfg != NULL) {
     err = AddGcpMgcpEnergyScenarios(self, cfg->energy_cfg);
     if (err != kEebusErrorOk) {
@@ -276,7 +327,7 @@ static EebusError GcpMgcpUseCaseConstruct(
     }
   }
 
-  /* Scenario 5: per-phase current (optional) */
+  // Scenario 5: per-phase current (optional)
   if (cfg->current_cfg != NULL) {
     err = AddGcpMgcpScenario5(self, cfg->current_cfg);
     if (err != kEebusErrorOk) {
@@ -284,7 +335,7 @@ static EebusError GcpMgcpUseCaseConstruct(
     }
   }
 
-  /* Scenario 6: per-phase voltage (optional) */
+  // Scenario 6: per-phase voltage (optional)
   if (cfg->voltage_cfg != NULL) {
     err = AddGcpMgcpScenario6(self, cfg->voltage_cfg);
     if (err != kEebusErrorOk) {
@@ -292,7 +343,7 @@ static EebusError GcpMgcpUseCaseConstruct(
     }
   }
 
-  /* Scenario 7: frequency (optional) */
+  // Scenario 7: frequency (optional)
   if (cfg->frequency_cfg != NULL) {
     err = AddGcpMgcpScenario7(self, cfg->frequency_cfg);
     if (err != kEebusErrorOk) {
@@ -337,8 +388,6 @@ GcpMgcpUseCaseCreate(EntityLocalObject* local_entity, ElectricalConnectionIdType
 
   return GCP_MGCP_USE_CASE_OBJECT(gcp_mgcp_use_case);
 }
-
-/* ---- interface implementations ---- */
 
 static void Destruct(UseCaseObject* self) {
   GcpMgcpUseCase* const gcp_mgcp = GCP_MGCP_USE_CASE(self);

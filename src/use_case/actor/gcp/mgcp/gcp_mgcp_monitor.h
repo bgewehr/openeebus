@@ -38,8 +38,6 @@
 extern "C" {
 #endif  // __cplusplus
 
-/* ---- per-scenario config structs ---- */
-
 /**
  * @brief Scenario 2: total active power
  */
@@ -98,8 +96,6 @@ typedef struct GcpMgcpMonitorFrequencyConfig GcpMgcpMonitorFrequencyConfig;
 struct GcpMgcpMonitorFrequencyConfig {
   GcpMgcpMeasurementConfig frequency_cfg;
 };
-
-/* ---- factory functions ---- */
 
 GcpMgcpMonitorObject* GcpMgcpMonitorPowerCreate(const GcpMgcpMonitorPowerConfig* cfg);
 GcpMgcpMonitorObject* GcpMgcpMonitorEnergyCreate(const GcpMgcpMonitorEnergyConfig* cfg);

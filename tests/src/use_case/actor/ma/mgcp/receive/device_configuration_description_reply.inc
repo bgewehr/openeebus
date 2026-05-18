@@ -1,7 +1,7 @@
 namespace ma_mgcp_test {
 namespace receive {
 
-static constexpr char measurement_notify_power[] = R"({
+static constexpr char device_configuration_description_reply[] = R"({
   "datagram": [
     {
       "header": [
@@ -19,7 +19,7 @@ static constexpr char measurement_notify_power[] = R"({
               ]
             },
             {
-              "feature": 2
+              "feature": 3
             }
           ]
         },
@@ -34,15 +34,18 @@ static constexpr char measurement_notify_power[] = R"({
               ]
             },
             {
-              "feature": 2
+              "feature": 3
             }
           ]
         },
         {
-          "msgCounter": 17
+          "msgCounter": 14
         },
         {
-          "cmdClassifier": "notify"
+          "msgCounterReference": 12
+        },
+        {
+          "cmdClassifier": "reply"
         }
       ]
     },
@@ -52,44 +55,21 @@ static constexpr char measurement_notify_power[] = R"({
           "cmd": [
             [
               {
-                "function": "measurementListData"
-              },
-              {
-                "filter": [
-                  [
-                    {
-                      "cmdControl": [
-                        {
-                          "partial": []
-                        }
-                      ]
-                    }
-                  ]
-                ]
-              },
-              {
-                "measurementListData": [
+                "deviceConfigurationKeyValueDescriptionListData": [
                   {
-                    "measurementData": [
+                    "deviceConfigurationKeyValueDescriptionData": [
                       [
                         {
-                          "measurementId": 0
+                          "keyId": 0
                         },
                         {
-                          "valueType": "value"
+                          "keyName": "pvCurtailmentLimitFactor"
                         },
                         {
-                          "value": [
-                            {
-                              "number": 5000
-                            },
-                            {
-                              "scale": 0
-                            }
-                          ]
+                          "valueType": "scaledNumber"
                         },
                         {
-                          "valueSource": "measuredValue"
+                          "unit": "pct"
                         }
                       ]
                     ]

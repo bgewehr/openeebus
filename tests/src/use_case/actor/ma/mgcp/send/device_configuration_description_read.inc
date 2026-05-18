@@ -1,7 +1,7 @@
 namespace ma_mgcp_test {
 namespace send {
 
-static constexpr char measurement_read[] = R"({
+static constexpr char device_configuration_description_read[] = R"({
   "datagram": [
     {
       "header": [
@@ -19,7 +19,7 @@ static constexpr char measurement_read[] = R"({
               ]
             },
             {
-              "feature": 2
+              "feature": 3
             }
           ]
         },
@@ -34,12 +34,12 @@ static constexpr char measurement_read[] = R"({
               ]
             },
             {
-              "feature": 2
+              "feature": 3
             }
           ]
         },
         {
-          "msgCounter": 15
+          "msgCounter": 14
         },
         {
           "cmdClassifier": "read"
@@ -52,7 +52,7 @@ static constexpr char measurement_read[] = R"({
           "cmd": [
             [
               {
-                "measurementListData": []
+                "deviceConfigurationKeyValueDescriptionListData": []
               }
             ]
           ]

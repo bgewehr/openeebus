@@ -27,6 +27,7 @@
 #include "src/common/eebus_malloc.h"
 #include "src/service/api/service_reader_interface.h"
 #include "src/ship/api/tls_certificate_interface.h"
+#include "src/use_case/model/scaled_value.h"
 
 typedef struct HpsrvObject HpsrvObject;
 
@@ -221,6 +222,15 @@ EebusError HpsrvSetGcpMgcpVoltagePerPhase(
  * @return kEebusErrorOk on success or error code on failure
  */
 EebusError HpsrvSetGcpMgcpFrequency(HpsrvObject* self, int32_t frequency);
+
+/**
+ * @brief Set the GCP MGCP PV curtailment limit factor (Scenario 1).
+ * Passing e.g. a ScaledValue with value=75 scale=0 will result in setting 75%
+ * @param self Pointer to the HpsrvObject instance
+ * @param value PV curtailment limit factor in % as a ScaledValue
+ * @return kEebusErrorOk on success or error code on failure
+ */
+EebusError HpsrvSetGcpMgcpPvCurtailmentLimitFactor(HpsrvObject* self, const ScaledValue* value);
 
 /**
  * @brief Handle command line input

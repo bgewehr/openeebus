@@ -40,6 +40,11 @@ class MaMgcpListenerGMockInterface {
       const ScaledValue* measurement_value,
       const EntityAddressType* remote_entity_addr
   ) = 0;
+  virtual void OnPvCurtailmentLimitFactorReceive(
+      MaMgcpListenerObject* self,
+      const ScaledValue* value,
+      const EntityAddressType* remote_entity_addr
+  ) = 0;
 };
 
 class MaMgcpListenerGMock : public MaMgcpListenerGMockInterface {
@@ -51,6 +56,10 @@ class MaMgcpListenerGMock : public MaMgcpListenerGMockInterface {
   MOCK_METHOD4(
       OnMeasurementReceive,
       void(MaMgcpListenerObject*, GcpMeasurementNameId, const ScaledValue*, const EntityAddressType*)
+  );
+  MOCK_METHOD3(
+      OnPvCurtailmentLimitFactorReceive,
+      void(MaMgcpListenerObject*, const ScaledValue*, const EntityAddressType*)
   );
 };
 

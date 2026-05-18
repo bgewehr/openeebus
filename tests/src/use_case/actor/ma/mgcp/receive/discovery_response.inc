@@ -424,6 +424,64 @@ static constexpr char discovery_response[] = R"({
                             }
                           ]
                         }
+                      ],
+                      [
+                        {
+                          "description": [
+                            {
+                              "featureAddress": [
+                                {
+                                  "device": "d:_n:GridConnectionPoint_123456789"
+                                },
+                                {
+                                  "entity": [
+                                    1
+                                  ]
+                                },
+                                {
+                                  "feature": 3
+                                }
+                              ]
+                            },
+                            {
+                              "featureType": "DeviceConfiguration"
+                            },
+                            {
+                              "role": "server"
+                            },
+                            {
+                              "supportedFunction": [
+                                [
+                                  {
+                                    "function": "deviceConfigurationKeyValueDescriptionListData"
+                                  },
+                                  {
+                                    "possibleOperations": [
+                                      {
+                                        "read": []
+                                      }
+                                    ]
+                                  }
+                                ],
+                                [
+                                  {
+                                    "function": "deviceConfigurationKeyValueListData"
+                                  },
+                                  {
+                                    "possibleOperations": [
+                                      {
+                                        "read": []
+                                      }
+                                    ]
+                                  }
+                                ]
+                              ]
+                            },
+                            {
+                              "description": "DeviceConfiguration server"
+                            }
+                          ]
+                        }
                       ]
                     ]
                   }

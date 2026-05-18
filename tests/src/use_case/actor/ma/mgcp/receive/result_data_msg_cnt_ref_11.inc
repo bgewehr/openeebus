@@ -1,7 +1,7 @@
 namespace ma_mgcp_test {
-namespace send {
+namespace receive {
 
-static constexpr char measurement_read[] = R"({
+static constexpr char result_data_msg_cnt_ref_11[] = R"({
   "datagram": [
     {
       "header": [
@@ -11,38 +11,41 @@ static constexpr char measurement_read[] = R"({
         {
           "addressSource": [
             {
-              "device": "d:_n:HEMS_123456789"
+              "device": "d:_n:GridConnectionPoint_123456789"
             },
             {
               "entity": [
-                1
+                0
               ]
             },
             {
-              "feature": 2
+              "feature": 0
             }
           ]
         },
         {
           "addressDestination": [
             {
-              "device": "d:_n:GridConnectionPoint_123456789"
+              "device": "d:_n:HEMS_123456789"
             },
             {
               "entity": [
-                1
+                0
               ]
             },
             {
-              "feature": 2
+              "feature": 0
             }
           ]
         },
         {
-          "msgCounter": 15
+          "msgCounter": 13
         },
         {
-          "cmdClassifier": "read"
+          "msgCounterReference": 11
+        },
+        {
+          "cmdClassifier": "result"
         }
       ]
     },
@@ -52,7 +55,11 @@ static constexpr char measurement_read[] = R"({
           "cmd": [
             [
               {
-                "measurementListData": []
+                "resultData": [
+                  {
+                    "errorNumber": 0
+                  }
+                ]
               }
             ]
           ]
@@ -62,5 +69,5 @@ static constexpr char measurement_read[] = R"({
   ]
 })";
 
-}  // namespace send
+}  // namespace receive
 }  // namespace ma_mgcp_test

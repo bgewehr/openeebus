@@ -33,12 +33,18 @@ static void OnMeasurementReceive(
     const ScaledValue* measurement_value,
     const EntityAddressType* remote_entity_addr
 );
+static void OnPvCurtailmentLimitFactorReceive(
+    MaMgcpListenerObject* self,
+    const ScaledValue* value,
+    const EntityAddressType* remote_entity_addr
+);
 
 static const MaMgcpListenerInterface ma_mgcp_listener_methods = {
-    .destruct                    = Destruct,
-    .on_remote_entity_connect    = OnRemoteEntityConnect,
-    .on_remote_entity_disconnect = OnRemoteEntityDisconnect,
-    .on_measurement_receive      = OnMeasurementReceive,
+    .destruct                               = Destruct,
+    .on_remote_entity_connect               = OnRemoteEntityConnect,
+    .on_remote_entity_disconnect            = OnRemoteEntityDisconnect,
+    .on_measurement_receive                 = OnMeasurementReceive,
+    .on_pv_curtailment_limit_factor_receive = OnPvCurtailmentLimitFactorReceive,
 };
 
 static EebusError MaMgcpListenerMockConstruct(MaMgcpListenerMock* self);
@@ -93,4 +99,13 @@ void OnMeasurementReceive(
 ) {
   MaMgcpListenerMock* const mock = MA_MGCP_LISTENER_MOCK(self);
   mock->gmock->OnMeasurementReceive(self, name_id, measurement_value, remote_entity_addr);
+}
+
+void OnPvCurtailmentLimitFactorReceive(
+    MaMgcpListenerObject* self,
+    const ScaledValue* value,
+    const EntityAddressType* remote_entity_addr
+) {
+  MaMgcpListenerMock* const mock = MA_MGCP_LISTENER_MOCK(self);
+  mock->gmock->OnPvCurtailmentLimitFactorReceive(self, value, remote_entity_addr);
 }

@@ -1,0 +1,6 @@
+GcpMgcpMonitor
+void Destruct()
+GcpMonitorNameId GetName() const
+EebusError Configure(MeasurementServer* msrv, ElectricalConnectionServer* ecsrv, ElectricalConnectionIdType electrical_connection_id, MeasurementConstraintsListDataType* measurements_constraints)
+GcpMgcpMeasurementObject* GetMeasurement(GcpMeasurementNameId measurement_name_id) const
+EebusError FlushMeasurementCache(MeasurementListDataType* measurement_data_list)

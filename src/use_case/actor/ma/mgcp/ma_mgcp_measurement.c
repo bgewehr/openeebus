@@ -48,7 +48,6 @@ struct MaMgcpMeasurement {
 
 #define MA_MGCP_MEASUREMENT(obj) ((MaMgcpMeasurement*)(obj))
 
-/* ---- forward declarations ---- */
 static GcpMeasurementNameId GetName(const MaMgcpMeasurementObject* self);
 static EebusError GetDataValue(
     const MaMgcpMeasurementObject* self,
@@ -62,7 +61,6 @@ static const MaMgcpMeasurementInterface ma_mgcp_measurement_methods = {
     .get_data_value = GetDataValue,
 };
 
-/* ---- strategy declarations ---- */
 static EebusError GetPowerStrategy(
     const MaMgcpMeasurement* measurement,
     MeasurementClient* mcl,
@@ -93,8 +91,6 @@ static EebusError GetFrequencyStrategy(
     ElectricalConnectionClient* eccl,
     ScaledValue* value
 );
-
-/* ---- measurement table macros ---- */
 
 #define MA_MGCP_MEASUREMENT_POWER_TOTAL                                         \
   {                                                                             \
@@ -151,7 +147,6 @@ static EebusError GetFrequencyStrategy(
       .get_measurement_strategy = GetFrequencyStrategy,                         \
   }
 
-/* ---- static measurement table ---- */
 static const MaMgcpMeasurement measurement_table[] = {
     /* Scenario 2 */
     MA_MGCP_MEASUREMENT_POWER_TOTAL,
@@ -174,8 +169,6 @@ static const MaMgcpMeasurement measurement_table[] = {
     MA_MGCP_MEASUREMENT_FREQUENCY,
 };
 
-/* ---- public lookup functions ---- */
-
 const MaMgcpMeasurementObject* MaMgcpMeasurementGetInstanceWithNameId(GcpMeasurementNameId name) {
   for (size_t i = 0; i < ARRAY_SIZE(measurement_table); ++i) {
     if (measurement_table[i].name == name) {
@@ -184,8 +177,6 @@ const MaMgcpMeasurementObject* MaMgcpMeasurementGetInstanceWithNameId(GcpMeasure
   }
   return NULL;
 }
-
-/* ---- phase matching helpers ---- */
 
 static bool MaMgcpMeasurementPhasesMatch(
     const MaMgcpMeasurement* measurement,
@@ -284,8 +275,6 @@ const MaMgcpMeasurementObject* MaMgcpMeasurementGetInstance(
   return NULL;
 }
 
-/* ---- strategy helpers ---- */
-
 static bool CheckPhaseSpecificData(
     const MaMgcpMeasurement* measurement,
     const ElectricalConnectionClient* eccl,
@@ -368,15 +357,13 @@ static EebusError GetPhaseSpecificData(
   return kEebusErrorNotAvailable;
 }
 
-/* ---- strategies ---- */
-
 static EebusError GetPowerStrategy(
     const MaMgcpMeasurement* measurement,
     MeasurementClient* mcl,
     ElectricalConnectionClient* eccl,
     ScaledValue* value
 ) {
-  /* Grid Connection Point always uses consume as positive direction */
+  // Grid Connection Point always uses consume as positive direction
   static const EnergyDirectionType energy_direction = kEnergyDirectionTypeConsume;
   return GetPhaseSpecificData(measurement, mcl, eccl, &energy_direction, value);
 }
@@ -424,7 +411,7 @@ static EebusError GetVoltageStrategy(
     ElectricalConnectionClient* eccl,
     ScaledValue* value
 ) {
-  /* Voltage has no energy direction filter */
+  // Voltage has no energy direction filter
   return GetPhaseSpecificData(measurement, mcl, eccl, NULL, value);
 }
 
@@ -455,8 +442,6 @@ static EebusError GetFrequencyStrategy(
 
   return ScaledValueInitWithScaledNumber(value, measurement_data->value);
 }
-
-/* ---- interface implementations ---- */
 
 static GcpMeasurementNameId GetName(const MaMgcpMeasurementObject* self) {
   return MA_MGCP_MEASUREMENT(self)->name;

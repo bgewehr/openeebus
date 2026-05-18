@@ -39,7 +39,7 @@ static constexpr char measurement_notify_energy[] = R"({
           ]
         },
         {
-          "msgCounter": 15
+          "msgCounter": 18
         },
         {
           "cmdClassifier": "notify"

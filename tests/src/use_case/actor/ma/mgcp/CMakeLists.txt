@@ -85,6 +85,8 @@ target_sources(
   ${MAIN_PROJ_SOURCES_PATH}/use_case/actor/ma/mgcp/ma_mgcp.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/model/scaled_value.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/model/mgcp_types.c
+  ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/device_configuration/device_configuration_client.c
+  ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/device_configuration/device_configuration_common.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/electrical_connection/electrical_connection_client.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/electrical_connection/electrical_connection_common.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/measurement/measurement_client.c

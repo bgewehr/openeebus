@@ -35,6 +35,9 @@
 #include "src/spine/device/device_local_internal.h"
 #include "src/spine/entity/entity_local.h"
 #include "tests/src/json.h"
+#include "tests/src/use_case/actor/gcp/mgcp/receive/device_configuration_description_request.inc"
+#include "tests/src/use_case/actor/gcp/mgcp/receive/device_configuration_key_value_request.inc"
+#include "tests/src/use_case/actor/gcp/mgcp/receive/device_configuration_subscription_request.inc"
 #include "tests/src/use_case/actor/gcp/mgcp/receive/discovery_request.inc"
 #include "tests/src/use_case/actor/gcp/mgcp/receive/discovery_response.inc"
 #include "tests/src/use_case/actor/gcp/mgcp/receive/electrical_connection_parameter_description_request.inc"
@@ -47,6 +50,8 @@
 #include "tests/src/use_case/actor/gcp/mgcp/receive/result_data_msg_cnt_ref_3.inc"
 #include "tests/src/use_case/actor/gcp/mgcp/receive/use_case_reply.inc"
 #include "tests/src/use_case/actor/gcp/mgcp/receive/use_case_request.inc"
+#include "tests/src/use_case/actor/gcp/mgcp/send/device_configuration_description_reply.inc"
+#include "tests/src/use_case/actor/gcp/mgcp/send/device_configuration_key_value_reply.inc"
 #include "tests/src/use_case/actor/gcp/mgcp/send/discovery_read.inc"
 #include "tests/src/use_case/actor/gcp/mgcp/send/discovery_reply.inc"
 #include "tests/src/use_case/actor/gcp/mgcp/send/electrical_connection_description_reply.inc"
@@ -54,6 +59,7 @@
 #include "tests/src/use_case/actor/gcp/mgcp/send/measurement_constraints_reply.inc"
 #include "tests/src/use_case/actor/gcp/mgcp/send/measurement_description_reply.inc"
 #include "tests/src/use_case/actor/gcp/mgcp/send/node_management_subscription_call.inc"
+#include "tests/src/use_case/actor/gcp/mgcp/send/result_data_msg_cnt_ref_11.inc"
 #include "tests/src/use_case/actor/gcp/mgcp/send/result_data_msg_cnt_ref_3.inc"
 #include "tests/src/use_case/actor/gcp/mgcp/send/result_data_msg_cnt_ref_5.inc"
 #include "tests/src/use_case/actor/gcp/mgcp/send/result_data_msg_cnt_ref_8.inc"
@@ -97,11 +103,16 @@ class GcpMgcpTestFixture : public UseCaseTestFixture {
         .frequency_cfg = measurement_default_cfg,
     };
 
+    static constexpr GcpMgcpPvCurtailmentConfig pv_curtailment_cfg = {};
+
     static constexpr GcpMgcpConfig cfg{
+        .pv_curtailment_cfg = &pv_curtailment_cfg,
+
         .power_cfg = {
             .phases          = kElectricalConnectionPhaseNameTypeAbc,
             .power_total_cfg = measurement_default_cfg,
         },
+
         .energy_cfg    = &energy_cfg,
         .current_cfg   = &current_cfg,
         .voltage_cfg   = NULL,
@@ -134,6 +145,9 @@ class GcpMgcpTestFixture : public UseCaseTestFixture {
 
     static constexpr ScaledValue frequency = {50, 0};
     GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpFrequency, &frequency, NULL, NULL);
+
+    static constexpr ScaledValue pv_curtailment_limit_factor = {75, 0};
+    GcpMgcpSetPvCurtailmentLimitFactor(use_case_.get(), &pv_curtailment_limit_factor);
 
     GcpMgcpUpdate(use_case_.get());
 
@@ -206,10 +220,22 @@ TEST_F(GcpMgcpTestFixture, GcpMgcpTest) {
   ExpectSendMessage(send::measurement_constraints_reply);
   HandleMessage(receive::measurement_constraints_request);
 
-  // 12. Receive the result with message counter reference 3
+  // 12. Receive the device configuration subscription request and send result
+  ExpectSendMessage(send::result_data_msg_cnt_ref_11);
+  HandleMessage(receive::device_configuration_subscription_request);
+
+  // 13. Receive the device configuration description request and send the response
+  ExpectSendMessage(send::device_configuration_description_reply);
+  HandleMessage(receive::device_configuration_description_request);
+
+  // 14. Receive the device configuration key value request and send the response
+  ExpectSendMessage(send::device_configuration_key_value_reply);
+  HandleMessage(receive::device_configuration_key_value_request);
+
+  // 15. Receive the result with message counter reference 3
   HandleMessage(receive::result_data_msg_cnt_ref_3);
 
-  // 13. Receive the Use Case reply
+  // 16. Receive the Use Case reply
   HandleMessage(receive::use_case_reply);
 }
 

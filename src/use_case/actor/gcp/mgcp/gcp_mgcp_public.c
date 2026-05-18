@@ -21,10 +21,9 @@
 #include "src/use_case/actor/gcp/mgcp/gcp_mgcp.h"
 
 #include "src/use_case/actor/gcp/mgcp/gcp_mgcp_internal.h"
+#include "src/use_case/specialization/device_configuration/device_configuration_server.h"
 #include "src/use_case/specialization/measurement/measurement_server.h"
 #include "src/use_case/use_case.h"
-
-/* ---- internal helpers ---- */
 
 static GcpMgcpMonitorObject* GetMonitor(const GcpMgcpUseCase* self, GcpMeasurementNameId measurement_name) {
   const GcpMonitorNameId monitor_name = (GcpMonitorNameId)((uint8_t)measurement_name & (uint8_t)kGcpMonitorNameIdMask);
@@ -48,20 +47,14 @@ static GcpMgcpMeasurementObject* GetMeasurement(const GcpMgcpUseCase* self, GcpM
   return GCP_MGCP_MONITOR_GET_MEASUREMENT(monitor, measurement_name);
 }
 
-/* ---- public API ---- */
-
-EebusError GcpMgcpGetMeasurementData(
-    const GcpMgcpUseCaseObject* self,
+static EebusError GcpMgcpGetMeasurementDataInternal(
+    const GcpMgcpUseCase* self,
     GcpMeasurementNameId measurement_name,
     ScaledValue* measurement_value
 ) {
   const UseCase* const use_case = USE_CASE(self);
 
-  if (measurement_value == NULL) {
-    return kEebusErrorInputArgumentNull;
-  }
-
-  GcpMgcpMeasurementObject* const measurement = GetMeasurement(GCP_MGCP_USE_CASE(self), measurement_name);
+  GcpMgcpMeasurementObject* const measurement = GetMeasurement(self, measurement_name);
   if (measurement == NULL) {
     return kEebusErrorNotSupported;
   }
@@ -72,14 +65,29 @@ EebusError GcpMgcpGetMeasurementData(
     return err;
   }
 
+  return GCP_MGCP_MEASUREMENT_GET_DATA_VALUE(measurement, &msrv, measurement_value);
+}
+
+EebusError GcpMgcpGetMeasurementData(
+    const GcpMgcpUseCaseObject* self,
+    GcpMeasurementNameId measurement_name,
+    ScaledValue* measurement_value
+) {
+  if (measurement_value == NULL) {
+    return kEebusErrorInputArgumentNull;
+  }
+
+  const UseCase* const use_case = USE_CASE(self);
+
   DEVICE_LOCAL_LOCK(use_case->local_device);
-  err = GCP_MGCP_MEASUREMENT_GET_DATA_VALUE(measurement, &msrv, measurement_value);
+  const EebusError err
+      = GcpMgcpGetMeasurementDataInternal(GCP_MGCP_USE_CASE(self), measurement_name, measurement_value);
   DEVICE_LOCAL_UNLOCK(use_case->local_device);
 
   return err;
 }
 
-static EebusError SetMeasurementDataCacheWithTime(
+static EebusError GcpMgcpSetMeasurementDataCacheWithTime(
     GcpMgcpUseCase* self,
     GcpMeasurementNameId measurement_name,
     const ScaledValue* measurement_value,
@@ -93,9 +101,9 @@ static EebusError SetMeasurementDataCacheWithTime(
     return kEebusErrorNotSupported;
   }
 
-  EebusError err;
-
+  EebusError err = kEebusErrorOk;
   EEBUS_MUTEX_LOCK(self->mutex);
+
   err = GCP_MGCP_MEASUREMENT_SET_DATA_CACHE(
       measurement,
       measurement_value,
@@ -104,8 +112,8 @@ static EebusError SetMeasurementDataCacheWithTime(
       start_time,
       end_time
   );
-  EEBUS_MUTEX_UNLOCK(self->mutex);
 
+  EEBUS_MUTEX_UNLOCK(self->mutex);
   return err;
 }
 
@@ -120,7 +128,7 @@ EebusError GcpMgcpSetMeasurementDataCache(
     return kEebusErrorInputArgumentNull;
   }
 
-  return SetMeasurementDataCacheWithTime(
+  return GcpMgcpSetMeasurementDataCacheWithTime(
       GCP_MGCP_USE_CASE(self),
       measurement_name,
       measurement_value,
@@ -177,7 +185,7 @@ EebusError GcpMgcpSetEnergyFeedInCache(
     const EebusDateTime* start_time,
     const EebusDateTime* end_time
 ) {
-  return SetMeasurementDataCacheWithTime(
+  return GcpMgcpSetMeasurementDataCacheWithTime(
       GCP_MGCP_USE_CASE(self),
       kGcpEnergyFeedIn,
       energy_feed_in,
@@ -188,6 +196,91 @@ EebusError GcpMgcpSetEnergyFeedInCache(
   );
 }
 
+static EebusError GcpMgcpSetPvCurtailmentLimitFactorInternal(GcpMgcpUseCase* self, const ScaledValue* value) {
+  const UseCase* const use_case = USE_CASE(self);
+
+  DeviceConfigurationServer dcs = {0};
+
+  const EebusError err = DeviceConfigurationServerConstruct(&dcs, use_case->local_entity);
+  if (err != kEebusErrorOk) {
+    return err;
+  }
+
+  // clang-format off
+  const DeviceConfigurationKeyValueDataType data = {
+      .value = &(DeviceConfigurationKeyValueValueType){
+          .scaled_number = &(ScaledNumberType){
+              .number = &(int64_t){value->value},
+              .scale  = &(int8_t){value->scale},
+          },
+      },
+  };
+  // clang-format on
+
+  const DeviceConfigurationKeyValueDescriptionDataType filter = {
+      .key_name = &(DeviceConfigurationKeyNameType){kDeviceConfigurationKeyNameTypePvCurtailmentLimitFactor},
+  };
+
+  return DeviceConfigurationServerUpdateKeyValueWithFilter(&dcs, &data, NULL, &filter);
+}
+
+EebusError GcpMgcpSetPvCurtailmentLimitFactor(GcpMgcpUseCaseObject* self, const ScaledValue* value) {
+  if (value == NULL) {
+    return kEebusErrorInputArgumentNull;
+  }
+
+  if (!GCP_MGCP_USE_CASE(self)->has_scenario1) {
+    return kEebusErrorNotSupported;
+  }
+
+  const UseCase* const use_case = USE_CASE(self);
+
+  DEVICE_LOCAL_LOCK(use_case->local_device);
+  const EebusError err = GcpMgcpSetPvCurtailmentLimitFactorInternal(GCP_MGCP_USE_CASE(self), value);
+  DEVICE_LOCAL_UNLOCK(use_case->local_device);
+
+  return err;
+}
+
+static EebusError GcpMgcpGetPvCurtailmentLimitFactorInternal(const GcpMgcpUseCase* self, ScaledValue* value) {
+  const UseCase* const use_case = USE_CASE(self);
+
+  DeviceConfigurationServer dcs = {0};
+
+  const EebusError err = DeviceConfigurationServerConstruct(&dcs, use_case->local_entity);
+  if (err != kEebusErrorOk) {
+    return err;
+  }
+
+  const DeviceConfigurationKeyValueDescriptionDataType filter = {
+      .key_name   = &(DeviceConfigurationKeyNameType){kDeviceConfigurationKeyNameTypePvCurtailmentLimitFactor},
+      .value_type = &(DeviceConfigurationKeyValueTypeType){kDeviceConfigurationKeyValueTypeTypeScaledNumber},
+  };
+
+  const DeviceConfigurationKeyValueDataType* const key_value
+      = DeviceConfigurationCommonGetKeyValueWithFilter(&dcs.device_cfg_common, &filter);
+  const ScaledNumberType* const scaled_number = DeviceConfigurationKeyValueGetScaledNumber(key_value);
+  return ScaledValueInitWithScaledNumber(value, scaled_number);
+}
+
+EebusError GcpMgcpGetPvCurtailmentLimitFactor(const GcpMgcpUseCaseObject* self, ScaledValue* value) {
+  if (value == NULL) {
+    return kEebusErrorInputArgumentNull;
+  }
+
+  if (!GCP_MGCP_USE_CASE(self)->has_scenario1) {
+    return kEebusErrorNotSupported;
+  }
+
+  const UseCase* const use_case = USE_CASE(self);
+
+  DEVICE_LOCAL_LOCK(use_case->local_device);
+  const EebusError err = GcpMgcpGetPvCurtailmentLimitFactorInternal(GCP_MGCP_USE_CASE(self), value);
+  DEVICE_LOCAL_UNLOCK(use_case->local_device);
+
+  return err;
+}
+
 EebusError GcpMgcpSetEnergyConsumedCache(
     GcpMgcpUseCaseObject* self,
     const ScaledValue* energy_consumed,
@@ -196,7 +289,7 @@ EebusError GcpMgcpSetEnergyConsumedCache(
     const EebusDateTime* start_time,
     const EebusDateTime* end_time
 ) {
-  return SetMeasurementDataCacheWithTime(
+  return GcpMgcpSetMeasurementDataCacheWithTime(
       GCP_MGCP_USE_CASE(self),
       kGcpEnergyConsumed,
       energy_consumed,

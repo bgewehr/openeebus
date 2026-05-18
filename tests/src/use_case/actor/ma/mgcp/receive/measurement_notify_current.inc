@@ -39,7 +39,7 @@ static constexpr char measurement_notify_current[] = R"({
           ]
         },
         {
-          "msgCounter": 16
+          "msgCounter": 19
         },
         {
           "cmdClassifier": "notify"

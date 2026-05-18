@@ -49,12 +49,18 @@ static void OnMeasurementReceive(
     const ScaledValue* measurement_value,
     const EntityAddressType* remote_entity_addr
 );
+static void OnPvCurtailmentLimitFactorReceive(
+    MaMgcpListenerObject* self,
+    const ScaledValue* value,
+    const EntityAddressType* remote_entity_addr
+);
 
 static const MaMgcpListenerInterface ma_mgcp_listener_methods = {
-    .destruct                    = Destruct,
-    .on_remote_entity_connect    = OnRemoteEntityConnect,
-    .on_remote_entity_disconnect = OnRemoteEntityDisconnect,
-    .on_measurement_receive      = OnMeasurementReceive,
+    .destruct                               = Destruct,
+    .on_remote_entity_connect               = OnRemoteEntityConnect,
+    .on_remote_entity_disconnect            = OnRemoteEntityDisconnect,
+    .on_measurement_receive                 = OnMeasurementReceive,
+    .on_pv_curtailment_limit_factor_receive = OnPvCurtailmentLimitFactorReceive,
 };
 
 static EebusError MaMgcpListenerConstruct(MaMgcpListener* self, HemsObject* hems);
@@ -117,5 +123,17 @@ void OnMeasurementReceive(
 
   printf("MA MGCP Measurement received: %s = ", name);
   ScaledValuePrint("%s,", measurement_value);
+  EntityAddressPrint(" from entity: %s\n", remote_entity_addr);
+}
+
+void OnPvCurtailmentLimitFactorReceive(
+    MaMgcpListenerObject* self,
+    const ScaledValue* value,
+    const EntityAddressType* remote_entity_addr
+) {
+  UNUSED(self);
+
+  printf("MA MGCP PV curtailment limit factor received: ");
+  ScaledValuePrint("%s,", value);
   EntityAddressPrint(" from entity: %s\n", remote_entity_addr);
 }

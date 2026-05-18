@@ -1,7 +1,7 @@
-namespace ma_mgcp_test {
-namespace receive {
+namespace gcp_mgcp_test {
+namespace send {
 
-static constexpr char measurement_notify_power[] = R"({
+static constexpr char device_configuration_key_value_reply[] = R"({
   "datagram": [
     {
       "header": [
@@ -19,7 +19,7 @@ static constexpr char measurement_notify_power[] = R"({
               ]
             },
             {
-              "feature": 2
+              "feature": 3
             }
           ]
         },
@@ -34,15 +34,18 @@ static constexpr char measurement_notify_power[] = R"({
               ]
             },
             {
-              "feature": 2
+              "feature": 3
             }
           ]
         },
         {
-          "msgCounter": 17
+          "msgCounter": 15
         },
         {
-          "cmdClassifier": "notify"
+          "msgCounterReference": 13
+        },
+        {
+          "cmdClassifier": "reply"
         }
       ]
     },
@@ -52,44 +55,26 @@ static constexpr char measurement_notify_power[] = R"({
           "cmd": [
             [
               {
-                "function": "measurementListData"
-              },
-              {
-                "filter": [
-                  [
-                    {
-                      "cmdControl": [
-                        {
-                          "partial": []
-                        }
-                      ]
-                    }
-                  ]
-                ]
-              },
-              {
-                "measurementListData": [
+                "deviceConfigurationKeyValueListData": [
                   {
-                    "measurementData": [
+                    "deviceConfigurationKeyValueData": [
                       [
                         {
-                          "measurementId": 0
-                        },
-                        {
-                          "valueType": "value"
+                          "keyId": 0
                         },
                         {
                           "value": [
                             {
-                              "number": 5000
-                            },
-                            {
-                              "scale": 0
+                              "scaledNumber": [
+                                {
+                                  "number": 75
+                                },
+                                {
+                                  "scale": 0
+                                }
+                              ]
                             }
                           ]
-                        },
-                        {
-                          "valueSource": "measuredValue"
                         }
                       ]
                     ]
@@ -104,5 +89,5 @@ static constexpr char measurement_notify_power[] = R"({
   ]
 })";
 
-}  // namespace receive
-}  // namespace ma_mgcp_test
+}  // namespace send
+}  // namespace gcp_mgcp_test

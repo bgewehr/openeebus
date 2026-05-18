@@ -394,6 +394,61 @@ static constexpr char discovery_reply[] = R"({
                             }
                           ]
                         }
+                      ],
+                      [
+                        {
+                          "description": [
+                            {
+                              "featureAddress": [
+                                {
+                                  "entity": [
+                                    1
+                                  ]
+                                },
+                                {
+                                  "feature": 3
+                                }
+                              ]
+                            },
+                            {
+                              "featureType": "DeviceConfiguration"
+                            },
+                            {
+                              "role": "server"
+                            },
+                            {
+                              "supportedFunction": [
+                                [
+                                  {
+                                    "function": "deviceConfigurationKeyValueDescriptionListData"
+                                  },
+                                  {
+                                    "possibleOperations": [
+                                      {
+                                        "read": []
+                                      }
+                                    ]
+                                  }
+                                ],
+                                [
+                                  {
+                                    "function": "deviceConfigurationKeyValueListData"
+                                  },
+                                  {
+                                    "possibleOperations": [
+                                      {
+                                        "read": []
+                                      }
+                                    ]
+                                  }
+                                ]
+                              ]
+                            },
+                            {
+                              "description": "DeviceConfiguration server"
+                            }
+                          ]
+                        }
                       ]
                     ]
                   }

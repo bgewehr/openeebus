@@ -338,6 +338,33 @@ static constexpr char discovery_reply[] = R"({
                             }
                           ]
                         }
+                      ],
+                      [
+                        {
+                          "description": [
+                            {
+                              "featureAddress": [
+                                {
+                                  "entity": [
+                                    1
+                                  ]
+                                },
+                                {
+                                  "feature": 3
+                                }
+                              ]
+                            },
+                            {
+                              "featureType": "DeviceConfiguration"
+                            },
+                            {
+                              "role": "client"
+                            },
+                            {
+                              "description": "DeviceConfiguration client"
+                            }
+                          ]
+                        }
                       ]
                     ]
                   }

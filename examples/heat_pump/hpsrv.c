@@ -296,15 +296,18 @@ EebusError AddGcpMgcp(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalO
       .frequency_cfg = {.value_source = kMeasurementValueSourceTypeMeasuredValue},
   };
 
+  static const GcpMgcpPvCurtailmentConfig pv_curtailment_cfg = {0};
+
   static const GcpMgcpConfig cfg = {
-      .power_cfg = {
+      .pv_curtailment_cfg = &pv_curtailment_cfg,
+      .power_cfg          = {
           .phases          = kElectricalConnectionPhaseNameTypeAbc,
           .power_total_cfg = {.value_source = kMeasurementValueSourceTypeMeasuredValue},
       },
-      .energy_cfg    = &energy_cfg,
-      .current_cfg   = &current_cfg,
-      .voltage_cfg   = &voltage_cfg,
-      .frequency_cfg = &frequency_cfg,
+      .energy_cfg         = &energy_cfg,
+      .current_cfg        = &current_cfg,
+      .voltage_cfg        = &voltage_cfg,
+      .frequency_cfg      = &frequency_cfg,
   };
 
   self->gcp_mgcp = GcpMgcpUseCaseCreate(entity_local, kHpsrvElectricalConnectionId, &cfg);
@@ -738,6 +741,12 @@ EebusError HpsrvSetGcpMgcpFrequency(HpsrvObject* self, int32_t frequency) {
   }
 
   return GcpMgcpUpdate(hpsrv->gcp_mgcp);
+}
+
+EebusError HpsrvSetGcpMgcpPvCurtailmentLimitFactor(HpsrvObject* self, const ScaledValue* value) {
+  Hpsrv* const hpsrv = HPSRV(self);
+
+  return GcpMgcpSetPvCurtailmentLimitFactor(hpsrv->gcp_mgcp, value);
 }
 
 void HpsrvHandleCmd(HpsrvObject* self, char* cmd) {
