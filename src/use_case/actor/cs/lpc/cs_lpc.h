@@ -43,7 +43,7 @@ static inline void CsLpcUseCaseDelete(CsLpUseCaseObject* cs_lpc_use_case) {
 
 /**
  * @brief Get the LPC power consumption limit
- * @param self LPC CS Use Case instance to get the load control limit with
+ * @param self CS LPC Use Case instance to get the load control limit with
  * @param limit Buffer to load control limit data into
  * @return kEebusErrorOk on success, error code otherwise
  */
@@ -53,7 +53,7 @@ static inline EebusError CsLpcGetActiveConsumptionPowerLimit(const CsLpUseCaseOb
 
 /**
  * @brief Set the acitve power consumption limit
- * @param self LPC CS Use Case instance to set the load control limit with
+ * @param self CS LPC Use Case instance to set the load control limit with
  * @param limit Limit value to be set
  * @param is_active Flag indicating if the limit is active
  * @param is_changeable Flag indicating if the client service can change this value
@@ -71,7 +71,7 @@ static inline EebusError CsLpcSetActiveConsumptionPowerLimit(
 /**
  * @brief Get the Failsafe Limit for the consumed active (real) power of the
  * Controllable System. This limit becomes activated in "init" state or "failsafe state".
- * @param self LPC CS Use Case instance to get the Failsafe Limit with
+ * @param self CS LPC Use Case instance to get the Failsafe Limit with
  * @param power_limit Output buffer to store the Failsafe Power Limit value
  * @param is_changeable Output buffer to store the changeable status
  * @return kEebusErrorOk on success, error code otherwise
@@ -87,7 +87,7 @@ static inline EebusError CsLpcGetFailsafeConsumptionActivePowerLimit(
 /**
  * @brief Set the Failsafe Limit for the consumed active (real) power of the
  * Controllable System. This limit becomes activated in "init" state or "failsafe state".
- * @param self LPC CS Use Case instance to set the Failsafe Limit with
+ * @param self CS LPC Use Case instance to set the Failsafe Limit with
  * @param power_limit Failsafe Power Limit value to be set
  * @param is_changeable Flag indicating if the client service can change this value
  * @return kEebusErrorOk on success, error code otherwise
@@ -103,7 +103,7 @@ static inline EebusError CsLpcSetFailsafeConsumptionActivePowerLimit(
 /**
  * @brief Get the minimum time the Controllable System remains in "failsafe state" unless conditions
  * specified in this Use Case permit leaving the "failsafe state"
- * @param self LPC CS Use Case instance to get the Failsafe Duration Minimum with
+ * @param self CS LPC Use Case instance to get the Failsafe Duration Minimum with
  * @param duration Output buffer to store the Failsafe Duration Minimum
  * @param is_changeable Output buffer to store the changeable status
  * @return kEebusErrorOk on success, error code otherwise
@@ -116,7 +116,7 @@ CsLpcGetFailsafeDurationMinimum(const CsLpUseCaseObject* self, DurationType* dur
 /**
  * @brief Set minimum time the Controllable System remains in "failsafe state" unless conditions
  * specified in this Use Case permit leaving the "failsafe state"
- * @param self LPC CS Use Case instance to set the Failsafe Duration Minimum with
+ * @param self CS LPC Use Case instance to set the Failsafe Duration Minimum with
  * @param duration Duration to beset, has to be >= 2h and <= 24h
  * @param is_changeable Flag indicating if the client service can change this value
  * @return kEebusErrorOk on success, error code otherwise
@@ -129,7 +129,7 @@ CsLpcSetFailsafeDurationMinimum(CsLpUseCaseObject* self, const DurationType* dur
 /**
  * @brief Start sending heartbeat from the local entity supporting this usecase.
  * The heartbeat is started by default when a non 0 timeout is set in the service configuration
- * @param self LPC CS Use Case instance to start the heartbeat with
+ * @param self CS LPC Use Case instance to start the heartbeat with
  */
 static inline void CsLpcStartHeartbeat(CsLpUseCaseObject* self) {
   CsLpStartHeartbeat(CS_LP_USE_CASE_OBJECT(self));
@@ -137,7 +137,7 @@ static inline void CsLpcStartHeartbeat(CsLpUseCaseObject* self) {
 
 /**
  * @brief Stop sending heartbeat from the local CEM entity
- * @param self LPC CS Use Case instance to stop the heartbeat with
+ * @param self CS LPC Use Case instance to stop the heartbeat with
  */
 static inline void CsLpcStopHeartbeat(CsLpUseCaseObject* self) {
   CsLpStopHeartbeat(CS_LP_USE_CASE_OBJECT(self));
@@ -145,7 +145,7 @@ static inline void CsLpcStopHeartbeat(CsLpUseCaseObject* self) {
 
 /**
  * @brief Check if the currently available heartbeat data is within a time duration
- * @param self LPC CS Use Case instance to check the heartbeat data with
+ * @param self CS LPC Use Case instance to check the heartbeat data with
  * @return true if check is passed, false otherwise
  */
 static inline bool CsLpcIsHeartbeatWithinDuration(CsLpUseCaseObject* self) {
@@ -158,7 +158,7 @@ static inline bool CsLpcIsHeartbeatWithinDuration(CsLpUseCaseObject* self) {
  * If the local device type is an EnergyManagementSystem, the contractual consumption
  * nominal max is returned, otherwise the power consumption nominal max is returned.
  *
- * @param self LPC CS Use Case instance to get the nominal max with
+ * @param self CS LPC Use Case instance to get the nominal max with
  * @param nominal_max Pointer to the ScaledValue structure to store
  *                    the nominal max power consumption in W.
  * @return EebusError indicating the success or failure of the operation.
@@ -184,7 +184,7 @@ static inline EebusError CsLpcSetConsumptionNominalMax(CsLpUseCaseObject* self, 
 
 /**
  * @brief Get the characteristic type depending on the local entities device devicetype
- * @param self LPC CS Use Case instance to check the heartbeat data with
+ * @param self CS LPC Use Case instance to check the heartbeat data with
  * @return Electrical connection characteristic type
  */
 static inline ElectricalConnectionCharacteristicTypeType CsLpcGetElectricalConnectionCharacteristicType(

@@ -39,6 +39,16 @@
  * cs_lpc start heartbeat
  * cs_lpc stop heartbeat
  *
+ * CS LPP:
+ * cs_lpp set power_limit 3500.5 false true
+ * cs_lpp get power_limit
+ * cs_lpp set failsafe_limit 3500.5 true
+ * cs_lpp get failsafe_limit
+ * cs_lpp set failsafe_duration PT3H02M3S true
+ * cs_lpp get failsafe_duration
+ * cs_lpp start heartbeat
+ * cs_lpp stop heartbeat
+ *
  * EG LPC:
  * eg_lpc set power_limit 3500.5 PT12H true
  * eg_lpc get power_limit
@@ -48,6 +58,15 @@
  * eg_lpc get failsafe_duration
  * eg_lpc start heartbeat
  * eg_lpc stop heartbeat
+ *
+ * EG LPP:
+ * eg_lpp set power_limit 1500.1 PT3H true
+ * eg_lpp get power_limit
+ * eg_lpp set failsafe_limit 3500.5
+ * eg_lpp get failsafe_limit
+ * eg_lpp set failsafe_duration PT1H01M5S
+ * eg_lpp start heartbeat
+ * eg_lpp stop heartbeat
  *
  * MU MPC:
  * // MU MPC commands format:

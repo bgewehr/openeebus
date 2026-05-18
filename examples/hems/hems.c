@@ -28,6 +28,7 @@
 #include "src/common/eebus_malloc.h"
 
 #include "examples/hems/eg_lpc_listener.h"
+#include "examples/hems/eg_lpp_listener.h"
 #include "examples/hems/ma_mpc_listener.h"
 #include "src/cli/eebus_cli.h"
 #include "src/common/eebus_arguments.h"
@@ -35,6 +36,7 @@
 #include "src/service/service/eebus_service.h"
 #include "src/spine/entity/entity_local.h"
 #include "src/use_case/actor/eg/lpc/eg_lpc.h"
+#include "src/use_case/actor/eg/lpp/eg_lpp.h"
 #include "src/use_case/actor/ma/mpc/ma_mpc.h"
 
 /** EEBUS Home Energy Manager Service type definition */
@@ -49,6 +51,8 @@ struct Hems {
   EebusServiceObject* service;
   EgLpUseCaseObject* eg_lpc;
   EgLpListenerObject* eg_lpc_listener;
+  EgLpUseCaseObject* eg_lpp;
+  EgLpListenerObject* eg_lpp_listener;
   MaMpcUseCaseObject* ma_mpc;
   MaMpcListenerObject* ma_mpc_listener;
   EebusCliObject* cli;
@@ -86,6 +90,8 @@ EebusError HemsConstruct(Hems* self) {
   self->service         = NULL;
   self->eg_lpc          = NULL;
   self->eg_lpc_listener = NULL;
+  self->eg_lpp          = NULL;
+  self->eg_lpp_listener = NULL;
   self->ma_mpc          = NULL;
   self->ma_mpc_listener = NULL;
   self->cli             = NULL;
@@ -108,6 +114,22 @@ EebusError AddEgLpc(Hems* self, DeviceLocalObject* device_local, EntityLocalObje
   if (self->eg_lpc == NULL) {
     EgLpcListenerDelete(self->eg_lpc_listener);
     self->eg_lpc_listener = NULL;
+    return kEebusErrorInit;
+  }
+
+  return kEebusErrorOk;
+}
+
+EebusError AddEgLpp(Hems* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
+  self->eg_lpp_listener = EgLppListenerCreate(HEMS_OBJECT(self));
+  if (self->eg_lpp_listener == NULL) {
+    return kEebusErrorMemoryAllocate;
+  }
+
+  self->eg_lpp = EgLppUseCaseCreate(entity_local, self->eg_lpp_listener);
+  if (self->eg_lpp == NULL) {
+    EgLppListenerDelete(self->eg_lpp_listener);
+    self->eg_lpp_listener = NULL;
     return kEebusErrorInit;
   }
 
@@ -165,6 +187,12 @@ EebusError HemsStart(Hems* hems, int32_t port, const char* role, TlsCertificateO
     return err;
   }
 
+  err = AddEgLpp(hems, device_local, entity);
+  if (err != kEebusErrorOk) {
+    EntityLocalDelete(entity);
+    return err;
+  }
+
   err = AddMaMpc(hems, device_local, entity);
   if (err != kEebusErrorOk) {
     EntityLocalDelete(entity);
@@ -214,6 +242,12 @@ void Destruct(ServiceReaderObject* self) {
 
   MaMpcListenerDelete(hems->ma_mpc_listener);
   hems->ma_mpc_listener = NULL;
+
+  UseCaseDelete(USE_CASE_OBJECT(hems->eg_lpp));
+  hems->eg_lpc = NULL;
+
+  EgLpcListenerDelete(hems->eg_lpp_listener);
+  hems->eg_lpp_listener = NULL;
 
   UseCaseDelete(USE_CASE_OBJECT(hems->eg_lpc));
   hems->eg_lpc = NULL;
@@ -288,6 +322,17 @@ void HemsSetEgLpcRemoteEntity(HemsObject* self, const EntityAddressType* entity_
 
   EgLpUseCaseObject* const eg_lpc = (entity_addr == NULL) ? NULL : hems->eg_lpc;
   EEBUS_CLI_SET_EG_LPC(hems->cli, eg_lpc, entity_addr);
+}
+
+void HemsSetEgLppRemoteEntity(HemsObject* self, const EntityAddressType* entity_addr) {
+  Hems* const hems = HEMS(self);
+
+  if (hems->cli == NULL) {
+    return;
+  }
+
+  EgLpUseCaseObject* const eg_lpp = (entity_addr == NULL) ? NULL : hems->eg_lpp;
+  EEBUS_CLI_SET_EG_LPP(hems->cli, eg_lpp, entity_addr);
 }
 
 void HemsSetMaMpcRemoteEntity(HemsObject* self, const EntityAddressType* entity_addr) {

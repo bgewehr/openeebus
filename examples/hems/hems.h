@@ -76,6 +76,13 @@ void HemsUnregisterRemoteSki(HemsObject* self, const char* ski);
 void HemsSetEgLpcRemoteEntity(HemsObject* self, const EntityAddressType* entity_addr);
 
 /**
+ * @brief Set the EG LPP remote entity address to be used for sending the power limit
+ * @param self HEMS instance to set the remote entity for
+ * @param entity_addr Pointer to the entity address
+ */
+void HemsSetEgLppRemoteEntity(HemsObject* self, const EntityAddressType* entity_addr);
+
+/**
  * @brief Set the MA MPC remote entity address to be used for sending the power limit
  * @param self HEMS instance to set the remote entity for
  * @param entity_addr Pointer to the entity address

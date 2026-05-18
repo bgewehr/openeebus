@@ -84,10 +84,12 @@ set(SOURCES
   src/spine/subscription/subscription_manager.c
   src/use_case/actor/common/load_control.c
   src/use_case/actor/cs/lpc/cs_lpc.c
+  src/use_case/actor/cs/lpp/cs_lpp.c
   src/use_case/actor/cs/cs_lp_events.c
   src/use_case/actor/cs/cs_lp_public.c
   src/use_case/actor/cs/cs_lp.c
   src/use_case/actor/eg/lpc/eg_lpc.c
+  src/use_case/actor/eg/lpp/eg_lpp.c
   src/use_case/actor/eg/eg_lp_events.c
   src/use_case/actor/eg/eg_lp_public.c
   src/use_case/actor/eg/eg_lp.c
@@ -340,7 +342,9 @@ set(HEADERS
   src/use_case/actor/cs/cs_lp_internal.h
   src/use_case/actor/cs/cs_lp.h
   src/use_case/actor/cs/lpc/cs_lpc.h
+  src/use_case/actor/cs/lpp/cs_lpp.h
   src/use_case/actor/eg/lpc/eg_lpc.h
+  src/use_case/actor/eg/lpp/eg_lpp.h
   src/use_case/actor/eg/eg_lp_events.h
   src/use_case/actor/eg/eg_lp_internal.h
   src/use_case/actor/eg/eg_lp.h
