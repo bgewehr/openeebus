@@ -34,7 +34,7 @@ MuMpcMonitorObject* GetMonitor(const MuMpcUseCase* self, MuMpcMeasurementNameId 
   return NULL;
 }
 
-MuMpcMeasurementObject* GetMeasurement(const MuMpcUseCase* self, MuMpcMeasurementNameId measurement_name) {
+EebusMeasurementObject* GetMeasurement(const MuMpcUseCase* self, MuMpcMeasurementNameId measurement_name) {
   const MuMpcMonitorObject* const monitor = GetMonitor(self, measurement_name);
   if (monitor == NULL) {
     return NULL;
@@ -50,7 +50,7 @@ EebusError MuMpcGetMeasurementDataInternal(
 ) {
   const UseCase* const use_case = USE_CASE(self);
 
-  MuMpcMeasurementObject* measurement = GetMeasurement(self, measurement_element_id);
+  EebusMeasurementObject* measurement = GetMeasurement(self, measurement_element_id);
   if (measurement == NULL) {
     return kEebusErrorNotSupported;
   }
@@ -62,7 +62,7 @@ EebusError MuMpcGetMeasurementDataInternal(
     return err;
   }
 
-  return MU_MPC_MEASUREMENT_GET_DATA_VALUE(measurement, &msrv, measurement_value);
+  return EEBUS_MEASUREMENT_GET_DATA_VALUE(measurement, &msrv, measurement_value);
 }
 
 EebusError MuMpcGetMeasurementData(
@@ -94,7 +94,7 @@ EebusError MuMpcSetMeasurementDataCacheWithTime(
     const EebusDateTime* start_time,
     const EebusDateTime* end_time
 ) {
-  MuMpcMeasurementObject* measurement = GetMeasurement(self, measurement_name);
+  EebusMeasurementObject* measurement = GetMeasurement(self, measurement_name);
   if (measurement == NULL) {
     return kEebusErrorNotSupported;
   }
@@ -102,7 +102,7 @@ EebusError MuMpcSetMeasurementDataCacheWithTime(
   EebusError err = kEebusErrorOk;
 
   EEBUS_MUTEX_LOCK(self->mutex);
-  err = MU_MPC_MEASUREMENT_SET_DATA_CACHE(measurement, measurement_value, timestamp, value_state, start_time, end_time);
+  err = EEBUS_MEASUREMENT_SET_DATA_CACHE(measurement, measurement_value, timestamp, value_state, start_time, end_time);
   EEBUS_MUTEX_UNLOCK(self->mutex);
 
   return err;

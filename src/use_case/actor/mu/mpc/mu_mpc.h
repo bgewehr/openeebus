@@ -58,6 +58,7 @@
 #include "src/spine/entity/entity_local.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_monitor.h"
 #include "src/use_case/api/use_case_interface.h"
+#include "src/use_case/use_case.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -108,10 +109,7 @@ MuMpcUseCaseCreate(EntityLocalObject* local_entity, ElectricalConnectionIdType e
  * @param mu_mpc Pointer to the MuMpcUseCaseObject instance to be deleted
  */
 static inline void MuMpcUseCaseDelete(MuMpcUseCaseObject* mu_mpc) {
-  if (mu_mpc != NULL) {
-    USE_CASE_DESTRUCT(USE_CASE_OBJECT(mu_mpc));
-    EEBUS_FREE(mu_mpc);
-  }
+  UseCaseDelete(USE_CASE_OBJECT(mu_mpc));
 }
 
 /**

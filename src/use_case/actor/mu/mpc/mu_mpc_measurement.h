@@ -26,30 +26,15 @@
 #ifndef SRC_USE_CASE_ACTOR_MU_MPC_MEASUREMENT_H_
 #define SRC_USE_CASE_ACTOR_MU_MPC_MEASUREMENT_H_
 
-#include <stddef.h>
-
-#include "src/common/eebus_errors.h"
 #include "src/common/eebus_malloc.h"
-#include "src/use_case/api/mu_mpc_measurement_interface.h"
+#include "src/use_case/actor/common/eebus_measurement_base.h"
+#include "src/use_case/model/mpc_types.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
 
-/**
- * @brief Measurement configuration containing value source and constraints.
- */
-typedef struct MuMpcMeasurementConfig MuMpcMeasurementConfig;
-
-/**
- * @brief Measurement configuration structure
- */
-struct MuMpcMeasurementConfig {
-  /** The source of the values (required) */
-  MeasurementValueSourceType value_source;
-  /** The constraints for the current values (optional can be NULL) */
-  MeasurementConstraintsDataType* constraints;
-};
+typedef EebusMeasurementBaseConfig MuMpcMeasurementConfig;
 
 /**
  * @brief Creates a new measurement object for the given name_id and configuration.
@@ -78,27 +63,27 @@ struct MuMpcMeasurementConfig {
  * @note For Scenario 1, use MuMpcMeasurementPowerTotalCreate() to create a total power measurement.
  * can be alternatively use if evalutaion time has to be set.
  * @param cfg The configuration for the measurement, including value source and constraints.
- * @return A pointer to the created MuMpcMeasurementObject, or NULL if creation failed
+ * @return A pointer to the created EebusMeasurementObject, or NULL if creation failed
  */
-MuMpcMeasurementObject* MuMpcMeasurementCreate(MuMpcMeasurementNameId name, const MuMpcMeasurementConfig* cfg);
+EebusMeasurementObject* MuMpcMeasurementCreate(MuMpcMeasurementNameId name, const MuMpcMeasurementConfig* cfg);
 
 /**
  * @brief Creates a new measurement object for the total power measurement.
  * @param phases The electrical connection phases to measure (e.g., kElectricalConnectionPhaseNameTypeAbc)
  * @param cfg The configuration for the measurement, including value source and constraints.
- * @return A pointer to the created MuMpcMeasurementObject, or NULL if creation failed
+ * @return A pointer to the created EebusMeasurementObject, or NULL if creation failed
  */
-MuMpcMeasurementObject*
+EebusMeasurementObject*
 MuMpcMeasurementPowerTotalCreate(ElectricalConnectionPhaseNameType phases, const MuMpcMeasurementConfig* cfg);
 
 /**
- * @brief Delete the MuMpcMeasurementObject and free its resources.
- * @param measurement The MuMpcMeasurementObject to delete.
+ * @brief Delete the EebusMeasurementObject and free its resources.
+ * @param measurement The EebusMeasurementObject to delete.
  * This function will destruct the measurement object and free the memory allocated for it.
  */
-static inline void MuMpcMeasurementDelete(MuMpcMeasurementObject* measurement) {
+static inline void MuMpcMeasurementDelete(EebusMeasurementObject* measurement) {
   if (measurement != NULL) {
-    MU_MPC_MEASUREMENT_DESTRUCT(measurement);
+    EEBUS_MEASUREMENT_DESTRUCT(measurement);
     EEBUS_FREE(measurement);
   }
 }

@@ -271,13 +271,13 @@ void Destruct(ServiceReaderObject* self) {
     hems->service = NULL;
   }
 
-  MaMgcpUseCaseDelete(hems->ma_mgcp);
+  UseCaseDelete(USE_CASE_OBJECT(hems->ma_mgcp));
   hems->ma_mgcp = NULL;
 
   MaMgcpListenerDelete(hems->ma_mgcp_listener);
   hems->ma_mgcp_listener = NULL;
 
-  MaMpcUseCaseDelete(hems->ma_mpc);
+  UseCaseDelete(USE_CASE_OBJECT(hems->ma_mpc));
   hems->ma_mpc = NULL;
 
   MaMpcListenerDelete(hems->ma_mpc_listener);

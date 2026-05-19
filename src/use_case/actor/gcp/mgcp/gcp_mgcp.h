@@ -52,6 +52,7 @@
 #include "src/use_case/actor/gcp/mgcp/gcp_mgcp_monitor.h"
 #include "src/use_case/api/use_case_interface.h"
 #include "src/use_case/specialization/electrical_connection/electrical_connection_server.h"
+#include "src/use_case/use_case.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -110,13 +111,11 @@ GcpMgcpUseCaseObject*
 GcpMgcpUseCaseCreate(EntityLocalObject* local_entity, ElectricalConnectionIdType ec_id, const GcpMgcpConfig* cfg);
 
 /**
- * @brief Delete a GCP MGCP use case instance and free memory
+ * @brief Delete a GCP MGCP use case instance
+ * @param gcp_mgcp Pointer to the GCP MGCP use case instance to delete
  */
 static inline void GcpMgcpUseCaseDelete(GcpMgcpUseCaseObject* gcp_mgcp) {
-  if (gcp_mgcp != NULL) {
-    USE_CASE_DESTRUCT(USE_CASE_OBJECT(gcp_mgcp));
-    EEBUS_FREE(gcp_mgcp);
-  }
+  UseCaseDelete(USE_CASE_OBJECT(gcp_mgcp));
 }
 
 /**

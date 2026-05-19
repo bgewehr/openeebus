@@ -59,13 +59,10 @@ MaMgcpUseCaseObject* MaMgcpUseCaseCreate(EntityLocalObject* local_entity, MaMgcp
 
 /**
  * @brief Delete a MA MGCP use case instance
- * @param ma_mgcp_use_case Pointer to the instance to delete
+ * @param ma_mgcp_use_case Pointer to the MA MGCP use case instance to delete
  */
 static inline void MaMgcpUseCaseDelete(MaMgcpUseCaseObject* ma_mgcp_use_case) {
-  if (ma_mgcp_use_case != NULL) {
-    USE_CASE_DESTRUCT(USE_CASE_OBJECT(ma_mgcp_use_case));
-    EEBUS_FREE(ma_mgcp_use_case);
-  }
+  UseCaseDelete(USE_CASE_OBJECT(ma_mgcp_use_case));
 }
 
 /**

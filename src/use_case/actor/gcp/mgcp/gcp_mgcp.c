@@ -248,6 +248,18 @@ static EebusError AddFeatures(UseCaseObject* self, EntityLocalObject* entity) {
 
   const ElectricalConnectionIdType ec_id = gcp_mgcp->electrical_connection_id;
 
+  if (ElectricalConnectionCommonGetDescriptionWithId(&ecsrv.el_connection_common, ec_id) == NULL) {
+    const ElectricalConnectionDescriptionDataType ec_description = {
+        .power_supply_type         = &ELECTRICAL_CONNECTION_VOLTAGE_TYPE(Ac),
+        .positive_energy_direction = &(EnergyDirectionType){kEnergyDirectionTypeConsume},
+    };
+
+    EebusError err = ElectricalConnectionServerAddDescriptionWithId(&ecsrv, &ec_description, ec_id);
+    if (err != kEebusErrorOk) {
+      return err;
+    }
+  }
+
   MeasurementConstraintsListDataType* const measurement_constraints = MeasurementConstraintsCreateEmpty();
   if (measurement_constraints == NULL) {
     return kEebusErrorMemoryAllocate;

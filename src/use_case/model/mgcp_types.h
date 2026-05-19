@@ -21,53 +21,46 @@
 #ifndef SRC_USE_CASE_MODEL_MGCP_TYPES_H_
 #define SRC_USE_CASE_MODEL_MGCP_TYPES_H_
 
+#include "src/use_case/model/eebus_measurement_types.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
 
-/**
- * @brief MGCP Monitor group identifiers (high nibble of GcpMeasurementNameId)
- */
-enum GcpMonitorNameId {
-  kGcpMonitorPower      = 0x10, /**< Scenario 2: momentary power */
-  kGcpMonitorEnergy     = 0x20, /**< Scenarios 3 and 4: energy feed-in / consumed */
-  kGcpMonitorCurrent    = 0x30, /**< Scenario 5: per-phase AC current */
-  kGcpMonitorVoltage    = 0x40, /**< Scenario 6: per-phase AC voltage */
-  kGcpMonitorFrequency  = 0x50, /**< Scenario 7: AC frequency */
-  kGcpMonitorNameIdMask = 0xF0,
-};
+typedef EebusMeasurementMonitorNameId GcpMonitorNameId;
+typedef EebusMeasurementNameId GcpMeasurementNameId;
 
-typedef enum GcpMonitorNameId GcpMonitorNameId;
+#define kGcpMonitorPower kEebusMeasurementMonitorPower         /**< Scenario 2: momentary power */
+#define kGcpMonitorEnergy kEebusMeasurementMonitorEnergy       /**< Scenarios 3 and 4: energy */
+#define kGcpMonitorCurrent kEebusMeasurementMonitorCurrent     /**< Scenario 5: per-phase AC current */
+#define kGcpMonitorVoltage kEebusMeasurementMonitorVoltage     /**< Scenario 6: per-phase AC voltage */
+#define kGcpMonitorFrequency kEebusMeasurementMonitorFrequency /**< Scenario 7: AC frequency */
+#define kGcpMonitorNameIdMask kEebusMeasurementMonitorNameIdMask
 
-/**
- * @brief MGCP measurement name identifiers
- *
- * High nibble identifies the monitor group; low nibble identifies the specific
- * measurement within that group.
- */
-enum GcpMeasurementNameId {
-  /* Scenario 2 — momentary power */
-  kGcpPowerTotal = kGcpMonitorPower | 0x01, /**< Total active power (W) */
-  /* Scenario 3 — grid feed-in energy */
-  kGcpEnergyFeedIn = kGcpMonitorEnergy | 0x01, /**< Cumulative feed-in energy (Wh) */
-  /* Scenario 4 — grid consumed energy */
-  kGcpEnergyConsumed = kGcpMonitorEnergy | 0x02, /**< Cumulative consumed energy (Wh) */
-  /* Scenario 5 — per-phase AC current */
-  kGcpCurrentPhaseA = kGcpMonitorCurrent | 0x01, /**< Phase A RMS current (A) */
-  kGcpCurrentPhaseB = kGcpMonitorCurrent | 0x02, /**< Phase B RMS current (A) */
-  kGcpCurrentPhaseC = kGcpMonitorCurrent | 0x03, /**< Phase C RMS current (A) */
-  /* Scenario 6 — per-phase AC voltage */
-  kGcpVoltagePhaseA  = kGcpMonitorVoltage | 0x01, /**< Phase A to neutral RMS voltage (V) */
-  kGcpVoltagePhaseB  = kGcpMonitorVoltage | 0x02, /**< Phase B to neutral RMS voltage (V) */
-  kGcpVoltagePhaseC  = kGcpMonitorVoltage | 0x03, /**< Phase C to neutral RMS voltage (V) */
-  kGcpVoltagePhaseAb = kGcpMonitorVoltage | 0x04, /**< Phase A to B RMS voltage (V) */
-  kGcpVoltagePhaseBc = kGcpMonitorVoltage | 0x05, /**< Phase B to C RMS voltage (V) */
-  kGcpVoltagePhaseAc = kGcpMonitorVoltage | 0x06, /**< Phase C to A RMS voltage (V) */
-  /* Scenario 7 — AC frequency */
-  kGcpFrequency = kGcpMonitorFrequency | 0x01, /**< Grid frequency (Hz) */
-};
+/* Scenario 2 — momentary power */
+#define kGcpPowerTotal kMuPowerTotal /**< Total active power (W) */
 
-typedef enum GcpMeasurementNameId GcpMeasurementNameId;
+/* Scenario 3 — grid feed-in energy */
+#define kGcpEnergyFeedIn kMuEnergyFeedIn /**< Cumulative feed-in energy (Wh) */
+
+/* Scenario 4 — grid consumed energy */
+#define kGcpEnergyConsumed kMuEnergyConsumed /**< Cumulative consumed energy (Wh) */
+
+/* Scenario 5 — per-phase AC current */
+#define kGcpCurrentPhaseA kMuCurrentPhaseA /**< Phase A RMS current (A) */
+#define kGcpCurrentPhaseB kMuCurrentPhaseB /**< Phase B RMS current (A) */
+#define kGcpCurrentPhaseC kMuCurrentPhaseC /**< Phase C RMS current (A) */
+
+/* Scenario 6 — per-phase AC voltage */
+#define kGcpVoltagePhaseA kMuVoltagePhaseA   /**< Phase A to neutral RMS voltage (V) */
+#define kGcpVoltagePhaseB kMuVoltagePhaseB   /**< Phase B to neutral RMS voltage (V) */
+#define kGcpVoltagePhaseC kMuVoltagePhaseC   /**< Phase C to neutral RMS voltage (V) */
+#define kGcpVoltagePhaseAb kMuVoltagePhaseAb /**< Phase A to B RMS voltage (V) */
+#define kGcpVoltagePhaseBc kMuVoltagePhaseBc /**< Phase B to C RMS voltage (V) */
+#define kGcpVoltagePhaseAc kMuVoltagePhaseAc /**< Phase C to A RMS voltage (V) */
+
+/* Scenario 7 — AC frequency */
+#define kGcpFrequency kMuFrequency /**< Grid frequency (Hz) */
 
 /**
  * @brief Look up a GcpMeasurementNameId by its string name

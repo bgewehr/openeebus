@@ -30,7 +30,7 @@ typedef struct GcpMgcpMonitor GcpMgcpMonitor;
 struct GcpMgcpMonitor {
   GcpMgcpMonitorObject obj;
   GcpMonitorNameId name;
-  Vector measurements; /**< Vector of GcpMgcpMeasurementObject* */
+  Vector measurements; /**< Vector of EebusMeasurementObject* */
 };
 
 #define GCP_MGCP_MONITOR(obj) ((GcpMgcpMonitor*)(obj))
@@ -44,7 +44,7 @@ static EebusError Configure(
     ElectricalConnectionIdType ec_id,
     MeasurementConstraintsListDataType* constraints
 );
-static GcpMgcpMeasurementObject* GetMeasurement(const GcpMgcpMonitorObject* self, GcpMeasurementNameId name_id);
+static EebusMeasurementObject* GetMeasurement(const GcpMgcpMonitorObject* self, GcpMeasurementNameId name_id);
 static EebusError FlushMeasurementCache(GcpMgcpMonitorObject* self, MeasurementListDataType* list);
 
 static const GcpMgcpMonitorInterface gcp_mgcp_monitor_methods = {
@@ -62,7 +62,7 @@ struct MeasurementParam {
 };
 
 static void MeasurementDeallocator(void* p) {
-  GcpMgcpMeasurementDelete((GcpMgcpMeasurementObject*)p);
+  GcpMgcpMeasurementDelete((EebusMeasurementObject*)p);
 }
 
 static EebusError MonitorConstruct(GcpMgcpMonitor* self, GcpMonitorNameId name) {
@@ -75,9 +75,9 @@ static EebusError MonitorConstruct(GcpMgcpMonitor* self, GcpMonitorNameId name) 
 static EebusError AddMeasurements(GcpMgcpMonitor* self, const MeasurementParam* params, size_t params_size) {
   for (size_t i = 0; i < params_size; ++i) {
     if (params[i].cfg == NULL) {
-      continue; // optional — skip
+      continue;  // optional — skip
     }
-    GcpMgcpMeasurementObject* const m = GcpMgcpMeasurementCreate(params[i].name, params[i].cfg);
+    EebusMeasurementObject* const m = GcpMgcpMeasurementCreate(params[i].name, params[i].cfg);
     if (m == NULL) {
       return kEebusErrorInit;
     }
@@ -129,14 +129,14 @@ static EebusError Configure(
   }
 
   for (size_t i = 0; i < VectorGetSize(&monitor->measurements); ++i) {
-    GcpMgcpMeasurementObject* const m = (GcpMgcpMeasurementObject*)VectorGetElement(&monitor->measurements, i);
+    EebusMeasurementObject* const m = (EebusMeasurementObject*)VectorGetElement(&monitor->measurements, i);
 
-    EebusError err = GCP_MGCP_MEASUREMENT_CONFIGURE(m, msrv, ecsrv, ec_id);
+    EebusError err = EEBUS_MEASUREMENT_CONFIGURE(m, msrv, ecsrv, ec_id);
     if (err != kEebusErrorOk) {
       return err;
     }
 
-    const MeasurementConstraintsDataType* const c = GCP_MGCP_MEASUREMENT_GET_CONSTRAINTS(m);
+    const MeasurementConstraintsDataType* const c = EEBUS_MEASUREMENT_GET_CONSTRAINTS(m);
     if (c != NULL) {
       err = MeasurementConstraintsAdd(constraints, c);
       if (err != kEebusErrorOk) {
@@ -148,7 +148,7 @@ static EebusError Configure(
   return kEebusErrorOk;
 }
 
-static GcpMgcpMeasurementObject* GetMeasurement(const GcpMgcpMonitorObject* self, GcpMeasurementNameId name_id) {
+static EebusMeasurementObject* GetMeasurement(const GcpMgcpMonitorObject* self, GcpMeasurementNameId name_id) {
   const GcpMgcpMonitor* const monitor = GCP_MGCP_MONITOR(self);
   const GcpMonitorNameId monitor_name = (GcpMonitorNameId)((uint8_t)name_id & (uint8_t)kGcpMonitorNameIdMask);
 
@@ -157,8 +157,8 @@ static GcpMgcpMeasurementObject* GetMeasurement(const GcpMgcpMonitorObject* self
   }
 
   for (size_t i = 0; i < VectorGetSize(&monitor->measurements); ++i) {
-    GcpMgcpMeasurementObject* const m = (GcpMgcpMeasurementObject*)VectorGetElement(&monitor->measurements, i);
-    if (GCP_MGCP_MEASUREMENT_GET_NAME(m) == name_id) {
+    EebusMeasurementObject* const m = (EebusMeasurementObject*)VectorGetElement(&monitor->measurements, i);
+    if (EEBUS_MEASUREMENT_GET_NAME(m) == name_id) {
       return m;
     }
   }
@@ -174,9 +174,9 @@ static EebusError FlushMeasurementCache(GcpMgcpMonitorObject* self, MeasurementL
   }
 
   for (size_t i = 0; i < VectorGetSize(&monitor->measurements); ++i) {
-    GcpMgcpMeasurementObject* const m = (GcpMgcpMeasurementObject*)VectorGetElement(&monitor->measurements, i);
+    EebusMeasurementObject* const m = (EebusMeasurementObject*)VectorGetElement(&monitor->measurements, i);
 
-    MeasurementDataType* const data = GCP_MGCP_MEASUREMENT_RELEASE_DATA_CACHE(m);
+    MeasurementDataType* const data = EEBUS_MEASUREMENT_RELEASE_DATA_CACHE(m);
     if (data != NULL) {
       EebusError err = EebusDataListDataAppend((void***)&list->measurement_data, &list->measurement_data_size, data);
       if (err != kEebusErrorOk) {
@@ -206,7 +206,7 @@ GcpMgcpMonitorObject* GcpMgcpMonitorPowerCreate(const GcpMgcpMonitorPowerConfig*
   }
 
   // Create the total power measurement with the configured phases
-  GcpMgcpMeasurementObject* const m = GcpMgcpMeasurementPowerTotalCreate(cfg->phases, &cfg->power_total_cfg);
+  EebusMeasurementObject* const m = GcpMgcpMeasurementPowerTotalCreate(cfg->phases, &cfg->power_total_cfg);
   if (m == NULL) {
     GcpMgcpMonitorDelete(GCP_MGCP_MONITOR_OBJECT(monitor));
     return NULL;

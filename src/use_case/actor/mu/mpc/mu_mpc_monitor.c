@@ -47,7 +47,7 @@ static EebusError Configure(
     ElectricalConnectionIdType electrical_connection_id,
     MeasurementConstraintsListDataType* measurements_constraints
 );
-static MuMpcMeasurementObject*
+static EebusMeasurementObject*
 GetMeasurement(const MuMpcMonitorObject* self, MuMpcMeasurementNameId measurement_name_id);
 static EebusError FlushMeasurementCache(MuMpcMonitorObject* self, MeasurementListDataType* measurement_data_list);
 
@@ -76,7 +76,7 @@ static EebusError
 AddMeasurements(MuMpcMonitor* self, const MeasurementParameters* measurement_params, size_t measurement_params_size);
 
 void MeasurementDeallocator(void* p) {
-  MuMpcMeasurementDelete((MuMpcMeasurementObject*)p);
+  MuMpcMeasurementDelete((EebusMeasurementObject*)p);
 }
 
 EebusError MuMpcMonitorConstruct(MuMpcMonitor* self, MuMpcMonitorNameId name) {
@@ -151,16 +151,16 @@ EebusError Configure(
   }
 
   for (size_t i = 0; i < VectorGetSize(&monitor->measurements); ++i) {
-    MuMpcMeasurementObject* const measurement = (MuMpcMeasurementObject*)VectorGetElement(&monitor->measurements, i);
+    EebusMeasurementObject* const measurement = (EebusMeasurementObject*)VectorGetElement(&monitor->measurements, i);
 
     if (measurement != NULL) {
-      const EebusError err = MU_MPC_MEASUREMENT_CONFIGURE(measurement, msrv, ecsrv, electrical_connection_id);
+      const EebusError err = EEBUS_MEASUREMENT_CONFIGURE(measurement, msrv, ecsrv, electrical_connection_id);
       if (err != kEebusErrorOk) {
         return err;
       }
     }
 
-    const MeasurementConstraintsDataType* constraints = MU_MPC_MEASUREMENT_GET_CONSTRAINTS(measurement);
+    const MeasurementConstraintsDataType* constraints = EEBUS_MEASUREMENT_GET_CONSTRAINTS(measurement);
     if (constraints != NULL) {
       const EebusError err = MeasurementConstraintsAdd(measurements_constraints, constraints);
       if (err != kEebusErrorOk) {
@@ -176,7 +176,7 @@ EebusError
 AddMeasurements(MuMpcMonitor* self, const MeasurementParameters* measurement_params, size_t measurement_params_size) {
   for (size_t i = 0; i < measurement_params_size; ++i) {
     if (measurement_params[i].cfg != NULL) {
-      MuMpcMeasurementObject* const measurement
+      EebusMeasurementObject* const measurement
           = MuMpcMeasurementCreate(measurement_params[i].measurement_name, measurement_params[i].cfg);
       if (measurement == NULL) {
         return kEebusErrorInit;
@@ -189,7 +189,7 @@ AddMeasurements(MuMpcMonitor* self, const MeasurementParameters* measurement_par
   return kEebusErrorOk;
 }
 
-MuMpcMeasurementObject* GetMeasurement(const MuMpcMonitorObject* self, MuMpcMeasurementNameId measurement_name_id) {
+EebusMeasurementObject* GetMeasurement(const MuMpcMonitorObject* self, MuMpcMeasurementNameId measurement_name_id) {
   MuMpcMonitor* const monitor = MU_MPC_MONITOR(self);
 
   const MuMpcMonitorNameId monitor_name = monitor->name & (MuMpcMonitorNameId)kMpcMonitorNameIdMask;
@@ -199,8 +199,8 @@ MuMpcMeasurementObject* GetMeasurement(const MuMpcMonitorObject* self, MuMpcMeas
   }
 
   for (size_t i = 0; i < VectorGetSize(&monitor->measurements); ++i) {
-    MuMpcMeasurementObject* const measurement = (MuMpcMeasurementObject*)VectorGetElement(&monitor->measurements, i);
-    if (MU_MPC_MEASUREMENT_GET_NAME(measurement) == measurement_name_id) {
+    EebusMeasurementObject* const measurement = (EebusMeasurementObject*)VectorGetElement(&monitor->measurements, i);
+    if (EEBUS_MEASUREMENT_GET_NAME(measurement) == measurement_name_id) {
       return measurement;  // Measurement found
     }
   }
@@ -216,9 +216,9 @@ EebusError FlushMeasurementCache(MuMpcMonitorObject* self, MeasurementListDataTy
   }
 
   for (size_t i = 0; i < VectorGetSize(&monitor->measurements); ++i) {
-    MuMpcMeasurementObject* const measurement = (MuMpcMeasurementObject*)VectorGetElement(&monitor->measurements, i);
+    EebusMeasurementObject* const measurement = (EebusMeasurementObject*)VectorGetElement(&monitor->measurements, i);
 
-    MeasurementDataType* data = MU_MPC_MEASUREMENT_RELEASE_DATA_CACHE(measurement);
+    MeasurementDataType* data = EEBUS_MEASUREMENT_RELEASE_DATA_CACHE(measurement);
     if (data != NULL) {
       EebusError err = EebusDataListDataAppend(
           (void***)&measurement_data_list->measurement_data,
@@ -267,7 +267,7 @@ EebusError MuMpcMonitorPowerConstruct(MuMpcMonitor* self, const MuMpcMonitorPowe
   }
 
   const uint8_t connected_phases = GetConnectedPhases(cfg);
-  MuMpcMeasurementObject* const power_measurement_total
+  EebusMeasurementObject* const power_measurement_total
       = MuMpcMeasurementPowerTotalCreate(connected_phases, &cfg->power_total_cfg);
   if (power_measurement_total == NULL) {
     return kEebusErrorInit;

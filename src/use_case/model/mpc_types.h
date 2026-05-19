@@ -21,53 +21,50 @@
 #ifndef SRC_USE_CASE_MODEL_MPC_TYPES_H_
 #define SRC_USE_CASE_MODEL_MPC_TYPES_H_
 
+#include "src/use_case/model/eebus_measurement_types.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
 
-enum MuMpcMonitorNameId {
-  kMpcMonitorPower      = 0x10,
-  kMpcMonitorEnergy     = 0x20,
-  kMpcMonitorCurrent    = 0x30,
-  kMpcMonitorVoltage    = 0x40,
-  kMpcMonitorFrequency  = 0x50,
-  kMpcMonitorNameIdMask = 0xF0,
-};
+typedef EebusMeasurementMonitorNameId MuMpcMonitorNameId;
+typedef EebusMeasurementNameId MuMpcMeasurementNameId;
 
-typedef enum MuMpcMonitorNameId MuMpcMonitorNameId;
+#define kMpcMonitorPower kEebusMeasurementMonitorPower
+#define kMpcMonitorEnergy kEebusMeasurementMonitorEnergy
+#define kMpcMonitorCurrent kEebusMeasurementMonitorCurrent
+#define kMpcMonitorVoltage kEebusMeasurementMonitorVoltage
+#define kMpcMonitorFrequency kEebusMeasurementMonitorFrequency
+#define kMpcMonitorNameIdMask kEebusMeasurementMonitorNameIdMask
 
-enum MuMpcMeasurementNameId {
-  kMpcPowerTotal     = kMpcMonitorPower | 0x01,
-  kMpcPowerPhaseA    = kMpcMonitorPower | 0x02,
-  kMpcPowerPhaseB    = kMpcMonitorPower | 0x03,
-  kMpcPowerPhaseC    = kMpcMonitorPower | 0x04,
-  kMpcEnergyConsumed = kMpcMonitorEnergy | 0x01,
-  kMpcEnergyProduced = kMpcMonitorEnergy | 0x02,
-  kMpcCurrentPhaseA  = kMpcMonitorCurrent | 0x01,
-  kMpcCurrentPhaseB  = kMpcMonitorCurrent | 0x02,
-  kMpcCurrentPhaseC  = kMpcMonitorCurrent | 0x03,
-  kMpcVoltagePhaseA  = kMpcMonitorVoltage | 0x01,
-  kMpcVoltagePhaseB  = kMpcMonitorVoltage | 0x02,
-  kMpcVoltagePhaseC  = kMpcMonitorVoltage | 0x03,
-  kMpcVoltagePhaseAb = kMpcMonitorVoltage | 0x04,
-  kMpcVoltagePhaseBc = kMpcMonitorVoltage | 0x05,
-  kMpcVoltagePhaseAc = kMpcMonitorVoltage | 0x06,
-  kMpcFrequency      = kMpcMonitorFrequency | 0x01,
-};
-
-typedef enum MuMpcMeasurementNameId MuMpcMeasurementNameId;
+#define kMpcPowerTotal kMuPowerTotal
+#define kMpcPowerPhaseA kMuPowerPhaseA
+#define kMpcPowerPhaseB kMuPowerPhaseB
+#define kMpcPowerPhaseC kMuPowerPhaseC
+#define kMpcEnergyConsumed kMuEnergyConsumed
+#define kMpcEnergyProduced kMuEnergyProduced
+#define kMpcCurrentPhaseA kMuCurrentPhaseA
+#define kMpcCurrentPhaseB kMuCurrentPhaseB
+#define kMpcCurrentPhaseC kMuCurrentPhaseC
+#define kMpcVoltagePhaseA kMuVoltagePhaseA
+#define kMpcVoltagePhaseB kMuVoltagePhaseB
+#define kMpcVoltagePhaseC kMuVoltagePhaseC
+#define kMpcVoltagePhaseAb kMuVoltagePhaseAb
+#define kMpcVoltagePhaseBc kMuVoltagePhaseBc
+#define kMpcVoltagePhaseAc kMuVoltagePhaseAc
+#define kMpcFrequency kMuFrequency
 
 /**
- * @brief Get the MU MPC state with the state name
- * @param name Name of the state
- * @return Pointer to the MU MPC state, or NULL if not found
+ * @brief Get the MU MPC measurement name id from its string name
+ * @param name String name (e.g. "power_total", "energy_consumed")
+ * @return Pointer to the matching id, or NULL if not found
  */
 const MuMpcMeasurementNameId* MuMpcMeasurementGetNameId(const char* name);
 
 /**
- * @brief Get the name of the MU MPC state
- * @param state MU MPC state
- * @return Name of the state
+ * @brief Get the string name of a MU MPC measurement
+ * @param state The measurement name identifier
+ * @return String name, or NULL if the identifier is unknown
  */
 const char* MuMpcMeasurementGetName(MuMpcMeasurementNameId state);
 

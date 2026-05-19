@@ -21,23 +21,15 @@
 #ifndef SRC_USE_CASE_ACTOR_GCP_MGCP_GCP_MGCP_MEASUREMENT_H_
 #define SRC_USE_CASE_ACTOR_GCP_MGCP_GCP_MGCP_MEASUREMENT_H_
 
-#include "src/common/eebus_errors.h"
 #include "src/common/eebus_malloc.h"
-#include "src/use_case/api/gcp_mgcp_measurement_interface.h"
+#include "src/use_case/actor/common/eebus_measurement_base.h"
+#include "src/use_case/model/mgcp_types.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
 
-/**
- * @brief Measurement configuration: value source and optional constraints
- */
-typedef struct GcpMgcpMeasurementConfig GcpMgcpMeasurementConfig;
-
-struct GcpMgcpMeasurementConfig {
-  MeasurementValueSourceType value_source;
-  MeasurementConstraintsDataType* constraints; /**< May be NULL */
-};
+typedef EebusMeasurementBaseConfig GcpMgcpMeasurementConfig;
 
 /**
  * @brief Create a power-total measurement with explicit phases
@@ -49,7 +41,7 @@ struct GcpMgcpMeasurementConfig {
  * @param cfg    Measurement configuration
  * @return Pointer to created object, or NULL on failure
  */
-GcpMgcpMeasurementObject*
+EebusMeasurementObject*
 GcpMgcpMeasurementPowerTotalCreate(ElectricalConnectionPhaseNameType phases, const GcpMgcpMeasurementConfig* cfg);
 
 /**
@@ -68,14 +60,14 @@ GcpMgcpMeasurementPowerTotalCreate(ElectricalConnectionPhaseNameType phases, con
  * @param cfg  Measurement configuration (value source + optional constraints)
  * @return Pointer to created object, or NULL on failure
  */
-GcpMgcpMeasurementObject* GcpMgcpMeasurementCreate(GcpMeasurementNameId name, const GcpMgcpMeasurementConfig* cfg);
+EebusMeasurementObject* GcpMgcpMeasurementCreate(GcpMeasurementNameId name, const GcpMgcpMeasurementConfig* cfg);
 
 /**
- * @brief Delete a GcpMgcpMeasurementObject
+ * @brief Delete a EebusMeasurementObject
  */
-static inline void GcpMgcpMeasurementDelete(GcpMgcpMeasurementObject* measurement) {
+static inline void GcpMgcpMeasurementDelete(EebusMeasurementObject* measurement) {
   if (measurement != NULL) {
-    GCP_MGCP_MEASUREMENT_DESTRUCT(measurement);
+    EEBUS_MEASUREMENT_DESTRUCT(measurement);
     EEBUS_FREE(measurement);
   }
 }

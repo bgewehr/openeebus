@@ -447,7 +447,7 @@ void Destruct(ServiceReaderObject* self) {
   CsLpcListenerDelete(hpsrv->cs_lpc_listener);
   hpsrv->cs_lpc_listener = NULL;
 
-  GcpMgcpUseCaseDelete(hpsrv->gcp_mgcp);
+  UseCaseDelete(USE_CASE_OBJECT(hpsrv->gcp_mgcp));
   hpsrv->gcp_mgcp = NULL;
 
   EebusServiceConfigDelete(hpsrv->cfg);

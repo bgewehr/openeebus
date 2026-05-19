@@ -38,7 +38,7 @@ static GcpMgcpMonitorObject* GetMonitor(const GcpMgcpUseCase* self, GcpMeasureme
   return NULL;
 }
 
-static GcpMgcpMeasurementObject* GetMeasurement(const GcpMgcpUseCase* self, GcpMeasurementNameId measurement_name) {
+static EebusMeasurementObject* GetMeasurement(const GcpMgcpUseCase* self, GcpMeasurementNameId measurement_name) {
   const GcpMgcpMonitorObject* const monitor = GetMonitor(self, measurement_name);
   if (monitor == NULL) {
     return NULL;
@@ -54,7 +54,7 @@ static EebusError GcpMgcpGetMeasurementDataInternal(
 ) {
   const UseCase* const use_case = USE_CASE(self);
 
-  GcpMgcpMeasurementObject* const measurement = GetMeasurement(self, measurement_name);
+  EebusMeasurementObject* const measurement = GetMeasurement(self, measurement_name);
   if (measurement == NULL) {
     return kEebusErrorNotSupported;
   }
@@ -65,7 +65,7 @@ static EebusError GcpMgcpGetMeasurementDataInternal(
     return err;
   }
 
-  return GCP_MGCP_MEASUREMENT_GET_DATA_VALUE(measurement, &msrv, measurement_value);
+  return EEBUS_MEASUREMENT_GET_DATA_VALUE(measurement, &msrv, measurement_value);
 }
 
 EebusError GcpMgcpGetMeasurementData(
@@ -96,7 +96,7 @@ static EebusError GcpMgcpSetMeasurementDataCacheWithTime(
     const EebusDateTime* start_time,
     const EebusDateTime* end_time
 ) {
-  GcpMgcpMeasurementObject* const measurement = GetMeasurement(self, measurement_name);
+  EebusMeasurementObject* const measurement = GetMeasurement(self, measurement_name);
   if (measurement == NULL) {
     return kEebusErrorNotSupported;
   }
@@ -104,14 +104,7 @@ static EebusError GcpMgcpSetMeasurementDataCacheWithTime(
   EebusError err = kEebusErrorOk;
   EEBUS_MUTEX_LOCK(self->mutex);
 
-  err = GCP_MGCP_MEASUREMENT_SET_DATA_CACHE(
-      measurement,
-      measurement_value,
-      timestamp,
-      value_state,
-      start_time,
-      end_time
-  );
+  err = EEBUS_MEASUREMENT_SET_DATA_CACHE(measurement, measurement_value, timestamp, value_state, start_time, end_time);
 
   EEBUS_MUTEX_UNLOCK(self->mutex);
   return err;

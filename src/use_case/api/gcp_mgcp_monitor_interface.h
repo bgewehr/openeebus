@@ -22,7 +22,8 @@
 #define SRC_USE_CASE_API_GCP_MGCP_MONITOR_INTERFACE_H_
 
 #include "src/common/eebus_errors.h"
-#include "src/use_case/api/gcp_mgcp_measurement_interface.h"
+#include "src/use_case/api/eebus_measurement_interface.h"
+#include "src/use_case/model/mgcp_types.h"
 #include "src/use_case/model/scaled_value.h"
 #include "src/use_case/specialization/electrical_connection/electrical_connection_server.h"
 #include "src/use_case/specialization/measurement/measurement_server.h"
@@ -44,7 +45,7 @@ struct GcpMgcpMonitorInterface {
       ElectricalConnectionIdType electrical_connection_id,
       MeasurementConstraintsListDataType* measurements_constraints
   );
-  GcpMgcpMeasurementObject* (*get_measurement)(
+  EebusMeasurementObject* (*get_measurement)(
       const GcpMgcpMonitorObject* self,
       GcpMeasurementNameId measurement_name_id
   );
