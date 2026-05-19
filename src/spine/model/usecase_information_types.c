@@ -20,7 +20,10 @@
 #include "src/spine/model/model.h"
 
 UseCaseInformationDataType* UseCaseInformationDataCreate(
-    const FeatureAddressType* addr, UseCaseActorType actor, const UseCaseSupportType* use_case_support) {
+    const FeatureAddressType* addr,
+    UseCaseActorType actor,
+    const UseCaseSupportType* use_case_support
+) {
   // Create a new element for this entity
   FeatureAddressType addr_tmp = {
       .device      = addr->device,
@@ -78,8 +81,12 @@ bool UseCaseNameIdMatch(const UseCaseInformationDataType* use_case_info, const U
   return UseCaseInformationFind(use_case_info, use_case_name_id) != NULL;
 }
 
-bool UseCaseInformationMatch(const UseCaseInformationDataType* use_case_info, const FeatureAddressType* addr,
-    const UseCaseActorType* actor, const UseCaseNameType* use_case_name_id) {
+bool UseCaseInformationMatch(
+    const UseCaseInformationDataType* use_case_info,
+    const FeatureAddressType* addr,
+    const UseCaseActorType* actor,
+    const UseCaseNameType* use_case_name_id
+) {
   // TODO: Update address match procedure accroding to specification
   const FeatureAddressType addr_a = {
       .device      = use_case_info->address->device,
@@ -93,15 +100,22 @@ bool UseCaseInformationMatch(const UseCaseInformationDataType* use_case_info, co
       .entity_size = addr->entity_size,
   };
 
-  bool match = FeatureAddressCompare(&addr_a, &addr_b);
+  bool match = true;
+  if ((addr_a.entity == NULL) || (addr_b.entity == NULL)) {
+    const size_t device_addr_len = strlen(addr_a.device);
+
+    match = match && (strncmp(addr_a.device, addr_b.device, device_addr_len) == 0);
+  } else {
+    match = match && FeatureAddressCompare(&addr_a, &addr_b);
+  }
 
   match = match && ActorMatch(use_case_info, actor);
   match = match && UseCaseNameIdMatch(use_case_info, use_case_name_id);
   return match;
 }
 
-EebusError UseCaseInformationAdd(
-    UseCaseInformationDataType* use_case_info, const UseCaseSupportType* use_case_support) {
+EebusError
+UseCaseInformationAdd(UseCaseInformationDataType* use_case_info, const UseCaseSupportType* use_case_support) {
   if ((use_case_info == NULL) || (use_case_support == NULL)) {
     return kEebusErrorInputArgumentNull;
   }

@@ -31,6 +31,7 @@
 #include "tests/src/spine/function_data.h"
 #include "tests/src/spine/node_management/node_management_remote/use_case_data_less_cases.inc"
 #include "tests/src/spine/node_management/node_management_remote/use_case_data_more_cases.inc"
+#include "tests/src/spine/node_management/node_management_remote/use_case_data_no_entity_addr.inc"
 
 using std::literals::string_view_literals::operator""sv;
 
@@ -264,6 +265,156 @@ INSTANTIATE_TEST_SUITE_P(
                {kUseCaseActorTypeDHWCircuit, kUseCaseNameTypeConfigurationOfDhwSystemFunction},
                {kUseCaseActorTypeHVACRoom, kUseCaseNameTypeMonitoringOfRoomHeatingSystemFunction},
                {kUseCaseActorTypeHVACRoom, kUseCaseNameTypeVisualizationOfHeatingAreaName}}
+        }
+    )
+);
+
+//-------------------------------------------------------------------------------------------//
+//
+// NodeManagementRemoteUpdateData() null entity address test
+// When address has no entity, the event must be published for each entity on the remote device
+//
+//-------------------------------------------------------------------------------------------//
+
+class NodeManagementRemoteNullEntityAddrTests : public ::testing::TestWithParam<NodeManagementRemoteUpdateDataInput> {
+ protected:
+  static constexpr uint32_t kEntityId{0};
+  static constexpr const uint32_t* const kEntityIds[1]{&kEntityId};
+
+  static constexpr EntityAddressType kEntityAddr{
+      .device      = "HeatPump_123456789",
+      .entity      = kEntityIds,
+      .entity_size = ARRAY_SIZE(kEntityIds),
+  };
+
+  std::unique_ptr<DeviceRemoteMock, decltype(&DeviceRemoteMockDelete)> device_remote_mock_{
+      nullptr,
+      DeviceRemoteMockDelete
+  };
+
+  std::unique_ptr<EntityRemoteMock, decltype(&EntityRemoteMockDelete)> nm_entity_remote_mock_{
+      nullptr,
+      EntityRemoteMockDelete
+  };
+
+  std::unique_ptr<EntityRemoteMock, decltype(&EntityRemoteMockDelete)> entity_remote_mock_1_{
+      nullptr,
+      EntityRemoteMockDelete
+  };
+
+  std::unique_ptr<EntityRemoteMock, decltype(&EntityRemoteMockDelete)> entity_remote_mock_2_{
+      nullptr,
+      EntityRemoteMockDelete
+  };
+
+  std::unique_ptr<NodeManagementRemoteObject, decltype(&NodeManagementRemoteDelete)> node_management_remote_{
+      nullptr,
+      NodeManagementRemoteDelete
+  };
+
+  Vector entities_vector_{};
+
+  void SetUp() override {
+    device_remote_mock_.reset(DeviceRemoteMockCreate());
+    EXPECT_CALL(*device_remote_mock_->gmock, GetSki(_))
+        .WillRepeatedly(Return("0123456789abcdefedcb0123456789abcdefedcb"));
+
+    nm_entity_remote_mock_.reset(EntityRemoteMockCreate());
+    EXPECT_CALL(*nm_entity_remote_mock_->gmock, GetAddress(_)).WillOnce(Return(&kEntityAddr));
+    EXPECT_CALL(*nm_entity_remote_mock_->gmock, GetDevice(_))
+        .WillRepeatedly(Return(DEVICE_REMOTE_OBJECT(device_remote_mock_.get())));
+
+    entity_remote_mock_1_.reset(EntityRemoteMockCreate());
+    entity_remote_mock_2_.reset(EntityRemoteMockCreate());
+
+    VectorConstruct(&entities_vector_);
+    VectorPushBack(&entities_vector_, ENTITY_REMOTE_OBJECT(entity_remote_mock_1_.get()));
+    VectorPushBack(&entities_vector_, ENTITY_REMOTE_OBJECT(entity_remote_mock_2_.get()));
+
+    EXPECT_CALL(*device_remote_mock_->gmock, GetEntities(_)).WillRepeatedly(Return(&entities_vector_));
+
+    node_management_remote_.reset(NodeManagementRemoteCreate(0, ENTITY_REMOTE_OBJECT(nm_entity_remote_mock_.get())));
+  }
+
+  void TearDown() override {
+    EXPECT_CALL(*nm_entity_remote_mock_->gmock, Destruct(ENTITY_OBJECT(nm_entity_remote_mock_.get())));
+    EXPECT_CALL(*entity_remote_mock_1_->gmock, Destruct(ENTITY_OBJECT(entity_remote_mock_1_.get())));
+    EXPECT_CALL(*entity_remote_mock_2_->gmock, Destruct(ENTITY_OBJECT(entity_remote_mock_2_.get())));
+    EXPECT_CALL(*device_remote_mock_->gmock, Destruct(DEVICE_OBJECT(device_remote_mock_.get())));
+
+    node_management_remote_.reset();
+    VectorDestruct(&entities_vector_);
+    nm_entity_remote_mock_.reset();
+    entity_remote_mock_1_.reset();
+    entity_remote_mock_2_.reset();
+    device_remote_mock_.reset();
+
+    CheckForMemoryLeaks();
+  }
+
+  EebusError SetUseCaseData(std::string_view use_case_data_txt) {
+    std::unique_ptr<FunctionData, decltype(&FunctionDataDelete)> function_data{
+        FunctionDataTestDataParse(kFunctionTypeNodeManagementUseCaseData, use_case_data_txt)
+    };
+
+    if ((!use_case_data_txt.empty()) && (function_data == nullptr)) {
+      return kEebusErrorInit;
+    }
+
+    const void* const data = (function_data != nullptr) ? function_data->data : nullptr;
+    FeatureRemoteObject* const fr{FEATURE_REMOTE_OBJECT(node_management_remote_.get())};
+
+    return FEATURE_REMOTE_UPDATE_DATA(fr, kFunctionTypeNodeManagementUseCaseData, data, nullptr, nullptr, true);
+  }
+};
+
+TEST_P(NodeManagementRemoteNullEntityAddrTests, NullEntityAddrPublishesForEachEntity) {
+  ASSERT_EQ(SetUseCaseData(GetParam().data_txt), kEebusErrorOk) << "Wrong Use Case Data input!";
+
+  EventHandlerMockInst event_handler_mock_inst;
+
+  EXPECT_CALL(*event_handler_mock_inst, Handle(IsDeviceUpdatePayload(), _));
+
+  for (const UseCaseFilterType& use_case : GetParam().use_cases_added) {
+    EXPECT_CALL(
+        *event_handler_mock_inst,
+        Handle(IsUseCaseEventPayload(use_case.actor, use_case.use_case_name_id, kElementChangeAdd), _)
+    )
+        .Times(2);
+  }
+
+  for (const UseCaseFilterType& use_case : GetParam().use_cases_removed) {
+    EXPECT_CALL(
+        *event_handler_mock_inst,
+        Handle(IsUseCaseEventPayload(use_case.actor, use_case.use_case_name_id, kElementChangeRemove), _)
+    )
+        .Times(2);
+  }
+
+  ASSERT_EQ(SetUseCaseData(GetParam().new_data_txt), kEebusErrorOk) << "Wrong New Use Case Data input!";
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    NodeManagementRemoteNullEntityAddrTests,
+    NodeManagementRemoteNullEntityAddrTests,
+    ::testing::Values(
+        NodeManagementRemoteUpdateDataInput{
+            .description  = "Null entity addr: use cases added, event published for each entity",
+            .data_txt     = {},
+            .new_data_txt = use_case_data_no_entity_addr,
+            .use_cases_added
+            = {{kUseCaseActorTypeControllableSystem, kUseCaseNameTypeLimitationOfPowerConsumption},
+                             {kUseCaseActorTypeMonitoredUnit, kUseCaseNameTypeMonitoringOfPowerConsumption}},
+            .use_cases_removed = {},
+},
+        NodeManagementRemoteUpdateDataInput{
+            .description     = "Null entity addr: use cases removed, event published for each entity",
+            .data_txt        = use_case_data_no_entity_addr,
+            .new_data_txt    = {},
+            .use_cases_added = {},
+            .use_cases_removed
+            = {{kUseCaseActorTypeControllableSystem, kUseCaseNameTypeLimitationOfPowerConsumption},
+               {kUseCaseActorTypeMonitoredUnit, kUseCaseNameTypeMonitoringOfPowerConsumption}},
         }
     )
 );

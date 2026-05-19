@@ -19,6 +19,7 @@
  */
 
 #include "src/spine/node_management/node_management_remote.h"
+#include "src/common/vector.h"
 #include "src/spine/events/events.h"
 #include "src/spine/feature/feature_remote_internal.h"
 #include "src/spine/model/model.h"
@@ -132,12 +133,12 @@ void PublishUseCaseSupportedEvent(
       .use_case_name_id = use_case_name_id,
   };
 
-  const EventPayload payload = {
+  EventPayload payload = {
       .ski             = DEVICE_REMOTE_GET_SKI(dr),
       .event_type      = kEventTypeUseCaseChange,
       .change_type     = change_type,
       .device          = dr,
-      .entity          = DEVICE_REMOTE_GET_ENTITY(DEVICE_REMOTE_OBJECT(dr), addr->entity, addr->entity_size),
+      .entity          = NULL,
       .feature         = NULL,
       .local_feature   = NULL,
       .function_type   = 0,
@@ -146,7 +147,20 @@ void PublishUseCaseSupportedEvent(
       .use_case_filter = &use_case_filter,
   };
 
-  EventPublish(&payload);
+  if (addr->entity == NULL) {
+    const Vector* const entities = DEVICE_REMOTE_GET_ENTITIES(DEVICE_REMOTE_OBJECT(dr));
+    if (entities == NULL) {
+      return;
+    }
+
+    for (size_t i = 0; i < VectorGetSize(entities); i++) {
+      payload.entity = (EntityRemoteObject*)VectorGetElement(entities, i);
+      EventPublish(&payload);
+    }
+  } else {
+    payload.entity = DEVICE_REMOTE_GET_ENTITY(DEVICE_REMOTE_OBJECT(dr), addr->entity, addr->entity_size);
+    EventPublish(&payload);
+  }
 }
 
 void ProcessUseCaseSupport(
