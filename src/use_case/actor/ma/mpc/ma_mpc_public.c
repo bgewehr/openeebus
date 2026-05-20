@@ -54,13 +54,13 @@ EebusError MaMpcGetMeasurementDataInternal(
     return err;
   }
 
-  const MaMpcMeasurementObject* const measurement = MaMpcMeasurementGetInstanceWithNameId(measurement_name_id);
+  const MaMeasurementObject* const measurement = MaMpcMeasurementGetInstanceWithNameId(measurement_name_id);
 
   if (measurement == NULL) {
     return kEebusErrorNotSupported;
   }
 
-  return MA_MPC_MEASUREMENT_GET_DATA_VALUE(measurement, &mcl, &ecl, measurement_value);
+  return MA_MEASUREMENT_GET_DATA_VALUE(measurement, &mcl, &ecl, measurement_value);
 }
 
 EebusError MaMpcGetMeasurementData(

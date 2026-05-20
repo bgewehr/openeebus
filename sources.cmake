@@ -99,6 +99,7 @@ set(SOURCES
   src/use_case/actor/eg/eg_lp_events.c
   src/use_case/actor/eg/eg_lp_public.c
   src/use_case/actor/eg/eg_lp.c
+  src/use_case/actor/ma/ma_measurement_base.c
   src/use_case/actor/ma/mpc/ma_mpc.c
   src/use_case/actor/ma/mpc/ma_mpc_events.c
   src/use_case/actor/ma/mpc/ma_mpc_measurement.c
@@ -353,9 +354,9 @@ set(HEADERS
   src/spine/node_management/node_management_internal.h
   src/spine/node_management/node_management_remote.h
   src/spine/subscription/subscription_manager.h
+  src/use_case/api/ma_measurement_interface.h
   src/use_case/api/ma_mpc_listener_interface.h
   src/use_case/api/ma_mgcp_listener_interface.h
-  src/use_case/api/ma_mgcp_measurement_interface.h
   src/use_case/api/eebus_monitor_interface.h
   src/use_case/actor/common/eebus_measurement_base.h
   src/use_case/actor/common/eebus_monitor_base.h
@@ -372,6 +373,7 @@ set(HEADERS
   src/use_case/actor/eg/eg_lp_events.h
   src/use_case/actor/eg/eg_lp_internal.h
   src/use_case/actor/eg/eg_lp.h
+  src/use_case/actor/ma/ma_measurement_base.h
   src/use_case/actor/ma/mpc/ma_mpc.h
   src/use_case/actor/ma/mpc/ma_mpc_events.h
   src/use_case/actor/ma/mpc/ma_mpc_internal.h

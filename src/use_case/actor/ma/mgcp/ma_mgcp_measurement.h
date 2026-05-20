@@ -21,8 +21,7 @@
 #ifndef SRC_USE_CASE_ACTOR_MA_MGCP_MA_MGCP_MEASUREMENT_H_
 #define SRC_USE_CASE_ACTOR_MA_MGCP_MA_MGCP_MEASUREMENT_H_
 
-#include "src/use_case/api/ma_mgcp_measurement_interface.h"
-#include "src/use_case/model/mgcp_types.h"
+#include "src/use_case/api/ma_measurement_interface.h"
 #include "src/use_case/specialization/electrical_connection/electrical_connection_client.h"
 #include "src/use_case/specialization/measurement/measurement_client.h"
 
@@ -30,25 +29,13 @@
 extern "C" {
 #endif  // __cplusplus
 
-/**
- * @brief Search for a MA MGCP Measurement instance matching the given measurement data
- * @param mcl Measurement Client instance
- * @param eccl Electrical Connection Client instance
- * @param measurement_data Measurement Data to match against
- * @return MA MGCP Measurement instance or NULL if not found
- */
-const MaMgcpMeasurementObject* MaMgcpMeasurementGetInstance(
+const MaMeasurementObject* MaMgcpMeasurementGetInstance(
     const MeasurementClient* mcl,
     ElectricalConnectionClient* eccl,
     const MeasurementDataType* measurement_data
 );
 
-/**
- * @brief Search for a MA MGCP Measurement instance matching the given name id
- * @param name Measurement Name Id to search for
- * @return MA MGCP Measurement instance or NULL if not found
- */
-const MaMgcpMeasurementObject* MaMgcpMeasurementGetInstanceWithNameId(GcpMeasurementNameId name);
+const MaMeasurementObject* MaMgcpMeasurementGetInstanceWithNameId(EebusMeasurementNameId name);
 
 #ifdef __cplusplus
 }

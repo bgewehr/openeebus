@@ -51,12 +51,12 @@ static EebusError MaMgcpGetMeasurementDataInternal(
     return err;
   }
 
-  const MaMgcpMeasurementObject* const measurement = MaMgcpMeasurementGetInstanceWithNameId(measurement_name_id);
+  const MaMeasurementObject* const measurement = MaMgcpMeasurementGetInstanceWithNameId(measurement_name_id);
   if (measurement == NULL) {
     return kEebusErrorNotSupported;
   }
 
-  return MA_MGCP_MEASUREMENT_GET_DATA_VALUE(measurement, &mcl, &ecl, measurement_value);
+  return MA_MEASUREMENT_GET_DATA_VALUE(measurement, &mcl, &ecl, measurement_value);
 }
 
 static EebusError MaMgcpGetPvCurtailmentLimitFactorInternal(

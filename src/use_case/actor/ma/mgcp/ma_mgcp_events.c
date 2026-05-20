@@ -151,17 +151,17 @@ static void OnMeasurementDataUpdate(MaMgcpUseCase* self, const EventPayload* pay
   for (size_t i = 0; i < measurement_list->measurement_data_size; ++i) {
     const MeasurementDataType* const measurement = measurement_list->measurement_data[i];
 
-    const MaMgcpMeasurementObject* const mgcp_measurement = MaMgcpMeasurementGetInstance(&mcl, &ecl, measurement);
+    const MaMeasurementObject* const mgcp_measurement = MaMgcpMeasurementGetInstance(&mcl, &ecl, measurement);
     if (mgcp_measurement == NULL) {
       continue;
     }
 
     ScaledValue value = {0};
-    if (MA_MGCP_MEASUREMENT_GET_DATA_VALUE(mgcp_measurement, &mcl, &ecl, &value) != kEebusErrorOk) {
+    if (MA_MEASUREMENT_GET_DATA_VALUE(mgcp_measurement, &mcl, &ecl, &value) != kEebusErrorOk) {
       continue;
     }
 
-    const GcpMeasurementNameId name_id = MA_MGCP_MEASUREMENT_GET_NAME(mgcp_measurement);
+    const EebusMeasurementNameId name_id = MA_MEASUREMENT_GET_NAME(mgcp_measurement);
     if (self->ma_mgcp_listener != NULL) {
       MA_MGCP_LISTENER_ON_MEASUREMENT_RECEIVE(self->ma_mgcp_listener, name_id, &value, entity_addr);
     }

@@ -1,2 +1,0 @@
-MaMpcMeasurement
-EebusError GetDataValue(const MeasurementClient* mcl, ElectricalConnectionClient* eccl, ScaledValue* measurement_value)

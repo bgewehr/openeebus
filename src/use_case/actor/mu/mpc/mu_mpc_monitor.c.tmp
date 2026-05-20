@@ -1,6 +1,0 @@
-MuMpcMonitor
-void Destruct()
-MonitorNameId GetName() const
-EebusError Configure(MeasurementServer* msrv, ElectricalConnectionServer* ecsrv, ElectricalConnectionIdType electrical_connection_id, MeasurementConstraintsListDataType* measurements_constraints)
-MeasurementObject* GetMeasurement(MeasurementNameId measurement_name_id) const
-EebusError FlushMeasurementCache(MeasurementListDataType* measurement_data_list)

@@ -15,14 +15,14 @@
  */
 /**
  * @file
- * @brief MA MGCP Measurement interface declarations
+ * @brief MA Measurement interface shared between MPC and MGCP monitoring use cases
  */
 
-#ifndef SRC_USE_CASE_API_MA_MGCP_MEASUREMENT_INTERFACE_H_
-#define SRC_USE_CASE_API_MA_MGCP_MEASUREMENT_INTERFACE_H_
+#ifndef SRC_USE_CASE_API_MA_MEASUREMENT_INTERFACE_H_
+#define SRC_USE_CASE_API_MA_MEASUREMENT_INTERFACE_H_
 
 #include "src/common/eebus_errors.h"
-#include "src/use_case/model/mgcp_types.h"
+#include "src/use_case/model/eebus_measurement_types.h"
 #include "src/use_case/model/scaled_value.h"
 #include "src/use_case/specialization/electrical_connection/electrical_connection_client.h"
 #include "src/use_case/specialization/measurement/measurement_client.h"
@@ -31,33 +31,31 @@
 extern "C" {
 #endif  // __cplusplus
 
-typedef struct MaMgcpMeasurementInterface MaMgcpMeasurementInterface;
-typedef struct MaMgcpMeasurementObject MaMgcpMeasurementObject;
+typedef struct MaMeasurementInterface MaMeasurementInterface;
+typedef struct MaMeasurementObject MaMeasurementObject;
 
-struct MaMgcpMeasurementInterface {
-  GcpMeasurementNameId (*get_name)(const MaMgcpMeasurementObject* self);
+struct MaMeasurementInterface {
+  EebusMeasurementNameId (*get_name)(const MaMeasurementObject* self);
   EebusError (*get_data_value)(
-      const MaMgcpMeasurementObject* self,
+      const MaMeasurementObject* self,
       MeasurementClient* mcl,
       ElectricalConnectionClient* eccl,
       ScaledValue* measurement_value
   );
 };
 
-struct MaMgcpMeasurementObject {
-  const MaMgcpMeasurementInterface* interface_;
+struct MaMeasurementObject {
+  const MaMeasurementInterface* interface_;
 };
 
-#define MA_MGCP_MEASUREMENT_OBJECT(obj) ((MaMgcpMeasurementObject*)(obj))
-#define MA_MGCP_MEASUREMENT_INTERFACE(obj) (MA_MGCP_MEASUREMENT_OBJECT(obj)->interface_)
-
-#define MA_MGCP_MEASUREMENT_GET_NAME(obj) (MA_MGCP_MEASUREMENT_INTERFACE(obj)->get_name(obj))
-
-#define MA_MGCP_MEASUREMENT_GET_DATA_VALUE(obj, mcl, eccl, measurement_value) \
-  (MA_MGCP_MEASUREMENT_INTERFACE(obj)->get_data_value(obj, mcl, eccl, measurement_value))
+#define MA_MEASUREMENT_OBJECT(obj) ((MaMeasurementObject*)(obj))
+#define MA_MEASUREMENT_INTERFACE(obj) (MA_MEASUREMENT_OBJECT(obj)->interface_)
+#define MA_MEASUREMENT_GET_NAME(obj) (MA_MEASUREMENT_INTERFACE(obj)->get_name(MA_MEASUREMENT_OBJECT(obj)))
+#define MA_MEASUREMENT_GET_DATA_VALUE(obj, mcl, eccl, measurement_value) \
+  (MA_MEASUREMENT_INTERFACE(obj)->get_data_value(MA_MEASUREMENT_OBJECT(obj), mcl, eccl, measurement_value))
 
 #ifdef __cplusplus
 }
 #endif  // __cplusplus
 
-#endif  // SRC_USE_CASE_API_MA_MGCP_MEASUREMENT_INTERFACE_H_
+#endif  // SRC_USE_CASE_API_MA_MEASUREMENT_INTERFACE_H_

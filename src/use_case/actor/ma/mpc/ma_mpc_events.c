@@ -137,17 +137,17 @@ void OnMeasurementDataUpdate(MaMpcUseCase* self, const EventPayload* payload) {
   for (size_t i = 0; i < measurement_list->measurement_data_size; ++i) {
     const MeasurementDataType* const measurement = measurement_list->measurement_data[i];
 
-    const MaMpcMeasurementObject* const mpc_measurement = MaMpcMeasurementGetInstance(&mcl, &ecl, measurement);
+    const MaMeasurementObject* const mpc_measurement = MaMpcMeasurementGetInstance(&mcl, &ecl, measurement);
     if (mpc_measurement == NULL) {
       continue;
     }
 
     ScaledValue value = {0};
-    if (MA_MPC_MEASUREMENT_GET_DATA_VALUE(mpc_measurement, &mcl, &ecl, &value) != kEebusErrorOk) {
+    if (MA_MEASUREMENT_GET_DATA_VALUE(mpc_measurement, &mcl, &ecl, &value) != kEebusErrorOk) {
       continue;
     }
 
-    const MuMpcMeasurementNameId name_id = MA_MPC_MEASUREMENT_GET_NAME(mpc_measurement);
+    const EebusMeasurementNameId name_id = MA_MEASUREMENT_GET_NAME(mpc_measurement);
     if (self->ma_mpc_listener != NULL) {
       MA_MPC_LISTENER_ON_MEASUREMENT_RECEIVE(self->ma_mpc_listener, name_id, &value, entity_addr);
     }
