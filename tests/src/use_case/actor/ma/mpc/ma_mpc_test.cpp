@@ -45,8 +45,11 @@
 #include "tests/src/use_case/actor/ma/mpc/receive/measurement_description_reply.inc"
 #include "tests/src/use_case/actor/ma/mpc/receive/measurement_notify_current.inc"
 #include "tests/src/use_case/actor/ma/mpc/receive/measurement_notify_energy.inc"
+#include "tests/src/use_case/actor/ma/mpc/receive/measurement_notify_energy_consumed_only.inc"
 #include "tests/src/use_case/actor/ma/mpc/receive/measurement_notify_frequency.inc"
+#include "tests/src/use_case/actor/ma/mpc/receive/measurement_notify_mixed.inc"
 #include "tests/src/use_case/actor/ma/mpc/receive/measurement_notify_power.inc"
+#include "tests/src/use_case/actor/ma/mpc/receive/measurement_notify_power_total_only.inc"
 #include "tests/src/use_case/actor/ma/mpc/receive/measurement_notify_voltage.inc"
 #include "tests/src/use_case/actor/ma/mpc/receive/measurement_reply.inc"
 #include "tests/src/use_case/actor/ma/mpc/receive/node_management_subscription_request.inc"
@@ -228,7 +231,33 @@ TEST_F(MaMpcTestFixture, MaMpcTest) {
   ExpectMeasurementsReceive(ma_mpc_listener_mock_->gmock, expected_frequency);
   HandleMessage(receive::measurement_notify_frequency);
 
-  // 19. Get all of the measurements received via GetMeasurementData() and check the values
+  // 19. Receive a partial notify with power total only — tests single-measurement partial and
+  //     overwrites the kMpcPowerTotal value initially received in the measurement reply (step 13)
+  EXPECT_CALL(*ma_mpc_listener_mock_->gmock, OnMeasurementReceive(_, kMpcPowerTotal, ScaledValueEq(4000, 0), _))
+      .WillOnce(Return());
+  HandleMessage(receive::measurement_notify_power_total_only);
+
+  // 20. Receive a cross-scenario notify — tests that one notify can carry measurements from
+  //     different scenarios; also overwrites kMpcPowerTotal, kMpcEnergyProduced,
+  //     kMpcVoltagePhaseAb and kMpcFrequency set in earlier notifies
+  const std::map<MuMpcMeasurementNameId, ScaledValue> expected_mixed{
+      {    kMpcPowerTotal,    {.value = 5500, .scale = 0}},
+      {kMpcEnergyProduced, {.value = 999999, .scale = -3}},
+      {kMpcVoltagePhaseAb,  {.value = 39600, .scale = -2}},
+      {     kMpcFrequency,   {.value = 4999, .scale = -2}},
+  };
+
+  ExpectMeasurementsReceive(ma_mpc_listener_mock_->gmock, expected_mixed);
+  HandleMessage(receive::measurement_notify_mixed);
+
+  // 21. Receive a partial notify with energy consumed only — tests single-measurement partial
+  //     from a different scenario and overwrites kMpcEnergyConsumed set in step 15
+  EXPECT_CALL(*ma_mpc_listener_mock_->gmock, OnMeasurementReceive(_, kMpcEnergyConsumed, ScaledValueEq(600000, 0), _))
+      .WillOnce(Return());
+  HandleMessage(receive::measurement_notify_energy_consumed_only);
+
+  // 22. Get all 16 measurements via GetMeasurementData() and verify the final stored values
+  //     after all notifies (overwritten values reflect the latest notify that touched each ID)
   ScaledValue value;
   static constexpr uint32_t remote_entity_id = 1;
 
@@ -237,18 +266,31 @@ TEST_F(MaMpcTestFixture, MaMpcTest) {
   const EntityAddressType remote_entity_addr
       = {"d:_n:HeatPump_123456789", remote_entity_ids, ARRAY_SIZE(remote_entity_ids)};
 
-  std::map<MuMpcMeasurementNameId, ScaledValue> expected_data = expected_power;
-  expected_data.insert(expected_energy.begin(), expected_energy.end());
-  expected_data.insert(expected_current.begin(), expected_current.end());
-  expected_data.insert(expected_voltage.begin(), expected_voltage.end());
-  expected_data.insert(expected_frequency.begin(), expected_frequency.end());
+  const std::map<MuMpcMeasurementNameId, ScaledValue> expected_final{
+      {    kMpcPowerTotal,    {.value = 5500, .scale = 0}}, // step 20 overwrites step 19
+      {   kMpcPowerPhaseA,    {.value = 1000, .scale = 0}}, // step 14
+      {   kMpcPowerPhaseB,    {.value = 1100, .scale = 0}}, // step 14
+      {   kMpcPowerPhaseC,    {.value = 1200, .scale = 0}}, // step 14
+      {kMpcEnergyConsumed,  {.value = 600000, .scale = 0}}, // step 21 overwrites step 15
+      {kMpcEnergyProduced, {.value = 999999, .scale = -3}}, // step 20 overwrites step 15
+      { kMpcCurrentPhaseA,     {.value = 33, .scale = -2}}, // step 16
+      { kMpcCurrentPhaseB,     {.value = 51, .scale = -2}}, // step 16
+      { kMpcCurrentPhaseC,     {.value = 13, .scale = -3}}, // step 16
+      { kMpcVoltagePhaseA,     {.value = 110, .scale = 0}}, // step 17
+      { kMpcVoltagePhaseB,   {.value = 1205, .scale = -1}}, // step 17
+      { kMpcVoltagePhaseC,     {.value = 130, .scale = 0}}, // step 17
+      {kMpcVoltagePhaseAb,  {.value = 39600, .scale = -2}}, // step 20 overwrites step 17
+      {kMpcVoltagePhaseBc,     {.value = 150, .scale = 0}}, // step 17
+      {kMpcVoltagePhaseAc,      {.value = 16, .scale = 1}}, // step 17
+      {     kMpcFrequency,   {.value = 4999, .scale = -2}}, // step 20 overwrites step 18
+  };
 
-  for (const auto& [name_id, scaled_value] : expected_data) {
+  for (const auto& [name_id, scaled_value] : expected_final) {
     EXPECT_EQ(MaMpcGetMeasurementData(use_case_.get(), name_id, &remote_entity_addr, &value), kEebusErrorOk);
     EXPECT_THAT(&value, ScaledValueEq(scaled_value.value, scaled_value.scale));
   }
 
-  // 20. Expect the remote entity disconnect event while tearing down the use case
+  // 23. Expect the remote entity disconnect event while tearing down the use case
   EXPECT_CALL(*ma_mpc_listener_mock_->gmock, OnRemoteEntityDisconnect(_, _));
 }
 

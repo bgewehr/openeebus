@@ -79,6 +79,8 @@ target_sources(
   ${MAIN_PROJ_SOURCES_PATH}/spine/node_management/node_management_subscription.c
   ${MAIN_PROJ_SOURCES_PATH}/spine/node_management/node_management_usecase.c
   ${MAIN_PROJ_SOURCES_PATH}/spine/subscription/subscription_manager.c
+  ${MAIN_PROJ_SOURCES_PATH}/use_case/actor/ma/ma_events.c
+  ${MAIN_PROJ_SOURCES_PATH}/use_case/actor/ma/ma_measurement_base.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/actor/ma/mpc/ma_mpc_events.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/actor/ma/mpc/ma_mpc_measurement.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/actor/ma/mpc/ma_mpc_public.c
