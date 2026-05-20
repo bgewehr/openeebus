@@ -93,6 +93,7 @@ static constexpr char use_case_data_reply[] = R"({
                                   3,
                                   4,
                                   5,
+                                  6,
                                   7
                                 ]
                               },
