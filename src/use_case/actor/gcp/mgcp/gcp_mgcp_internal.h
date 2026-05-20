@@ -24,10 +24,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "src/common/api/eebus_mutex_interface.h"
-#include "src/common/vector.h"
+#include "src/use_case/actor/common/eebus_monitor_container.h"
 #include "src/use_case/actor/gcp/mgcp/gcp_mgcp_monitor.h"
-#include "src/use_case/use_case.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,8 +39,7 @@ struct GcpMgcpUseCase {
 
   ElectricalConnectionIdType electrical_connection_id;
 
-  /** Vector of EebusMonitorObject* (one per active scenario group) */
-  Vector monitors;
+  EebusMonitorContainer monitor_container;
 
   /** Dynamically built scenario array (scenarios 1–7, up to 7 entries) */
   UseCaseScenario use_case_scenarios[7];
@@ -51,8 +48,6 @@ struct GcpMgcpUseCase {
   bool has_scenario1;
 
   UseCaseInfo gcp_mgcp_use_case_info;
-
-  EebusMutexObject* mutex;
 };
 
 #define GCP_MGCP_USE_CASE(self) ((GcpMgcpUseCase*)(self))

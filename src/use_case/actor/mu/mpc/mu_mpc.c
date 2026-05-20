@@ -17,8 +17,6 @@
 #include "src/use_case/actor/mu/mpc/mu_mpc.h"
 
 #include "src/common/array_util.h"
-#include "src/common/eebus_arguments.h"
-#include "src/common/eebus_mutex/eebus_mutex.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_internal.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_measurement.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_monitor.h"
@@ -54,7 +52,7 @@ EebusError AddMuMpcScenario1(MuMpcUseCase* self, const MuMpcMonitorPowerConfig* 
     return kEebusErrorInit;
   }
 
-  VectorPushBack(&self->monitors, power_monitor);
+  EebusMonitorContainerAdd(&self->monitor_container, power_monitor);
 
   static const FeatureTypeType use_case_scenario_support_1_features[] = {
       kFeatureTypeTypeElectricalConnection,
@@ -77,7 +75,7 @@ EebusError AddMuMpcScenario2(MuMpcUseCase* self, const MuMpcMonitorEnergyConfig*
     return kEebusErrorInit;
   }
 
-  VectorPushBack(&self->monitors, energy_monitor);
+  EebusMonitorContainerAdd(&self->monitor_container, energy_monitor);
 
   static const FeatureTypeType use_case_scenario_support_2_features[] = {
       kFeatureTypeTypeElectricalConnection,
@@ -100,7 +98,7 @@ EebusError AddMuMpcScenario3(MuMpcUseCase* self, const MuMpcMonitorCurrentConfig
     return kEebusErrorInit;
   }
 
-  VectorPushBack(&self->monitors, current_monitor);
+  EebusMonitorContainerAdd(&self->monitor_container, current_monitor);
 
   static const FeatureTypeType use_case_scenario_support_3_features[] = {
       kFeatureTypeTypeElectricalConnection,
@@ -123,7 +121,7 @@ EebusError AddMuMpcScenario4(MuMpcUseCase* self, const MuMpcMonitorVoltageConfig
     return kEebusErrorInit;
   }
 
-  VectorPushBack(&self->monitors, voltage_monitor);
+  EebusMonitorContainerAdd(&self->monitor_container, voltage_monitor);
 
   static const FeatureTypeType use_case_scenario_support_4_features[] = {
       kFeatureTypeTypeElectricalConnection,
@@ -146,7 +144,7 @@ EebusError AddMuMpcScenario5(MuMpcUseCase* self, const MuMpcMonitorFrequencyConf
     return kEebusErrorInit;
   }
 
-  VectorPushBack(&self->monitors, frequency_monitor);
+  EebusMonitorContainerAdd(&self->monitor_container, frequency_monitor);
 
   static const FeatureTypeType use_case_scenario_support_5_features[] = {
       kFeatureTypeTypeElectricalConnection,
@@ -215,8 +213,9 @@ void AddFeatures(UseCaseObject* self, EntityLocalObject* entity) {
     return;
   }
 
-  for (size_t i = 0; i < VectorGetSize(&mu_mpc->monitors); ++i) {
-    EebusMonitorObject* const mu_mpc_monitor = (EebusMonitorObject*)VectorGetElement(&mu_mpc->monitors, i);
+  for (size_t i = 0; i < VectorGetSize(&mu_mpc->monitor_container.monitors); ++i) {
+    EebusMonitorObject* const mu_mpc_monitor
+        = (EebusMonitorObject*)VectorGetElement(&mu_mpc->monitor_container.monitors, i);
 
     EebusError err = EEBUS_MONITOR_CONFIGURE(mu_mpc_monitor, &msrv, &ecsrv, ec_id, measurement_constraints);
     if (err != kEebusErrorOk) {
@@ -233,10 +232,6 @@ void AddFeatures(UseCaseObject* self, EntityLocalObject* entity) {
   MeasurementConstraintsDelete(measurement_constraints);
 }
 
-void MuMpcMonitorDeallocator(void* p) {
-  EebusMonitorDelete((EebusMonitorObject*)p);
-}
-
 EebusError MuMpcUseCaseConstruct(
     MuMpcUseCase* self,
     EntityLocalObject* local_entity,
@@ -247,13 +242,11 @@ EebusError MuMpcUseCaseConstruct(
   USE_CASE_INTERFACE(self) = &mu_mpc_use_case_methods;
 
   self->electrical_connection_id = ec_id;
-  VectorConstructWithDeallocator(&self->monitors, MuMpcMonitorDeallocator);
+  self->use_case_scenarios_size  = 0;
 
-  self->use_case_scenarios_size = 0;
-
-  self->mutex = EebusMutexCreate();
-  if (self->mutex == NULL) {
-    return kEebusErrorMemoryAllocate;
+  const EebusError container_err = EebusMonitorContainerConstruct(&self->monitor_container);
+  if (container_err != kEebusErrorOk) {
+    return container_err;
   }
 
   const EebusError add_scenario1_err = AddMuMpcScenario1(self, &cfg->power_cfg);
@@ -332,11 +325,7 @@ MuMpcUseCaseCreate(EntityLocalObject* local_entity, ElectricalConnectionIdType e
 void Destruct(UseCaseObject* self) {
   MuMpcUseCase* const mu_mpc_use_case = MU_MPC_USE_CASE(self);
 
-  EebusMutexDelete(mu_mpc_use_case->mutex);
-  mu_mpc_use_case->mutex = NULL;
-
-  VectorFreeElements(&mu_mpc_use_case->monitors);
-  VectorDestruct(&mu_mpc_use_case->monitors);
+  EebusMonitorContainerDestruct(&mu_mpc_use_case->monitor_container);
 
   UseCaseDestruct(self);
 }

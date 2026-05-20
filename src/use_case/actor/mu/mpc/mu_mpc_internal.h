@@ -19,12 +19,11 @@
 
 #include <stddef.h>
 
-#include "src/common/api/eebus_mutex_interface.h"
 #include "src/spine/model/measurement_types.h"
+#include "src/use_case/actor/common/eebus_monitor_container.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_measurement.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_monitor.h"
 #include "src/use_case/model/load_limit_types.h"
-#include "src/use_case/use_case.h"
 
 typedef struct MuMpcUseCase MuMpcUseCase;
 
@@ -34,14 +33,12 @@ struct MuMpcUseCase {
 
   ElectricalConnectionIdType electrical_connection_id;
 
-  Vector monitors;
+  EebusMonitorContainer monitor_container;
 
   UseCaseScenario use_case_scenarios[5];
 
   size_t use_case_scenarios_size;
   UseCaseInfo mu_mpc_use_case_info;
-
-  EebusMutexObject* mutex;
 };
 
 #define MU_MPC_USE_CASE(self) ((MuMpcUseCase*)(self))

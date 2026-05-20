@@ -22,52 +22,6 @@
 
 #include "src/use_case/actor/gcp/mgcp/gcp_mgcp_internal.h"
 #include "src/use_case/specialization/device_configuration/device_configuration_server.h"
-#include "src/use_case/specialization/measurement/measurement_server.h"
-#include "src/use_case/use_case.h"
-
-static EebusMonitorObject* GetMonitor(const GcpMgcpUseCase* self, GcpMeasurementNameId measurement_name) {
-  const EebusMeasurementMonitorNameId monitor_name
-      = (EebusMeasurementMonitorNameId)((uint8_t)measurement_name & (uint8_t)kGcpMonitorNameIdMask);
-
-  for (size_t i = 0; i < VectorGetSize(&self->monitors); ++i) {
-    EebusMonitorObject* const monitor = (EebusMonitorObject*)VectorGetElement(&self->monitors, i);
-    if (EEBUS_MONITOR_GET_NAME(monitor) == monitor_name) {
-      return monitor;
-    }
-  }
-
-  return NULL;
-}
-
-static EebusMeasurementObject* GetMeasurement(const GcpMgcpUseCase* self, GcpMeasurementNameId measurement_name) {
-  const EebusMonitorObject* const monitor = GetMonitor(self, measurement_name);
-  if (monitor == NULL) {
-    return NULL;
-  }
-
-  return EEBUS_MONITOR_GET_MEASUREMENT(monitor, measurement_name);
-}
-
-static EebusError GcpMgcpGetMeasurementDataInternal(
-    const GcpMgcpUseCase* self,
-    GcpMeasurementNameId measurement_name,
-    ScaledValue* measurement_value
-) {
-  const UseCase* const use_case = USE_CASE(self);
-
-  EebusMeasurementObject* const measurement = GetMeasurement(self, measurement_name);
-  if (measurement == NULL) {
-    return kEebusErrorNotSupported;
-  }
-
-  MeasurementServer msrv = {0};
-  EebusError err         = MeasurementServerConstruct(&msrv, use_case->local_entity);
-  if (err != kEebusErrorOk) {
-    return err;
-  }
-
-  return EEBUS_MEASUREMENT_GET_DATA_VALUE(measurement, &msrv, measurement_value);
-}
 
 EebusError GcpMgcpGetMeasurementData(
     const GcpMgcpUseCaseObject* self,
@@ -78,37 +32,15 @@ EebusError GcpMgcpGetMeasurementData(
     return kEebusErrorInputArgumentNull;
   }
 
-  const UseCase* const use_case = USE_CASE(self);
-
-  DEVICE_LOCAL_LOCK(use_case->local_device);
-  const EebusError err
-      = GcpMgcpGetMeasurementDataInternal(GCP_MGCP_USE_CASE(self), measurement_name, measurement_value);
-  DEVICE_LOCAL_UNLOCK(use_case->local_device);
-
-  return err;
-}
-
-static EebusError GcpMgcpSetMeasurementDataCacheWithTime(
-    GcpMgcpUseCase* self,
-    GcpMeasurementNameId measurement_name,
-    const ScaledValue* measurement_value,
-    const EebusDateTime* timestamp,
-    const MeasurementValueStateType* value_state,
-    const EebusDateTime* start_time,
-    const EebusDateTime* end_time
-) {
-  EebusMeasurementObject* const measurement = GetMeasurement(self, measurement_name);
-  if (measurement == NULL) {
-    return kEebusErrorNotSupported;
-  }
-
-  EebusError err = kEebusErrorOk;
-  EEBUS_MUTEX_LOCK(self->mutex);
-
-  err = EEBUS_MEASUREMENT_SET_DATA_CACHE(measurement, measurement_value, timestamp, value_state, start_time, end_time);
-
-  EEBUS_MUTEX_UNLOCK(self->mutex);
-  return err;
+  GcpMgcpUseCase* const gcp_mgcp = GCP_MGCP_USE_CASE(self);
+  const UseCase* const use_case  = USE_CASE(self);
+  return EebusMonitorContainerGetMeasurementData(
+      &gcp_mgcp->monitor_container,
+      use_case->local_entity,
+      use_case->local_device,
+      measurement_name,
+      measurement_value
+  );
 }
 
 EebusError GcpMgcpSetMeasurementDataCache(
@@ -122,53 +54,20 @@ EebusError GcpMgcpSetMeasurementDataCache(
     return kEebusErrorInputArgumentNull;
   }
 
-  return GcpMgcpSetMeasurementDataCacheWithTime(
-      GCP_MGCP_USE_CASE(self),
+  GcpMgcpUseCase* const gcp_mgcp = GCP_MGCP_USE_CASE(self);
+  return EebusMonitorContainerSetMeasurementDataCache(
+      &gcp_mgcp->monitor_container,
       measurement_name,
       measurement_value,
       timestamp,
-      value_state,
-      NULL,
-      NULL
+      value_state
   );
 }
 
 EebusError GcpMgcpUpdate(const GcpMgcpUseCaseObject* self) {
-  const UseCase* const use_case  = USE_CASE(self);
   GcpMgcpUseCase* const gcp_mgcp = GCP_MGCP_USE_CASE(self);
-
-  MeasurementServer msrv = {0};
-  EebusError err         = MeasurementServerConstruct(&msrv, use_case->local_entity);
-  if (err != kEebusErrorOk) {
-    return err;
-  }
-
-  MeasurementListDataType* const measurement_data_list = MeasurementsCreateEmpty();
-  if (measurement_data_list == NULL) {
-    return kEebusErrorMemoryAllocate;
-  }
-
-  EEBUS_MUTEX_LOCK(gcp_mgcp->mutex);
-  for (size_t i = 0; i < VectorGetSize(&gcp_mgcp->monitors); ++i) {
-    EebusMonitorObject* const monitor = (EebusMonitorObject*)VectorGetElement(&gcp_mgcp->monitors, i);
-
-    err = EEBUS_MONITOR_FLUSH_MEASUREMENT_CACHE(monitor, measurement_data_list);
-    if (err != kEebusErrorOk) {
-      EEBUS_MUTEX_UNLOCK(gcp_mgcp->mutex);
-      MeasurementsDelete(measurement_data_list);
-      return err;
-    }
-  }
-  EEBUS_MUTEX_UNLOCK(gcp_mgcp->mutex);
-
-  if (measurement_data_list->measurement_data_size > 0) {
-    DEVICE_LOCAL_LOCK(use_case->local_device);
-    err = MeasurementServerUpdateMeasurements(&msrv, measurement_data_list, NULL, NULL);
-    DEVICE_LOCAL_UNLOCK(use_case->local_device);
-  }
-
-  MeasurementsDelete(measurement_data_list);
-  return kEebusErrorOk;
+  const UseCase* const use_case  = USE_CASE(self);
+  return EebusMonitorContainerUpdate(&gcp_mgcp->monitor_container, use_case->local_entity, use_case->local_device);
 }
 
 EebusError GcpMgcpSetEnergyFeedInCache(
@@ -179,10 +78,31 @@ EebusError GcpMgcpSetEnergyFeedInCache(
     const EebusDateTime* start_time,
     const EebusDateTime* end_time
 ) {
-  return GcpMgcpSetMeasurementDataCacheWithTime(
-      GCP_MGCP_USE_CASE(self),
+  GcpMgcpUseCase* const gcp_mgcp = GCP_MGCP_USE_CASE(self);
+  return EebusMonitorContainerSetMeasurementDataCacheWithTime(
+      &gcp_mgcp->monitor_container,
       kGcpEnergyFeedIn,
       energy_feed_in,
+      timestamp,
+      value_state,
+      start_time,
+      end_time
+  );
+}
+
+EebusError GcpMgcpSetEnergyConsumedCache(
+    GcpMgcpUseCaseObject* self,
+    const ScaledValue* energy_consumed,
+    const EebusDateTime* timestamp,
+    const MeasurementValueStateType* value_state,
+    const EebusDateTime* start_time,
+    const EebusDateTime* end_time
+) {
+  GcpMgcpUseCase* const gcp_mgcp = GCP_MGCP_USE_CASE(self);
+  return EebusMonitorContainerSetMeasurementDataCacheWithTime(
+      &gcp_mgcp->monitor_container,
+      kGcpEnergyConsumed,
+      energy_consumed,
       timestamp,
       value_state,
       start_time,
@@ -223,14 +143,16 @@ EebusError GcpMgcpSetPvCurtailmentLimitFactor(GcpMgcpUseCaseObject* self, const 
     return kEebusErrorInputArgumentNull;
   }
 
-  if (!GCP_MGCP_USE_CASE(self)->has_scenario1) {
+  GcpMgcpUseCase* const gcp_mgcp = GCP_MGCP_USE_CASE(self);
+
+  if (!gcp_mgcp->has_scenario1) {
     return kEebusErrorNotSupported;
   }
 
   const UseCase* const use_case = USE_CASE(self);
 
   DEVICE_LOCAL_LOCK(use_case->local_device);
-  const EebusError err = GcpMgcpSetPvCurtailmentLimitFactorInternal(GCP_MGCP_USE_CASE(self), value);
+  const EebusError err = GcpMgcpSetPvCurtailmentLimitFactorInternal(gcp_mgcp, value);
   DEVICE_LOCAL_UNLOCK(use_case->local_device);
 
   return err;
@@ -262,34 +184,17 @@ EebusError GcpMgcpGetPvCurtailmentLimitFactor(const GcpMgcpUseCaseObject* self, 
     return kEebusErrorInputArgumentNull;
   }
 
-  if (!GCP_MGCP_USE_CASE(self)->has_scenario1) {
+  GcpMgcpUseCase* const gcp_mgcp = GCP_MGCP_USE_CASE(self);
+
+  if (!gcp_mgcp->has_scenario1) {
     return kEebusErrorNotSupported;
   }
 
   const UseCase* const use_case = USE_CASE(self);
 
   DEVICE_LOCAL_LOCK(use_case->local_device);
-  const EebusError err = GcpMgcpGetPvCurtailmentLimitFactorInternal(GCP_MGCP_USE_CASE(self), value);
+  const EebusError err = GcpMgcpGetPvCurtailmentLimitFactorInternal(gcp_mgcp, value);
   DEVICE_LOCAL_UNLOCK(use_case->local_device);
 
   return err;
-}
-
-EebusError GcpMgcpSetEnergyConsumedCache(
-    GcpMgcpUseCaseObject* self,
-    const ScaledValue* energy_consumed,
-    const EebusDateTime* timestamp,
-    const MeasurementValueStateType* value_state,
-    const EebusDateTime* start_time,
-    const EebusDateTime* end_time
-) {
-  return GcpMgcpSetMeasurementDataCacheWithTime(
-      GCP_MGCP_USE_CASE(self),
-      kGcpEnergyConsumed,
-      energy_consumed,
-      timestamp,
-      value_state,
-      start_time,
-      end_time
-  );
 }

@@ -21,7 +21,6 @@
 #include "src/use_case/actor/gcp/mgcp/gcp_mgcp.h"
 
 #include "src/common/array_util.h"
-#include "src/common/eebus_mutex/eebus_mutex.h"
 #include "src/use_case/actor/gcp/mgcp/gcp_mgcp_internal.h"
 #include "src/use_case/actor/gcp/mgcp/gcp_mgcp_monitor.h"
 #include "src/use_case/specialization/device_configuration/device_configuration_server.h"
@@ -64,7 +63,7 @@ static EebusError AddGcpMgcpScenario2(GcpMgcpUseCase* self, const GcpMgcpMonitor
     return kEebusErrorInit;
   }
 
-  VectorPushBack(&self->monitors, power_monitor);
+  EebusMonitorContainerAdd(&self->monitor_container, power_monitor);
 
   static const FeatureTypeType use_case_scenario_2_features[] = {
       kFeatureTypeTypeElectricalConnection,
@@ -87,7 +86,7 @@ static EebusError AddGcpMgcpEnergyScenarios(GcpMgcpUseCase* self, const GcpMgcpM
     return kEebusErrorInit;
   }
 
-  VectorPushBack(&self->monitors, energy_monitor);
+  EebusMonitorContainerAdd(&self->monitor_container, energy_monitor);
 
   static const FeatureTypeType energy_features[] = {
       kFeatureTypeTypeElectricalConnection,
@@ -121,7 +120,7 @@ static EebusError AddGcpMgcpScenario5(GcpMgcpUseCase* self, const GcpMgcpMonitor
     return kEebusErrorInit;
   }
 
-  VectorPushBack(&self->monitors, current_monitor);
+  EebusMonitorContainerAdd(&self->monitor_container, current_monitor);
 
   static const FeatureTypeType use_case_scenario_5_features[] = {
       kFeatureTypeTypeElectricalConnection,
@@ -144,7 +143,7 @@ static EebusError AddGcpMgcpScenario6(GcpMgcpUseCase* self, const GcpMgcpMonitor
     return kEebusErrorInit;
   }
 
-  VectorPushBack(&self->monitors, voltage_monitor);
+  EebusMonitorContainerAdd(&self->monitor_container, voltage_monitor);
 
   static const FeatureTypeType use_case_scenario_6_features[] = {
       kFeatureTypeTypeElectricalConnection,
@@ -167,7 +166,7 @@ static EebusError AddGcpMgcpScenario7(GcpMgcpUseCase* self, const GcpMgcpMonitor
     return kEebusErrorInit;
   }
 
-  VectorPushBack(&self->monitors, frequency_monitor);
+  EebusMonitorContainerAdd(&self->monitor_container, frequency_monitor);
 
   static const FeatureTypeType use_case_scenario_7_features[] = {
       kFeatureTypeTypeElectricalConnection,
@@ -265,8 +264,8 @@ static EebusError AddFeatures(UseCaseObject* self, EntityLocalObject* entity) {
     return kEebusErrorMemoryAllocate;
   }
 
-  for (size_t i = 0; i < VectorGetSize(&gcp_mgcp->monitors); ++i) {
-    EebusMonitorObject* const monitor = (EebusMonitorObject*)VectorGetElement(&gcp_mgcp->monitors, i);
+  for (size_t i = 0; i < VectorGetSize(&gcp_mgcp->monitor_container.monitors); ++i) {
+    EebusMonitorObject* const monitor = (EebusMonitorObject*)VectorGetElement(&gcp_mgcp->monitor_container.monitors, i);
 
     EebusError err = EEBUS_MONITOR_CONFIGURE(monitor, &msrv, &ecsrv, ec_id, measurement_constraints);
     if (err != kEebusErrorOk) {
@@ -293,10 +292,6 @@ static EebusError AddFeatures(UseCaseObject* self, EntityLocalObject* entity) {
   return kEebusErrorOk;
 }
 
-static void MonitorDeallocator(void* p) {
-  EebusMonitorDelete((EebusMonitorObject*)p);
-}
-
 static EebusError GcpMgcpUseCaseConstruct(
     GcpMgcpUseCase* self,
     EntityLocalObject* local_entity,
@@ -307,14 +302,11 @@ static EebusError GcpMgcpUseCaseConstruct(
 
   self->electrical_connection_id = ec_id;
   self->use_case_scenarios_size  = 0;
+  self->has_scenario1            = false;
 
-  VectorConstructWithDeallocator(&self->monitors, MonitorDeallocator);
-
-  self->mutex         = EebusMutexCreate();
-  self->has_scenario1 = false;
-
-  if (self->mutex == NULL) {
-    return kEebusErrorMemoryAllocate;
+  const EebusError container_err = EebusMonitorContainerConstruct(&self->monitor_container);
+  if (container_err != kEebusErrorOk) {
+    return container_err;
   }
 
   // Scenario 1: PV curtailment limit factor (optional)
@@ -404,11 +396,7 @@ GcpMgcpUseCaseCreate(EntityLocalObject* local_entity, ElectricalConnectionIdType
 static void Destruct(UseCaseObject* self) {
   GcpMgcpUseCase* const gcp_mgcp = GCP_MGCP_USE_CASE(self);
 
-  EebusMutexDelete(gcp_mgcp->mutex);
-  gcp_mgcp->mutex = NULL;
-
-  VectorFreeElements(&gcp_mgcp->monitors);
-  VectorDestruct(&gcp_mgcp->monitors);
+  EebusMonitorContainerDestruct(&gcp_mgcp->monitor_container);
 
   UseCaseDestruct(self);
 }
