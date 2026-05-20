@@ -19,69 +19,26 @@
  */
 
 #include "src/spine/events/events.h"
+#include "src/use_case/actor/ma/ma_events.h"
 #include "src/use_case/actor/ma/mpc/ma_mpc_internal.h"
 #include "src/use_case/actor/ma/mpc/ma_mpc_measurement.h"
 #include "src/use_case/specialization/electrical_connection/electrical_connection_client.h"
 #include "src/use_case/specialization/measurement/measurement_client.h"
 
-static void OnEntityAddedHandleElectricalConnection(const MaMpcUseCase* self, EntityRemoteObject* entity);
-static void OnEntityAddedHandleMeasurement(const MaMpcUseCase* self, EntityRemoteObject* entity);
 static void OnEntityAdded(MaMpcUseCase* self, const EventPayload* payload);
 static void OnEntityRemoved(const MaMpcUseCase* self, const EventPayload* payload);
-static void OnMeasurementDescriptionDataUpdate(MaMpcUseCase* self, const EventPayload* payload);
 static void OnMeasurementDataUpdate(MaMpcUseCase* self, const EventPayload* payload);
 static void OnDataChange(MaMpcUseCase* self, const EventPayload* payload);
 
-void OnEntityAddedHandleElectricalConnection(const MaMpcUseCase* self, EntityRemoteObject* entity) {
-  const UseCase* const use_case = USE_CASE(self);
-
-  ElectricalConnectionClient electrical_connection;
-  if (ElectricalConnectionClientConstruct(&electrical_connection, use_case->local_entity, entity) != kEebusErrorOk) {
-    return;
-  }
-
-  FeatureInfoClient* feature_info = &electrical_connection.feature_info_client;
-  if (!HasSubscription(feature_info)) {
-    Subscribe(feature_info);
-  }
-
-  // Get descriptions
-  ElectricalConnectionClientRequestDescriptions(&electrical_connection, NULL, NULL);
-
-  // Get parameter descriptions
-  ElectricalConnectionClientRequestParameterDescriptions(&electrical_connection, NULL, NULL);
-}
-
-void OnEntityAddedHandleMeasurement(const MaMpcUseCase* self, EntityRemoteObject* entity) {
-  const UseCase* const use_case = USE_CASE(self);
-
-  MeasurementClient measurement;
-  if (MeasurementClientConstruct(&measurement, use_case->local_entity, entity) != kEebusErrorOk) {
-    return;
-  }
-
-  FeatureInfoClient* feature_info = &measurement.feature_info_client;
-  if (!HasSubscription(feature_info)) {
-    Subscribe(feature_info);
-  }
-
-  // Get descriptions
-  MeasurementClientRequestDescriptions(&measurement, NULL, NULL);
-
-  // Get constraints
-  MeasurementClientRequestConstraints(&measurement, NULL, NULL);
-}
-
-// process required steps when a device is connected
-void OnEntityAdded(MaMpcUseCase* self, const EventPayload* payload) {
+static void OnEntityAdded(MaMpcUseCase* self, const EventPayload* payload) {
   EntityRemoteObject* const entity = payload->entity;
 
   if (!USE_CASE_IS_USE_CASE_COMPATIBLE(USE_CASE_OBJECT(self), payload->use_case_filter)) {
     return;
   }
 
-  OnEntityAddedHandleElectricalConnection(self, entity);
-  OnEntityAddedHandleMeasurement(self, entity);
+  MaOnEntityAddedHandleElectricalConnection(USE_CASE(self), entity);
+  MaOnEntityAddedHandleMeasurement(USE_CASE(self), entity);
 
   if (self->ma_mpc_listener != NULL) {
     const EntityAddressType* const entity_addr = ENTITY_GET_ADDRESS(ENTITY_OBJECT(entity));
@@ -89,7 +46,7 @@ void OnEntityAdded(MaMpcUseCase* self, const EventPayload* payload) {
   }
 }
 
-void OnEntityRemoved(const MaMpcUseCase* self, const EventPayload* payload) {
+static void OnEntityRemoved(const MaMpcUseCase* self, const EventPayload* payload) {
   EntityRemoteObject* const entity = payload->entity;
 
   if (!USE_CASE_IS_USE_CASE_COMPATIBLE(USE_CASE_OBJECT(self), payload->use_case_filter)) {
@@ -102,19 +59,7 @@ void OnEntityRemoved(const MaMpcUseCase* self, const EventPayload* payload) {
   }
 }
 
-void OnMeasurementDescriptionDataUpdate(MaMpcUseCase* self, const EventPayload* payload) {
-  const UseCase* const use_case = USE_CASE(self);
-
-  MeasurementClient mcl;
-  if (MeasurementClientConstruct(&mcl, use_case->local_entity, payload->entity) != kEebusErrorOk) {
-    return;
-  }
-
-  // Measurement descriptions received, now get the data
-  MeasurementClientRequestData(&mcl, NULL, NULL);
-}
-
-void OnMeasurementDataUpdate(MaMpcUseCase* self, const EventPayload* payload) {
+static void OnMeasurementDataUpdate(MaMpcUseCase* self, const EventPayload* payload) {
   const UseCase* const use_case = USE_CASE(self);
 
   MeasurementClient mcl;
@@ -154,10 +99,10 @@ void OnMeasurementDataUpdate(MaMpcUseCase* self, const EventPayload* payload) {
   }
 }
 
-void OnDataChange(MaMpcUseCase* self, const EventPayload* payload) {
+static void OnDataChange(MaMpcUseCase* self, const EventPayload* payload) {
   switch (payload->function_type) {
     case kFunctionTypeMeasurementDescriptionListData: {
-      OnMeasurementDescriptionDataUpdate(self, payload);
+      MaOnMeasurementDescriptionDataUpdate(USE_CASE(self), payload);
       break;
     }
 

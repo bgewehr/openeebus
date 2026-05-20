@@ -19,6 +19,7 @@
  */
 
 #include "src/spine/events/events.h"
+#include "src/use_case/actor/ma/ma_events.h"
 #include "src/use_case/actor/ma/mgcp/ma_mgcp_internal.h"
 #include "src/use_case/actor/ma/mgcp/ma_mgcp_measurement.h"
 #include "src/use_case/specialization/device_configuration/device_configuration_client.h"
@@ -26,11 +27,8 @@
 #include "src/use_case/specialization/measurement/measurement_client.h"
 
 static void OnEntityAddedHandleDeviceConfiguration(const MaMgcpUseCase* self, EntityRemoteObject* entity);
-static void OnEntityAddedHandleElectricalConnection(const MaMgcpUseCase* self, EntityRemoteObject* entity);
-static void OnEntityAddedHandleMeasurement(const MaMgcpUseCase* self, EntityRemoteObject* entity);
 static void OnEntityAdded(MaMgcpUseCase* self, const EventPayload* payload);
 static void OnEntityRemoved(const MaMgcpUseCase* self, const EventPayload* payload);
-static void OnMeasurementDescriptionDataUpdate(MaMgcpUseCase* self, const EventPayload* payload);
 static void OnMeasurementDataUpdate(MaMgcpUseCase* self, const EventPayload* payload);
 static void OnDeviceConfigurationDescriptionDataUpdate(MaMgcpUseCase* self, const EventPayload* payload);
 static void OnDeviceConfigurationDataUpdate(MaMgcpUseCase* self, const EventPayload* payload);
@@ -52,40 +50,6 @@ static void OnEntityAddedHandleDeviceConfiguration(const MaMgcpUseCase* self, En
   DeviceConfigurationClientRequestKeyValueDescription(&device_cfg, NULL, NULL);
 }
 
-static void OnEntityAddedHandleElectricalConnection(const MaMgcpUseCase* self, EntityRemoteObject* entity) {
-  const UseCase* const use_case = USE_CASE(self);
-
-  ElectricalConnectionClient electrical_connection;
-  if (ElectricalConnectionClientConstruct(&electrical_connection, use_case->local_entity, entity) != kEebusErrorOk) {
-    return;
-  }
-
-  FeatureInfoClient* const feature_info = &electrical_connection.feature_info_client;
-  if (!HasSubscription(feature_info)) {
-    Subscribe(feature_info);
-  }
-
-  ElectricalConnectionClientRequestDescriptions(&electrical_connection, NULL, NULL);
-  ElectricalConnectionClientRequestParameterDescriptions(&electrical_connection, NULL, NULL);
-}
-
-static void OnEntityAddedHandleMeasurement(const MaMgcpUseCase* self, EntityRemoteObject* entity) {
-  const UseCase* const use_case = USE_CASE(self);
-
-  MeasurementClient measurement;
-  if (MeasurementClientConstruct(&measurement, use_case->local_entity, entity) != kEebusErrorOk) {
-    return;
-  }
-
-  FeatureInfoClient* const feature_info = &measurement.feature_info_client;
-  if (!HasSubscription(feature_info)) {
-    Subscribe(feature_info);
-  }
-
-  MeasurementClientRequestDescriptions(&measurement, NULL, NULL);
-  MeasurementClientRequestConstraints(&measurement, NULL, NULL);
-}
-
 static void OnEntityAdded(MaMgcpUseCase* self, const EventPayload* payload) {
   EntityRemoteObject* const entity = payload->entity;
 
@@ -93,8 +57,8 @@ static void OnEntityAdded(MaMgcpUseCase* self, const EventPayload* payload) {
     return;
   }
 
-  OnEntityAddedHandleElectricalConnection(self, entity);
-  OnEntityAddedHandleMeasurement(self, entity);
+  MaOnEntityAddedHandleElectricalConnection(USE_CASE(self), entity);
+  MaOnEntityAddedHandleMeasurement(USE_CASE(self), entity);
   OnEntityAddedHandleDeviceConfiguration(self, entity);
 
   if (self->ma_mgcp_listener != NULL) {
@@ -114,18 +78,6 @@ static void OnEntityRemoved(const MaMgcpUseCase* self, const EventPayload* paylo
     const EntityAddressType* const entity_addr = ENTITY_GET_ADDRESS(ENTITY_OBJECT(entity));
     MA_MGCP_LISTENER_ON_REMOTE_ENTITY_DISCONNECT(self->ma_mgcp_listener, entity_addr);
   }
-}
-
-static void OnMeasurementDescriptionDataUpdate(MaMgcpUseCase* self, const EventPayload* payload) {
-  const UseCase* const use_case = USE_CASE(self);
-
-  MeasurementClient mcl;
-  if (MeasurementClientConstruct(&mcl, use_case->local_entity, payload->entity) != kEebusErrorOk) {
-    return;
-  }
-
-  // Descriptions received — now request measurement values
-  MeasurementClientRequestData(&mcl, NULL, NULL);
 }
 
 static void OnMeasurementDataUpdate(MaMgcpUseCase* self, const EventPayload* payload) {
@@ -221,7 +173,7 @@ static void OnDeviceConfigurationDataUpdate(MaMgcpUseCase* self, const EventPayl
 static void OnDataChange(MaMgcpUseCase* self, const EventPayload* payload) {
   switch (payload->function_type) {
     case kFunctionTypeMeasurementDescriptionListData: {
-      OnMeasurementDescriptionDataUpdate(self, payload);
+      MaOnMeasurementDescriptionDataUpdate(USE_CASE(self), payload);
       break;
     }
     case kFunctionTypeMeasurementListData: {

@@ -99,6 +99,7 @@ set(SOURCES
   src/use_case/actor/eg/eg_lp_events.c
   src/use_case/actor/eg/eg_lp_public.c
   src/use_case/actor/eg/eg_lp.c
+  src/use_case/actor/ma/ma_events.c
   src/use_case/actor/ma/ma_measurement_base.c
   src/use_case/actor/ma/mpc/ma_mpc.c
   src/use_case/actor/ma/mpc/ma_mpc_events.c
@@ -373,6 +374,7 @@ set(HEADERS
   src/use_case/actor/eg/eg_lp_events.h
   src/use_case/actor/eg/eg_lp_internal.h
   src/use_case/actor/eg/eg_lp.h
+  src/use_case/actor/ma/ma_events.h
   src/use_case/actor/ma/ma_measurement_base.h
   src/use_case/actor/ma/mpc/ma_mpc.h
   src/use_case/actor/ma/mpc/ma_mpc_events.h
