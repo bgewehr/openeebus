@@ -87,6 +87,7 @@ set(SOURCES
   src/use_case/actor/common/eebus_measurement_base.c
   src/use_case/actor/common/eebus_monitor_base.c
   src/use_case/actor/common/eebus_monitor_container.c
+  src/use_case/actor/common/eebus_monitor_features.c
   src/use_case/actor/common/load_control.c
   src/use_case/actor/cs/lpc/cs_lpc.c
   src/use_case/actor/cs/lpp/cs_lpp.c
@@ -359,6 +360,7 @@ set(HEADERS
   src/use_case/actor/common/eebus_measurement_base.h
   src/use_case/actor/common/eebus_monitor_base.h
   src/use_case/actor/common/eebus_monitor_container.h
+  src/use_case/actor/common/eebus_monitor_features.h
   src/use_case/actor/common/load_control.h
   src/use_case/actor/cs/cs_lp_events.h
   src/use_case/actor/cs/cs_lp_internal.h

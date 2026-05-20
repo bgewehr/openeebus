@@ -21,11 +21,10 @@
 #include "src/use_case/actor/gcp/mgcp/gcp_mgcp.h"
 
 #include "src/common/array_util.h"
+#include "src/use_case/actor/common/eebus_monitor_features.h"
 #include "src/use_case/actor/gcp/mgcp/gcp_mgcp_internal.h"
 #include "src/use_case/actor/gcp/mgcp/gcp_mgcp_monitor.h"
 #include "src/use_case/specialization/device_configuration/device_configuration_server.h"
-#include "src/use_case/specialization/electrical_connection/electrical_connection_server.h"
-#include "src/use_case/specialization/measurement/measurement_server.h"
 #include "src/use_case/use_case.h"
 
 /* Only the MA (Monitoring Appliance) may connect to this use case */
@@ -33,7 +32,6 @@ static const UseCaseActorType valid_actor_types[] = {kUseCaseActorTypeMonitoring
 
 static void Destruct(UseCaseObject* self);
 static bool IsEntityCompatible(const UseCaseObject* self, const EntityRemoteObject* remote_entity);
-static EebusError AddFeatures(UseCaseObject* self, EntityLocalObject* entity);
 
 static const UseCaseInterface gcp_mgcp_use_case_methods = {
     .destruct                       = Destruct,
@@ -207,91 +205,6 @@ static EebusError AddDeviceConfigurationFeature(EntityLocalObject* entity) {
   return DeviceConfigurationServerAddKeyValueDescription(&dcs, &description);
 }
 
-static EebusError AddFeatures(UseCaseObject* self, EntityLocalObject* entity) {
-  GcpMgcpUseCase* const gcp_mgcp = GCP_MGCP_USE_CASE(self);
-
-  // ElectricalConnection server feature
-  FeatureLocalObject* const ecfl
-      = ENTITY_LOCAL_ADD_FEATURE_WITH_TYPE_AND_ROLE(entity, kFeatureTypeTypeElectricalConnection, kRoleTypeServer);
-  if (ecfl == NULL) {
-    return kEebusErrorInit;
-  }
-
-  FEATURE_LOCAL_SET_FUNCTION_OPERATIONS(ecfl, kFunctionTypeElectricalConnectionDescriptionListData, true, false);
-  FEATURE_LOCAL_SET_FUNCTION_OPERATIONS(
-      ecfl,
-      kFunctionTypeElectricalConnectionParameterDescriptionListData,
-      true,
-      false
-  );
-
-  // Measurement server feature
-  FeatureLocalObject* const mfl
-      = ENTITY_LOCAL_ADD_FEATURE_WITH_TYPE_AND_ROLE(entity, kFeatureTypeTypeMeasurement, kRoleTypeServer);
-  if (mfl == NULL) {
-    return kEebusErrorInit;
-  }
-
-  FEATURE_LOCAL_SET_FUNCTION_OPERATIONS(mfl, kFunctionTypeMeasurementDescriptionListData, true, false);
-  FEATURE_LOCAL_SET_FUNCTION_OPERATIONS(mfl, kFunctionTypeMeasurementListData, true, false);
-
-  MeasurementServer msrv;
-  if (MeasurementServerConstruct(&msrv, entity) != kEebusErrorOk) {
-    return kEebusErrorInit;
-  }
-
-  ElectricalConnectionServer ecsrv;
-  if (ElectricalConnectionServerConstruct(&ecsrv, entity) != kEebusErrorOk) {
-    return kEebusErrorInit;
-  }
-
-  const ElectricalConnectionIdType ec_id = gcp_mgcp->electrical_connection_id;
-
-  if (ElectricalConnectionCommonGetDescriptionWithId(&ecsrv.el_connection_common, ec_id) == NULL) {
-    const ElectricalConnectionDescriptionDataType ec_description = {
-        .power_supply_type         = &ELECTRICAL_CONNECTION_VOLTAGE_TYPE(Ac),
-        .positive_energy_direction = &(EnergyDirectionType){kEnergyDirectionTypeConsume},
-    };
-
-    EebusError err = ElectricalConnectionServerAddDescriptionWithId(&ecsrv, &ec_description, ec_id);
-    if (err != kEebusErrorOk) {
-      return err;
-    }
-  }
-
-  MeasurementConstraintsListDataType* const measurement_constraints = MeasurementConstraintsCreateEmpty();
-  if (measurement_constraints == NULL) {
-    return kEebusErrorMemoryAllocate;
-  }
-
-  for (size_t i = 0; i < VectorGetSize(&gcp_mgcp->monitor_container.monitors); ++i) {
-    EebusMonitorObject* const monitor = (EebusMonitorObject*)VectorGetElement(&gcp_mgcp->monitor_container.monitors, i);
-
-    EebusError err = EEBUS_MONITOR_CONFIGURE(monitor, &msrv, &ecsrv, ec_id, measurement_constraints);
-    if (err != kEebusErrorOk) {
-      MeasurementConstraintsDelete(measurement_constraints);
-      return err;
-    }
-  }
-
-  if (measurement_constraints->measurement_constraints_data_size != 0) {
-    FEATURE_LOCAL_SET_FUNCTION_OPERATIONS(mfl, kFunctionTypeMeasurementConstraintsListData, true, false);
-    MeasurementServerUpdateMeasurementConstraints(&msrv, measurement_constraints, NULL, NULL);
-  }
-
-  MeasurementConstraintsDelete(measurement_constraints);
-
-  // DeviceConfiguration server feature (Scenario 1, optional)
-  if (gcp_mgcp->has_scenario1) {
-    const EebusError err = AddDeviceConfigurationFeature(entity);
-    if (err != kEebusErrorOk) {
-      return err;
-    }
-  }
-
-  return kEebusErrorOk;
-}
-
 static EebusError GcpMgcpUseCaseConstruct(
     GcpMgcpUseCase* self,
     EntityLocalObject* local_entity,
@@ -371,7 +284,17 @@ static EebusError GcpMgcpUseCaseConstruct(
 
   UseCaseConstruct(USE_CASE(self), &self->gcp_mgcp_use_case_info, local_entity, NULL);
 
-  return AddFeatures(USE_CASE_OBJECT(self), local_entity);
+  const EebusError features_err
+      = EebusMonitorFeaturesSetup(&self->monitor_container, local_entity, self->electrical_connection_id);
+  if (features_err != kEebusErrorOk) {
+    return features_err;
+  }
+
+  if (self->has_scenario1) {
+    return AddDeviceConfigurationFeature(local_entity);
+  }
+
+  return kEebusErrorOk;
 }
 
 GcpMgcpUseCaseObject*

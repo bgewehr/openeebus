@@ -17,12 +17,11 @@
 #include "src/use_case/actor/mu/mpc/mu_mpc.h"
 
 #include "src/common/array_util.h"
+#include "src/use_case/actor/common/eebus_monitor_features.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_internal.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_measurement.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_monitor.h"
 #include "src/use_case/model/load_limit_types.h"
-#include "src/use_case/specialization/electrical_connection/electrical_connection_server.h"
-#include "src/use_case/specialization/measurement/measurement_server.h"
 #include "src/use_case/use_case.h"
 
 static const UseCaseActorType valid_actor_types[] = {kUseCaseActorTypeMonitoringAppliance};
@@ -43,8 +42,6 @@ static EebusError MuMpcUseCaseConstruct(
     ElectricalConnectionIdType ec_id,
     const MuMpcConfig* cfg
 );
-
-static void AddFeatures(UseCaseObject* self, EntityLocalObject* entity);
 
 EebusError AddMuMpcScenario1(MuMpcUseCase* self, const MuMpcMonitorPowerConfig* power_cfg) {
   EebusMonitorObject* const power_monitor = MuMpcMonitorPowerCreate(power_cfg);
@@ -161,77 +158,6 @@ EebusError AddMuMpcScenario5(MuMpcUseCase* self, const MuMpcMonitorFrequencyConf
   return kEebusErrorOk;
 }
 
-void AddFeatures(UseCaseObject* self, EntityLocalObject* entity) {
-  MuMpcUseCase* const mu_mpc = MU_MPC_USE_CASE(self);
-
-  // Server features
-  // Electrical connection feature
-  FeatureLocalObject* const ecfl
-      = ENTITY_LOCAL_ADD_FEATURE_WITH_TYPE_AND_ROLE(entity, kFeatureTypeTypeElectricalConnection, kRoleTypeServer);
-
-  FEATURE_LOCAL_SET_FUNCTION_OPERATIONS(ecfl, kFunctionTypeElectricalConnectionDescriptionListData, true, false);
-  FEATURE_LOCAL_SET_FUNCTION_OPERATIONS(
-      ecfl,
-      kFunctionTypeElectricalConnectionParameterDescriptionListData,
-      true,
-      false
-  );
-
-  // Measurement feature
-  FeatureLocalObject* const mfl
-      = ENTITY_LOCAL_ADD_FEATURE_WITH_TYPE_AND_ROLE(entity, kFeatureTypeTypeMeasurement, kRoleTypeServer);
-  FEATURE_LOCAL_SET_FUNCTION_OPERATIONS(mfl, kFunctionTypeMeasurementDescriptionListData, true, false);
-  FEATURE_LOCAL_SET_FUNCTION_OPERATIONS(mfl, kFunctionTypeMeasurementListData, true, false);
-
-  MeasurementServer msrv;
-  if (MeasurementServerConstruct(&msrv, entity) != kEebusErrorOk) {
-    return;
-  }
-
-  // Electrical connection feature
-  ElectricalConnectionServer ecsrv;
-  if (ElectricalConnectionServerConstruct(&ecsrv, entity) != kEebusErrorOk) {
-    return;
-  }
-
-  const ElectricalConnectionIdType ec_id = mu_mpc->electrical_connection_id;
-  if (ElectricalConnectionCommonGetDescriptionWithId(&ecsrv.el_connection_common, ec_id) == NULL) {
-    const ElectricalConnectionDescriptionDataType ec_description = {
-        .power_supply_type         = &(ElectricalConnectionVoltageTypeType){kElectricalConnectionVoltageTypeTypeAc},
-        .positive_energy_direction = &(EnergyDirectionType){kEnergyDirectionTypeConsume},
-    };
-
-    EebusError err = ElectricalConnectionServerAddDescriptionWithId(&ecsrv, &ec_description, ec_id);
-
-    if (err != kEebusErrorOk) {
-      return;
-    }
-  }
-
-  MeasurementConstraintsListDataType* const measurement_constraints = MeasurementConstraintsCreateEmpty();
-  if (measurement_constraints == NULL) {
-    return;
-  }
-
-  for (size_t i = 0; i < VectorGetSize(&mu_mpc->monitor_container.monitors); ++i) {
-    EebusMonitorObject* const mu_mpc_monitor
-        = (EebusMonitorObject*)VectorGetElement(&mu_mpc->monitor_container.monitors, i);
-
-    EebusError err = EEBUS_MONITOR_CONFIGURE(mu_mpc_monitor, &msrv, &ecsrv, ec_id, measurement_constraints);
-    if (err != kEebusErrorOk) {
-      MeasurementConstraintsDelete(measurement_constraints);
-      return;  // Configuration failed
-    }
-  }
-
-  if (measurement_constraints->measurement_constraints_data_size != 0) {
-    FEATURE_LOCAL_SET_FUNCTION_OPERATIONS(mfl, kFunctionTypeMeasurementConstraintsListData, true, false);
-    MeasurementServerUpdateMeasurementConstraints(&msrv, measurement_constraints, NULL, NULL);
-  }
-
-  MeasurementConstraintsDelete(measurement_constraints);
-}
-
 EebusError MuMpcUseCaseConstruct(
     MuMpcUseCase* self,
     EntityLocalObject* local_entity,
@@ -298,9 +224,7 @@ EebusError MuMpcUseCaseConstruct(
 
   UseCaseConstruct(USE_CASE(self), &self->mu_mpc_use_case_info, local_entity, NULL);
 
-  AddFeatures(USE_CASE_OBJECT(self), local_entity);
-
-  return kEebusErrorOk;
+  return EebusMonitorFeaturesSetup(&self->monitor_container, local_entity, self->electrical_connection_id);
 }
 
 MuMpcUseCaseObject*
