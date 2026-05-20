@@ -168,5 +168,5 @@ EebusError EebusMonitorContainerUpdate(
   }
 
   MeasurementsDelete(list);
-  return kEebusErrorOk;
+  return err;
 }
