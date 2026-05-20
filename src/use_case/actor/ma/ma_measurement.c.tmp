@@ -1,3 +1,3 @@
 MaMeasurement
 EebusMeasurementNameId GetName() const
-EebusError GetDataValue(MeasurementClient* mcl, ElectricalConnectionClient* eccl, ScaledValue* measurement_value) const
+EebusError GetData(EntityLocalObject* local_entity, EntityRemoteObject* remote_entity, ScaledValue* measurement_value) const

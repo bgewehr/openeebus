@@ -143,7 +143,7 @@ void OnMeasurementDataUpdate(MaMpcUseCase* self, const EventPayload* payload) {
     }
 
     ScaledValue value = {0};
-    if (MA_MEASUREMENT_GET_DATA_VALUE(mpc_measurement, &mcl, &ecl, &value) != kEebusErrorOk) {
+    if (MA_MEASUREMENT_GET_DATA(mpc_measurement, use_case->local_entity, payload->entity, &value) != kEebusErrorOk) {
       continue;
     }
 

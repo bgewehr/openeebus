@@ -157,7 +157,7 @@ static void OnMeasurementDataUpdate(MaMgcpUseCase* self, const EventPayload* pay
     }
 
     ScaledValue value = {0};
-    if (MA_MEASUREMENT_GET_DATA_VALUE(mgcp_measurement, &mcl, &ecl, &value) != kEebusErrorOk) {
+    if (MA_MEASUREMENT_GET_DATA(mgcp_measurement, use_case->local_entity, payload->entity, &value) != kEebusErrorOk) {
       continue;
     }
 

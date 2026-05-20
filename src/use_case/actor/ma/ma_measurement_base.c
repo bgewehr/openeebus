@@ -38,9 +38,36 @@ static EebusError GetDataValue(
   return measurement->get_measurement_strategy(measurement, mcl, eccl, measurement_value);
 }
 
+static EebusError GetData(
+    const MaMeasurementObject* self,
+    EntityLocalObject* local_entity,
+    EntityRemoteObject* remote_entity,
+    ScaledValue* measurement_value
+) {
+  if ((local_entity == NULL) || (remote_entity == NULL)) {
+    return kEebusErrorNoChange;
+  }
+
+  MeasurementClient mcl = {0};
+
+  EebusError err = MeasurementClientConstruct(&mcl, local_entity, remote_entity);
+  if (err != kEebusErrorOk) {
+    return err;
+  }
+
+  ElectricalConnectionClient ecl = {0};
+
+  err = ElectricalConnectionClientConstruct(&ecl, local_entity, remote_entity);
+  if (err != kEebusErrorOk) {
+    return err;
+  }
+
+  return GetDataValue(self, &mcl, &ecl, measurement_value);
+}
+
 const MaMeasurementInterface ma_measurement_methods = {
-    .get_name       = GetName,
-    .get_data_value = GetDataValue,
+    .get_name = GetName,
+    .get_data = GetData,
 };
 
 static bool PhasesMatch(
