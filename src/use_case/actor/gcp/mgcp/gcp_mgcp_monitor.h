@@ -24,15 +24,14 @@
  *   Scenario 6: GcpMgcpMonitorVoltageCreate()
  *   Scenario 7: GcpMgcpMonitorFrequencyCreate()
  *
- * Delete with GcpMgcpMonitorDelete().
+ * Delete with EebusMonitorDelete().
  */
 
 #ifndef SRC_USE_CASE_ACTOR_GCP_MGCP_GCP_MGCP_MONITOR_H_
 #define SRC_USE_CASE_ACTOR_GCP_MGCP_GCP_MGCP_MONITOR_H_
 
-#include "src/common/eebus_malloc.h"
 #include "src/use_case/actor/gcp/mgcp/gcp_mgcp_measurement.h"
-#include "src/use_case/api/gcp_mgcp_monitor_interface.h"
+#include "src/use_case/actor/common/eebus_monitor_base.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,54 +60,15 @@ struct GcpMgcpMonitorEnergyConfig {
   const GcpMgcpMeasurementConfig* energy_consumed_cfg;
 };
 
-/**
- * @brief Scenario 5: per-phase AC current
- *
- * At least one phase pointer MUST be non-NULL.
- */
-typedef struct GcpMgcpMonitorCurrentConfig GcpMgcpMonitorCurrentConfig;
-struct GcpMgcpMonitorCurrentConfig {
-  const GcpMgcpMeasurementConfig* current_phase_a_cfg;
-  const GcpMgcpMeasurementConfig* current_phase_b_cfg;
-  const GcpMgcpMeasurementConfig* current_phase_c_cfg;
-};
+typedef EebusMonitorCurrentConfig   GcpMgcpMonitorCurrentConfig;
+typedef EebusMonitorVoltageConfig   GcpMgcpMonitorVoltageConfig;
+typedef EebusMonitorFrequencyConfig GcpMgcpMonitorFrequencyConfig;
 
-/**
- * @brief Scenario 6: per-phase AC voltage
- *
- * Phase-to-phase entries (AB/BC/AC) may only be non-NULL when both related
- * phase-to-neutral entries are also non-NULL.
- */
-typedef struct GcpMgcpMonitorVoltageConfig GcpMgcpMonitorVoltageConfig;
-struct GcpMgcpMonitorVoltageConfig {
-  const GcpMgcpMeasurementConfig* voltage_phase_a_cfg;
-  const GcpMgcpMeasurementConfig* voltage_phase_b_cfg;
-  const GcpMgcpMeasurementConfig* voltage_phase_c_cfg;
-  const GcpMgcpMeasurementConfig* voltage_phase_ab_cfg;
-  const GcpMgcpMeasurementConfig* voltage_phase_bc_cfg;
-  const GcpMgcpMeasurementConfig* voltage_phase_ac_cfg;
-};
-
-/**
- * @brief Scenario 7: AC frequency
- */
-typedef struct GcpMgcpMonitorFrequencyConfig GcpMgcpMonitorFrequencyConfig;
-struct GcpMgcpMonitorFrequencyConfig {
-  GcpMgcpMeasurementConfig frequency_cfg;
-};
-
-GcpMgcpMonitorObject* GcpMgcpMonitorPowerCreate(const GcpMgcpMonitorPowerConfig* cfg);
-GcpMgcpMonitorObject* GcpMgcpMonitorEnergyCreate(const GcpMgcpMonitorEnergyConfig* cfg);
-GcpMgcpMonitorObject* GcpMgcpMonitorCurrentCreate(const GcpMgcpMonitorCurrentConfig* cfg);
-GcpMgcpMonitorObject* GcpMgcpMonitorVoltageCreate(const GcpMgcpMonitorVoltageConfig* cfg);
-GcpMgcpMonitorObject* GcpMgcpMonitorFrequencyCreate(const GcpMgcpMonitorFrequencyConfig* cfg);
-
-static inline void GcpMgcpMonitorDelete(GcpMgcpMonitorObject* monitor) {
-  if (monitor != NULL) {
-    GCP_MGCP_MONITOR_DESTRUCT(monitor);
-    EEBUS_FREE(monitor);
-  }
-}
+EebusMonitorObject* GcpMgcpMonitorPowerCreate(const GcpMgcpMonitorPowerConfig* cfg);
+EebusMonitorObject* GcpMgcpMonitorEnergyCreate(const GcpMgcpMonitorEnergyConfig* cfg);
+EebusMonitorObject* GcpMgcpMonitorCurrentCreate(const GcpMgcpMonitorCurrentConfig* cfg);
+EebusMonitorObject* GcpMgcpMonitorVoltageCreate(const GcpMgcpMonitorVoltageConfig* cfg);
+EebusMonitorObject* GcpMgcpMonitorFrequencyCreate(const GcpMgcpMonitorFrequencyConfig* cfg);
 
 #ifdef __cplusplus
 }

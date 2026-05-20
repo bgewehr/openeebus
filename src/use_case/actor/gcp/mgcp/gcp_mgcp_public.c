@@ -25,12 +25,13 @@
 #include "src/use_case/specialization/measurement/measurement_server.h"
 #include "src/use_case/use_case.h"
 
-static GcpMgcpMonitorObject* GetMonitor(const GcpMgcpUseCase* self, GcpMeasurementNameId measurement_name) {
-  const GcpMonitorNameId monitor_name = (GcpMonitorNameId)((uint8_t)measurement_name & (uint8_t)kGcpMonitorNameIdMask);
+static EebusMonitorObject* GetMonitor(const GcpMgcpUseCase* self, GcpMeasurementNameId measurement_name) {
+  const EebusMeasurementMonitorNameId monitor_name
+      = (EebusMeasurementMonitorNameId)((uint8_t)measurement_name & (uint8_t)kGcpMonitorNameIdMask);
 
   for (size_t i = 0; i < VectorGetSize(&self->monitors); ++i) {
-    GcpMgcpMonitorObject* const monitor = (GcpMgcpMonitorObject*)VectorGetElement(&self->monitors, i);
-    if (GCP_MGCP_MONITOR_GET_NAME(monitor) == monitor_name) {
+    EebusMonitorObject* const monitor = (EebusMonitorObject*)VectorGetElement(&self->monitors, i);
+    if (EEBUS_MONITOR_GET_NAME(monitor) == monitor_name) {
       return monitor;
     }
   }
@@ -39,12 +40,12 @@ static GcpMgcpMonitorObject* GetMonitor(const GcpMgcpUseCase* self, GcpMeasureme
 }
 
 static EebusMeasurementObject* GetMeasurement(const GcpMgcpUseCase* self, GcpMeasurementNameId measurement_name) {
-  const GcpMgcpMonitorObject* const monitor = GetMonitor(self, measurement_name);
+  const EebusMonitorObject* const monitor = GetMonitor(self, measurement_name);
   if (monitor == NULL) {
     return NULL;
   }
 
-  return GCP_MGCP_MONITOR_GET_MEASUREMENT(monitor, measurement_name);
+  return EEBUS_MONITOR_GET_MEASUREMENT(monitor, measurement_name);
 }
 
 static EebusError GcpMgcpGetMeasurementDataInternal(
@@ -149,9 +150,9 @@ EebusError GcpMgcpUpdate(const GcpMgcpUseCaseObject* self) {
 
   EEBUS_MUTEX_LOCK(gcp_mgcp->mutex);
   for (size_t i = 0; i < VectorGetSize(&gcp_mgcp->monitors); ++i) {
-    GcpMgcpMonitorObject* const monitor = (GcpMgcpMonitorObject*)VectorGetElement(&gcp_mgcp->monitors, i);
+    EebusMonitorObject* const monitor = (EebusMonitorObject*)VectorGetElement(&gcp_mgcp->monitors, i);
 
-    err = GCP_MGCP_MONITOR_FLUSH_MEASUREMENT_CACHE(monitor, measurement_data_list);
+    err = EEBUS_MONITOR_FLUSH_MEASUREMENT_CACHE(monitor, measurement_data_list);
     if (err != kEebusErrorOk) {
       EEBUS_MUTEX_UNLOCK(gcp_mgcp->mutex);
       MeasurementsDelete(measurement_data_list);

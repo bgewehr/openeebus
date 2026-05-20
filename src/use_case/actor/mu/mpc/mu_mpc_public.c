@@ -20,13 +20,13 @@
 #include "src/use_case/specialization/measurement/measurement_server.h"
 #include "src/use_case/use_case.h"
 
-MuMpcMonitorObject* GetMonitor(const MuMpcUseCase* self, MuMpcMeasurementNameId measurement_name) {
-  const MuMpcMonitorNameId monitor_name
-      = (MuMpcMonitorNameId)((uint8_t)measurement_name & (uint8_t)kMpcMonitorNameIdMask);
+EebusMonitorObject* GetMonitor(const MuMpcUseCase* self, MuMpcMeasurementNameId measurement_name) {
+  const EebusMeasurementMonitorNameId monitor_name
+      = (EebusMeasurementMonitorNameId)((uint8_t)measurement_name & (uint8_t)kMpcMonitorNameIdMask);
 
   for (size_t i = 0; i < VectorGetSize(&self->monitors); ++i) {
-    MuMpcMonitorObject* const mu_mpc_monitor = (MuMpcMonitorObject*)VectorGetElement(&self->monitors, i);
-    if (MU_MPC_MONITOR_GET_NAME(mu_mpc_monitor) == monitor_name) {
+    EebusMonitorObject* const mu_mpc_monitor = (EebusMonitorObject*)VectorGetElement(&self->monitors, i);
+    if (EEBUS_MONITOR_GET_NAME(mu_mpc_monitor) == monitor_name) {
       return mu_mpc_monitor;
     }
   }
@@ -35,12 +35,12 @@ MuMpcMonitorObject* GetMonitor(const MuMpcUseCase* self, MuMpcMeasurementNameId 
 }
 
 EebusMeasurementObject* GetMeasurement(const MuMpcUseCase* self, MuMpcMeasurementNameId measurement_name) {
-  const MuMpcMonitorObject* const monitor = GetMonitor(self, measurement_name);
+  const EebusMonitorObject* const monitor = GetMonitor(self, measurement_name);
   if (monitor == NULL) {
     return NULL;
   }
 
-  return MU_MPC_MONITOR_GET_MEASUREMENT(monitor, measurement_name);
+  return EEBUS_MONITOR_GET_MEASUREMENT(monitor, measurement_name);
 }
 
 EebusError MuMpcGetMeasurementDataInternal(
@@ -148,8 +148,8 @@ EebusError MuMpcUpdate(const MuMpcUseCaseObject* self) {
 
   EEBUS_MUTEX_LOCK(mu_mpc->mutex);
   for (size_t i = 0; i < VectorGetSize(&mu_mpc->monitors); ++i) {
-    MuMpcMonitorObject* const mu_mpc_monitor = (MuMpcMonitorObject*)VectorGetElement(&mu_mpc->monitors, i);
-    EebusError err = MU_MPC_MONITOR_FLUSH_MEASUREMENT_CACHE(mu_mpc_monitor, measurement_data_list);
+    EebusMonitorObject* const mu_mpc_monitor = (EebusMonitorObject*)VectorGetElement(&mu_mpc->monitors, i);
+    EebusError err = EEBUS_MONITOR_FLUSH_MEASUREMENT_CACHE(mu_mpc_monitor, measurement_data_list);
     if (err != kEebusErrorOk) {
       EEBUS_MUTEX_UNLOCK(mu_mpc->mutex);
       return err;

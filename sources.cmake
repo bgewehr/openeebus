@@ -84,6 +84,8 @@ set(SOURCES
   src/spine/node_management/node_management_subscription.c
   src/spine/node_management/node_management_usecase.c
   src/spine/subscription/subscription_manager.c
+  src/use_case/actor/common/eebus_measurement_base.c
+  src/use_case/actor/common/eebus_monitor_base.c
   src/use_case/actor/common/load_control.c
   src/use_case/actor/cs/lpc/cs_lpc.c
   src/use_case/actor/cs/lpp/cs_lpp.c
@@ -352,8 +354,9 @@ set(HEADERS
   src/use_case/api/ma_mpc_listener_interface.h
   src/use_case/api/ma_mgcp_listener_interface.h
   src/use_case/api/ma_mgcp_measurement_interface.h
-  src/use_case/api/gcp_mgcp_measurement_interface.h
-  src/use_case/api/gcp_mgcp_monitor_interface.h
+  src/use_case/api/eebus_monitor_interface.h
+  src/use_case/actor/common/eebus_measurement_base.h
+  src/use_case/actor/common/eebus_monitor_base.h
   src/use_case/actor/common/load_control.h
   src/use_case/actor/cs/cs_lp_events.h
   src/use_case/actor/cs/cs_lp_internal.h

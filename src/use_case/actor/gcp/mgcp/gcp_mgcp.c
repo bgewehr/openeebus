@@ -59,7 +59,7 @@ static EebusError AddGcpMgcpScenario1(GcpMgcpUseCase* self) {
 }
 
 static EebusError AddGcpMgcpScenario2(GcpMgcpUseCase* self, const GcpMgcpMonitorPowerConfig* power_cfg) {
-  GcpMgcpMonitorObject* const power_monitor = GcpMgcpMonitorPowerCreate(power_cfg);
+  EebusMonitorObject* const power_monitor = GcpMgcpMonitorPowerCreate(power_cfg);
   if (power_monitor == NULL) {
     return kEebusErrorInit;
   }
@@ -82,7 +82,7 @@ static EebusError AddGcpMgcpScenario2(GcpMgcpUseCase* self, const GcpMgcpMonitor
 }
 
 static EebusError AddGcpMgcpEnergyScenarios(GcpMgcpUseCase* self, const GcpMgcpMonitorEnergyConfig* energy_cfg) {
-  GcpMgcpMonitorObject* const energy_monitor = GcpMgcpMonitorEnergyCreate(energy_cfg);
+  EebusMonitorObject* const energy_monitor = GcpMgcpMonitorEnergyCreate(energy_cfg);
   if (energy_monitor == NULL) {
     return kEebusErrorInit;
   }
@@ -116,7 +116,7 @@ static EebusError AddGcpMgcpEnergyScenarios(GcpMgcpUseCase* self, const GcpMgcpM
 }
 
 static EebusError AddGcpMgcpScenario5(GcpMgcpUseCase* self, const GcpMgcpMonitorCurrentConfig* current_cfg) {
-  GcpMgcpMonitorObject* const current_monitor = GcpMgcpMonitorCurrentCreate(current_cfg);
+  EebusMonitorObject* const current_monitor = GcpMgcpMonitorCurrentCreate(current_cfg);
   if (current_monitor == NULL) {
     return kEebusErrorInit;
   }
@@ -139,7 +139,7 @@ static EebusError AddGcpMgcpScenario5(GcpMgcpUseCase* self, const GcpMgcpMonitor
 }
 
 static EebusError AddGcpMgcpScenario6(GcpMgcpUseCase* self, const GcpMgcpMonitorVoltageConfig* voltage_cfg) {
-  GcpMgcpMonitorObject* const voltage_monitor = GcpMgcpMonitorVoltageCreate(voltage_cfg);
+  EebusMonitorObject* const voltage_monitor = GcpMgcpMonitorVoltageCreate(voltage_cfg);
   if (voltage_monitor == NULL) {
     return kEebusErrorInit;
   }
@@ -162,7 +162,7 @@ static EebusError AddGcpMgcpScenario6(GcpMgcpUseCase* self, const GcpMgcpMonitor
 }
 
 static EebusError AddGcpMgcpScenario7(GcpMgcpUseCase* self, const GcpMgcpMonitorFrequencyConfig* frequency_cfg) {
-  GcpMgcpMonitorObject* const frequency_monitor = GcpMgcpMonitorFrequencyCreate(frequency_cfg);
+  EebusMonitorObject* const frequency_monitor = GcpMgcpMonitorFrequencyCreate(frequency_cfg);
   if (frequency_monitor == NULL) {
     return kEebusErrorInit;
   }
@@ -266,9 +266,9 @@ static EebusError AddFeatures(UseCaseObject* self, EntityLocalObject* entity) {
   }
 
   for (size_t i = 0; i < VectorGetSize(&gcp_mgcp->monitors); ++i) {
-    GcpMgcpMonitorObject* const monitor = (GcpMgcpMonitorObject*)VectorGetElement(&gcp_mgcp->monitors, i);
+    EebusMonitorObject* const monitor = (EebusMonitorObject*)VectorGetElement(&gcp_mgcp->monitors, i);
 
-    EebusError err = GCP_MGCP_MONITOR_CONFIGURE(monitor, &msrv, &ecsrv, ec_id, measurement_constraints);
+    EebusError err = EEBUS_MONITOR_CONFIGURE(monitor, &msrv, &ecsrv, ec_id, measurement_constraints);
     if (err != kEebusErrorOk) {
       MeasurementConstraintsDelete(measurement_constraints);
       return err;
@@ -294,7 +294,7 @@ static EebusError AddFeatures(UseCaseObject* self, EntityLocalObject* entity) {
 }
 
 static void MonitorDeallocator(void* p) {
-  GcpMgcpMonitorDelete((GcpMgcpMonitorObject*)p);
+  EebusMonitorDelete((EebusMonitorObject*)p);
 }
 
 static EebusError GcpMgcpUseCaseConstruct(

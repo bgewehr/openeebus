@@ -41,7 +41,7 @@ struct GcpMgcpUseCase {
 
   ElectricalConnectionIdType electrical_connection_id;
 
-  /** Vector of GcpMgcpMonitorObject* (one per active scenario group) */
+  /** Vector of EebusMonitorObject* (one per active scenario group) */
   Vector monitors;
 
   /** Dynamically built scenario array (scenarios 1–7, up to 7 entries) */

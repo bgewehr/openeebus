@@ -49,7 +49,7 @@ static EebusError MuMpcUseCaseConstruct(
 static void AddFeatures(UseCaseObject* self, EntityLocalObject* entity);
 
 EebusError AddMuMpcScenario1(MuMpcUseCase* self, const MuMpcMonitorPowerConfig* power_cfg) {
-  MuMpcMonitorObject* const power_monitor = MuMpcMonitorPowerCreate(power_cfg);
+  EebusMonitorObject* const power_monitor = MuMpcMonitorPowerCreate(power_cfg);
   if (power_monitor == NULL) {
     return kEebusErrorInit;
   }
@@ -72,7 +72,7 @@ EebusError AddMuMpcScenario1(MuMpcUseCase* self, const MuMpcMonitorPowerConfig* 
 }
 
 EebusError AddMuMpcScenario2(MuMpcUseCase* self, const MuMpcMonitorEnergyConfig* energy_cfg) {
-  MuMpcMonitorObject* const energy_monitor = MuMpcMonitorEnergyCreate(energy_cfg);
+  EebusMonitorObject* const energy_monitor = MuMpcMonitorEnergyCreate(energy_cfg);
   if (energy_monitor == NULL) {
     return kEebusErrorInit;
   }
@@ -95,7 +95,7 @@ EebusError AddMuMpcScenario2(MuMpcUseCase* self, const MuMpcMonitorEnergyConfig*
 }
 
 EebusError AddMuMpcScenario3(MuMpcUseCase* self, const MuMpcMonitorCurrentConfig* current_cfg) {
-  MuMpcMonitorObject* const current_monitor = MuMpcMonitorCurrentCreate(current_cfg);
+  EebusMonitorObject* const current_monitor = MuMpcMonitorCurrentCreate(current_cfg);
   if (current_monitor == NULL) {
     return kEebusErrorInit;
   }
@@ -118,7 +118,7 @@ EebusError AddMuMpcScenario3(MuMpcUseCase* self, const MuMpcMonitorCurrentConfig
 }
 
 EebusError AddMuMpcScenario4(MuMpcUseCase* self, const MuMpcMonitorVoltageConfig* voltage_cfg) {
-  MuMpcMonitorObject* const voltage_monitor = MuMpcMonitorVoltageCreate(voltage_cfg);
+  EebusMonitorObject* const voltage_monitor = MuMpcMonitorVoltageCreate(voltage_cfg);
   if (voltage_monitor == NULL) {
     return kEebusErrorInit;
   }
@@ -141,7 +141,7 @@ EebusError AddMuMpcScenario4(MuMpcUseCase* self, const MuMpcMonitorVoltageConfig
 }
 
 EebusError AddMuMpcScenario5(MuMpcUseCase* self, const MuMpcMonitorFrequencyConfig* frequency_cfg) {
-  MuMpcMonitorObject* const frequency_monitor = MuMpcMonitorFrequencyCreate(frequency_cfg);
+  EebusMonitorObject* const frequency_monitor = MuMpcMonitorFrequencyCreate(frequency_cfg);
   if (frequency_monitor == NULL) {
     return kEebusErrorInit;
   }
@@ -216,9 +216,9 @@ void AddFeatures(UseCaseObject* self, EntityLocalObject* entity) {
   }
 
   for (size_t i = 0; i < VectorGetSize(&mu_mpc->monitors); ++i) {
-    MuMpcMonitorObject* const mu_mpc_monitor = (MuMpcMonitorObject*)VectorGetElement(&mu_mpc->monitors, i);
+    EebusMonitorObject* const mu_mpc_monitor = (EebusMonitorObject*)VectorGetElement(&mu_mpc->monitors, i);
 
-    EebusError err = MU_MPC_MONITOR_CONFIGURE(mu_mpc_monitor, &msrv, &ecsrv, ec_id, measurement_constraints);
+    EebusError err = EEBUS_MONITOR_CONFIGURE(mu_mpc_monitor, &msrv, &ecsrv, ec_id, measurement_constraints);
     if (err != kEebusErrorOk) {
       MeasurementConstraintsDelete(measurement_constraints);
       return;  // Configuration failed
@@ -234,7 +234,7 @@ void AddFeatures(UseCaseObject* self, EntityLocalObject* entity) {
 }
 
 void MuMpcMonitorDeallocator(void* p) {
-  MuMpcMonitorDelete((MuMpcMonitorObject*)p);
+  EebusMonitorDelete((EebusMonitorObject*)p);
 }
 
 EebusError MuMpcUseCaseConstruct(
