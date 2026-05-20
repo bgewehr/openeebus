@@ -1,7 +1,10 @@
 namespace ma_mgcp_test {
 namespace receive {
 
-static constexpr char measurement_notify_current[] = R"({
+// Cross-scenario partial notify: power total (0), current phase B (4),
+// voltage phase AB (9), frequency (12) — tests that a single notify can
+// carry measurements from multiple scenarios and overwrite stored values.
+static constexpr char measurement_notify_mixed[] = R"({
   "datagram": [
     {
       "header": [
@@ -39,7 +42,7 @@ static constexpr char measurement_notify_current[] = R"({
           ]
         },
         {
-          "msgCounter": 19
+          "msgCounter": 23
         },
         {
           "cmdClassifier": "notify"
@@ -73,7 +76,7 @@ static constexpr char measurement_notify_current[] = R"({
                     "measurementData": [
                       [
                         {
-                          "measurementId": 3
+                          "measurementId": 0
                         },
                         {
                           "valueType": "value"
@@ -81,10 +84,10 @@ static constexpr char measurement_notify_current[] = R"({
                         {
                           "value": [
                             {
-                              "number": 15
+                              "number": 6200
                             },
                             {
-                              "scale": -1
+                              "scale": 0
                             }
                           ]
                         },
@@ -102,7 +105,7 @@ static constexpr char measurement_notify_current[] = R"({
                         {
                           "value": [
                             {
-                              "number": 12
+                              "number": 13
                             },
                             {
                               "scale": -1
@@ -115,7 +118,7 @@ static constexpr char measurement_notify_current[] = R"({
                       ],
                       [
                         {
-                          "measurementId": 5
+                          "measurementId": 9
                         },
                         {
                           "valueType": "value"
@@ -123,10 +126,31 @@ static constexpr char measurement_notify_current[] = R"({
                         {
                           "value": [
                             {
-                              "number": 16
+                              "number": 4020
                             },
                             {
                               "scale": -1
+                            }
+                          ]
+                        },
+                        {
+                          "valueSource": "measuredValue"
+                        }
+                      ],
+                      [
+                        {
+                          "measurementId": 12
+                        },
+                        {
+                          "valueType": "value"
+                        },
+                        {
+                          "value": [
+                            {
+                              "number": 4998
+                            },
+                            {
+                              "scale": -2
                             }
                           ]
                         },

@@ -39,7 +39,7 @@ static constexpr char measurement_notify_frequency[] = R"({
           ]
         },
         {
-          "msgCounter": 20
+          "msgCounter": 21
         },
         {
           "cmdClassifier": "notify"
@@ -73,7 +73,7 @@ static constexpr char measurement_notify_frequency[] = R"({
                     "measurementData": [
                       [
                         {
-                          "measurementId": 4
+                          "measurementId": 12
                         },
                         {
                           "valueType": "value"

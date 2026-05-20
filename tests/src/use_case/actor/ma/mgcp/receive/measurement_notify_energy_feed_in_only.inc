@@ -1,7 +1,7 @@
 namespace ma_mgcp_test {
 namespace receive {
 
-static constexpr char measurement_notify_current[] = R"({
+static constexpr char measurement_notify_energy_feed_in_only[] = R"({
   "datagram": [
     {
       "header": [
@@ -39,7 +39,7 @@ static constexpr char measurement_notify_current[] = R"({
           ]
         },
         {
-          "msgCounter": 19
+          "msgCounter": 24
         },
         {
           "cmdClassifier": "notify"
@@ -73,7 +73,7 @@ static constexpr char measurement_notify_current[] = R"({
                     "measurementData": [
                       [
                         {
-                          "measurementId": 3
+                          "measurementId": 1
                         },
                         {
                           "valueType": "value"
@@ -81,52 +81,10 @@ static constexpr char measurement_notify_current[] = R"({
                         {
                           "value": [
                             {
-                              "number": 15
+                              "number": 250000
                             },
                             {
-                              "scale": -1
-                            }
-                          ]
-                        },
-                        {
-                          "valueSource": "measuredValue"
-                        }
-                      ],
-                      [
-                        {
-                          "measurementId": 4
-                        },
-                        {
-                          "valueType": "value"
-                        },
-                        {
-                          "value": [
-                            {
-                              "number": 12
-                            },
-                            {
-                              "scale": -1
-                            }
-                          ]
-                        },
-                        {
-                          "valueSource": "measuredValue"
-                        }
-                      ],
-                      [
-                        {
-                          "measurementId": 5
-                        },
-                        {
-                          "valueType": "value"
-                        },
-                        {
-                          "value": [
-                            {
-                              "number": 16
-                            },
-                            {
-                              "scale": -1
+                              "scale": 0
                             }
                           ]
                         },

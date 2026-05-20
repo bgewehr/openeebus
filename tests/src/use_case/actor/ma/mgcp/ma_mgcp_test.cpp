@@ -47,8 +47,12 @@
 #include "tests/src/use_case/actor/ma/mgcp/receive/measurement_description_reply.inc"
 #include "tests/src/use_case/actor/ma/mgcp/receive/measurement_notify_current.inc"
 #include "tests/src/use_case/actor/ma/mgcp/receive/measurement_notify_energy.inc"
+#include "tests/src/use_case/actor/ma/mgcp/receive/measurement_notify_energy_feed_in_only.inc"
 #include "tests/src/use_case/actor/ma/mgcp/receive/measurement_notify_frequency.inc"
+#include "tests/src/use_case/actor/ma/mgcp/receive/measurement_notify_mixed.inc"
 #include "tests/src/use_case/actor/ma/mgcp/receive/measurement_notify_power.inc"
+#include "tests/src/use_case/actor/ma/mgcp/receive/measurement_notify_power_total_only.inc"
+#include "tests/src/use_case/actor/ma/mgcp/receive/measurement_notify_voltage.inc"
 #include "tests/src/use_case/actor/ma/mgcp/receive/measurement_reply.inc"
 #include "tests/src/use_case/actor/ma/mgcp/receive/node_management_subscription_request.inc"
 #include "tests/src/use_case/actor/ma/mgcp/receive/result_data_msg_cnt_ref_11.inc"
@@ -216,15 +220,30 @@ TEST_F(MaMgcpTestFixture, MaMgcpTest) {
   ExpectMeasurementsReceive(ma_mgcp_listener_mock_->gmock, expected_energy);
   HandleMessage(receive::measurement_notify_energy);
 
-  // 19. Receive the measurement notify (current)
+  // 19. Receive the measurement notify (current — all three phases)
   const std::map<GcpMeasurementNameId, ScaledValue> expected_current{
       {kGcpCurrentPhaseA, {.value = 15, .scale = -1}},
+      {kGcpCurrentPhaseB, {.value = 12, .scale = -1}},
+      {kGcpCurrentPhaseC, {.value = 16, .scale = -1}},
   };
 
   ExpectMeasurementsReceive(ma_mgcp_listener_mock_->gmock, expected_current);
   HandleMessage(receive::measurement_notify_current);
 
-  // 20. Receive the measurement notify (frequency)
+  // 20. Receive the measurement notify (voltage — all six phase combinations, scenario 6)
+  const std::map<GcpMeasurementNameId, ScaledValue> expected_voltage{
+      { kGcpVoltagePhaseA, {.value = 2310, .scale = -1}},
+      { kGcpVoltagePhaseB, {.value = 2295, .scale = -1}},
+      { kGcpVoltagePhaseC, {.value = 2320, .scale = -1}},
+      {kGcpVoltagePhaseAb, {.value = 3998, .scale = -1}},
+      {kGcpVoltagePhaseBc, {.value = 4012, .scale = -1}},
+      {kGcpVoltagePhaseAc, {.value = 3986, .scale = -1}},
+  };
+
+  ExpectMeasurementsReceive(ma_mgcp_listener_mock_->gmock, expected_voltage);
+  HandleMessage(receive::measurement_notify_voltage);
+
+  // 21. Receive the measurement notify (frequency)
   const std::map<GcpMeasurementNameId, ScaledValue> expected_frequency{
       {kGcpFrequency, {.value = 500, .scale = -1}},
   };
@@ -232,8 +251,34 @@ TEST_F(MaMgcpTestFixture, MaMgcpTest) {
   ExpectMeasurementsReceive(ma_mgcp_listener_mock_->gmock, expected_frequency);
   HandleMessage(receive::measurement_notify_frequency);
 
-  // 21. Get all measurements received via GetMeasurementData() and check the values,
-  //     and check the PV curtailment limit factor via MaMgcpGetPvCurtailmentLimitFactor()
+  // 22. Receive a partial notify with power total only — tests single-measurement partial
+  //     and overwrites the kGcpPowerTotal initially received in the measurement reply (step 15)
+  EXPECT_CALL(*ma_mgcp_listener_mock_->gmock, OnMeasurementReceive(_, kGcpPowerTotal, ScaledValueEq(5500, 0), _))
+      .WillOnce(Return());
+  HandleMessage(receive::measurement_notify_power_total_only);
+
+  // 23. Receive a cross-scenario notify — tests that one notify can carry measurements from
+  //     different scenarios; also overwrites kGcpPowerTotal, kGcpCurrentPhaseB,
+  //     kGcpVoltagePhaseAb and kGcpFrequency set in earlier notifies
+  const std::map<GcpMeasurementNameId, ScaledValue> expected_mixed{
+      {    kGcpPowerTotal,  {.value = 6200, .scale = 0}},
+      { kGcpCurrentPhaseB,   {.value = 13, .scale = -1}},
+      {kGcpVoltagePhaseAb, {.value = 4020, .scale = -1}},
+      {     kGcpFrequency, {.value = 4998, .scale = -2}},
+  };
+
+  ExpectMeasurementsReceive(ma_mgcp_listener_mock_->gmock, expected_mixed);
+  HandleMessage(receive::measurement_notify_mixed);
+
+  // 24. Receive a partial notify with energy feed-in only — tests single-measurement partial
+  //     from a different scenario and overwrites kGcpEnergyFeedIn set in step 18
+  EXPECT_CALL(*ma_mgcp_listener_mock_->gmock, OnMeasurementReceive(_, kGcpEnergyFeedIn, ScaledValueEq(250000, 0), _))
+      .WillOnce(Return());
+  HandleMessage(receive::measurement_notify_energy_feed_in_only);
+
+  // 25. Get all 13 measurements via GetMeasurementData() and verify the final stored values
+  //     after all notifies (overwritten values reflect the latest notify that touched each ID).
+  //     Also verify the PV curtailment limit factor from step 16.
   ScaledValue value;
   static constexpr uint32_t remote_entity_id = 1;
 
@@ -242,12 +287,23 @@ TEST_F(MaMgcpTestFixture, MaMgcpTest) {
   const EntityAddressType remote_entity_addr
       = {"d:_n:GridConnectionPoint_123456789", remote_entity_ids, ARRAY_SIZE(remote_entity_ids)};
 
-  std::map<GcpMeasurementNameId, ScaledValue> expected_data = expected_power;
-  expected_data.insert(expected_energy.begin(), expected_energy.end());
-  expected_data.insert(expected_current.begin(), expected_current.end());
-  expected_data.insert(expected_frequency.begin(), expected_frequency.end());
+  const std::map<GcpMeasurementNameId, ScaledValue> expected_final{
+      {    kGcpPowerTotal,   {.value = 6200, .scale = 0}}, // step 23 overwrites step 22
+      {  kGcpEnergyFeedIn, {.value = 250000, .scale = 0}}, // step 24 overwrites step 18
+      {kGcpEnergyConsumed, {.value = 800000, .scale = 0}}, // step 18
+      { kGcpCurrentPhaseA,    {.value = 15, .scale = -1}}, // step 19
+      { kGcpCurrentPhaseB,    {.value = 13, .scale = -1}}, // step 23 overwrites step 19
+      { kGcpCurrentPhaseC,    {.value = 16, .scale = -1}}, // step 19
+      { kGcpVoltagePhaseA,  {.value = 2310, .scale = -1}}, // step 20
+      { kGcpVoltagePhaseB,  {.value = 2295, .scale = -1}}, // step 20
+      { kGcpVoltagePhaseC,  {.value = 2320, .scale = -1}}, // step 20
+      {kGcpVoltagePhaseAb,  {.value = 4020, .scale = -1}}, // step 23 overwrites step 20
+      {kGcpVoltagePhaseBc,  {.value = 4012, .scale = -1}}, // step 20
+      {kGcpVoltagePhaseAc,  {.value = 3986, .scale = -1}}, // step 20
+      {     kGcpFrequency,  {.value = 4998, .scale = -2}}, // step 23 overwrites step 21
+  };
 
-  for (const auto& [name_id, scaled_value] : expected_data) {
+  for (const auto& [name_id, scaled_value] : expected_final) {
     EXPECT_EQ(MaMgcpGetMeasurementData(use_case_.get(), name_id, &remote_entity_addr, &value), kEebusErrorOk);
     EXPECT_THAT(&value, ScaledValueEq(scaled_value.value, scaled_value.scale));
   }
@@ -255,7 +311,7 @@ TEST_F(MaMgcpTestFixture, MaMgcpTest) {
   EXPECT_EQ(MaMgcpGetPvCurtailmentLimitFactor(use_case_.get(), &remote_entity_addr, &value), kEebusErrorOk);
   EXPECT_THAT(&value, ScaledValueEq(75, 0));
 
-  // 22. Expect the remote entity disconnect event while tearing down the use case
+  // 26. Expect the remote entity disconnect event while tearing down the use case
   EXPECT_CALL(*ma_mgcp_listener_mock_->gmock, OnRemoteEntityDisconnect(_, _));
 }
 

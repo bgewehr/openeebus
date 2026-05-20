@@ -153,6 +153,208 @@ static constexpr char electrical_connection_parameter_description_reply[] = R"({
                         },
                         {
                           "voltageType": "ac"
+                        },
+                        {
+                          "acMeasuredPhases": "b"
+                        },
+                        {
+                          "acMeasurementType": "real"
+                        },
+                        {
+                          "acMeasurementVariant": "rms"
+                        }
+                      ],
+                      [
+                        {
+                          "electricalConnectionId": 0
+                        },
+                        {
+                          "parameterId": 5
+                        },
+                        {
+                          "measurementId": 5
+                        },
+                        {
+                          "voltageType": "ac"
+                        },
+                        {
+                          "acMeasuredPhases": "c"
+                        },
+                        {
+                          "acMeasurementType": "real"
+                        },
+                        {
+                          "acMeasurementVariant": "rms"
+                        }
+                      ],
+                      [
+                        {
+                          "electricalConnectionId": 0
+                        },
+                        {
+                          "parameterId": 6
+                        },
+                        {
+                          "measurementId": 6
+                        },
+                        {
+                          "voltageType": "ac"
+                        },
+                        {
+                          "acMeasuredPhases": "a"
+                        },
+                        {
+                          "acMeasuredInReferenceTo": "neutral"
+                        },
+                        {
+                          "acMeasurementType": "apparent"
+                        },
+                        {
+                          "acMeasurementVariant": "rms"
+                        }
+                      ],
+                      [
+                        {
+                          "electricalConnectionId": 0
+                        },
+                        {
+                          "parameterId": 7
+                        },
+                        {
+                          "measurementId": 7
+                        },
+                        {
+                          "voltageType": "ac"
+                        },
+                        {
+                          "acMeasuredPhases": "b"
+                        },
+                        {
+                          "acMeasuredInReferenceTo": "neutral"
+                        },
+                        {
+                          "acMeasurementType": "apparent"
+                        },
+                        {
+                          "acMeasurementVariant": "rms"
+                        }
+                      ],
+                      [
+                        {
+                          "electricalConnectionId": 0
+                        },
+                        {
+                          "parameterId": 8
+                        },
+                        {
+                          "measurementId": 8
+                        },
+                        {
+                          "voltageType": "ac"
+                        },
+                        {
+                          "acMeasuredPhases": "c"
+                        },
+                        {
+                          "acMeasuredInReferenceTo": "neutral"
+                        },
+                        {
+                          "acMeasurementType": "apparent"
+                        },
+                        {
+                          "acMeasurementVariant": "rms"
+                        }
+                      ],
+                      [
+                        {
+                          "electricalConnectionId": 0
+                        },
+                        {
+                          "parameterId": 9
+                        },
+                        {
+                          "measurementId": 9
+                        },
+                        {
+                          "voltageType": "ac"
+                        },
+                        {
+                          "acMeasuredPhases": "a"
+                        },
+                        {
+                          "acMeasuredInReferenceTo": "b"
+                        },
+                        {
+                          "acMeasurementType": "apparent"
+                        },
+                        {
+                          "acMeasurementVariant": "rms"
+                        }
+                      ],
+                      [
+                        {
+                          "electricalConnectionId": 0
+                        },
+                        {
+                          "parameterId": 10
+                        },
+                        {
+                          "measurementId": 10
+                        },
+                        {
+                          "voltageType": "ac"
+                        },
+                        {
+                          "acMeasuredPhases": "b"
+                        },
+                        {
+                          "acMeasuredInReferenceTo": "c"
+                        },
+                        {
+                          "acMeasurementType": "apparent"
+                        },
+                        {
+                          "acMeasurementVariant": "rms"
+                        }
+                      ],
+                      [
+                        {
+                          "electricalConnectionId": 0
+                        },
+                        {
+                          "parameterId": 11
+                        },
+                        {
+                          "measurementId": 11
+                        },
+                        {
+                          "voltageType": "ac"
+                        },
+                        {
+                          "acMeasuredPhases": "c"
+                        },
+                        {
+                          "acMeasuredInReferenceTo": "a"
+                        },
+                        {
+                          "acMeasurementType": "apparent"
+                        },
+                        {
+                          "acMeasurementVariant": "rms"
+                        }
+                      ],
+                      [
+                        {
+                          "electricalConnectionId": 0
+                        },
+                        {
+                          "parameterId": 12
+                        },
+                        {
+                          "measurementId": 12
+                        },
+                        {
+                          "voltageType": "ac"
                         }
                       ]
                     ]

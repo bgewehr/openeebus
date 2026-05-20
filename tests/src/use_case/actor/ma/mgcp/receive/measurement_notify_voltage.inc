@@ -1,7 +1,7 @@
 namespace ma_mgcp_test {
 namespace receive {
 
-static constexpr char measurement_notify_current[] = R"({
+static constexpr char measurement_notify_voltage[] = R"({
   "datagram": [
     {
       "header": [
@@ -39,7 +39,7 @@ static constexpr char measurement_notify_current[] = R"({
           ]
         },
         {
-          "msgCounter": 19
+          "msgCounter": 20
         },
         {
           "cmdClassifier": "notify"
@@ -73,7 +73,7 @@ static constexpr char measurement_notify_current[] = R"({
                     "measurementData": [
                       [
                         {
-                          "measurementId": 3
+                          "measurementId": 6
                         },
                         {
                           "valueType": "value"
@@ -81,7 +81,7 @@ static constexpr char measurement_notify_current[] = R"({
                         {
                           "value": [
                             {
-                              "number": 15
+                              "number": 2310
                             },
                             {
                               "scale": -1
@@ -94,7 +94,7 @@ static constexpr char measurement_notify_current[] = R"({
                       ],
                       [
                         {
-                          "measurementId": 4
+                          "measurementId": 7
                         },
                         {
                           "valueType": "value"
@@ -102,7 +102,7 @@ static constexpr char measurement_notify_current[] = R"({
                         {
                           "value": [
                             {
-                              "number": 12
+                              "number": 2295
                             },
                             {
                               "scale": -1
@@ -115,7 +115,7 @@ static constexpr char measurement_notify_current[] = R"({
                       ],
                       [
                         {
-                          "measurementId": 5
+                          "measurementId": 8
                         },
                         {
                           "valueType": "value"
@@ -123,7 +123,70 @@ static constexpr char measurement_notify_current[] = R"({
                         {
                           "value": [
                             {
-                              "number": 16
+                              "number": 2320
+                            },
+                            {
+                              "scale": -1
+                            }
+                          ]
+                        },
+                        {
+                          "valueSource": "measuredValue"
+                        }
+                      ],
+                      [
+                        {
+                          "measurementId": 9
+                        },
+                        {
+                          "valueType": "value"
+                        },
+                        {
+                          "value": [
+                            {
+                              "number": 3998
+                            },
+                            {
+                              "scale": -1
+                            }
+                          ]
+                        },
+                        {
+                          "valueSource": "measuredValue"
+                        }
+                      ],
+                      [
+                        {
+                          "measurementId": 10
+                        },
+                        {
+                          "valueType": "value"
+                        },
+                        {
+                          "value": [
+                            {
+                              "number": 4012
+                            },
+                            {
+                              "scale": -1
+                            }
+                          ]
+                        },
+                        {
+                          "valueSource": "measuredValue"
+                        }
+                      ],
+                      [
+                        {
+                          "measurementId": 11
+                        },
+                        {
+                          "valueType": "value"
+                        },
+                        {
+                          "value": [
+                            {
+                              "number": 3986
                             },
                             {
                               "scale": -1
