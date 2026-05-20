@@ -97,6 +97,40 @@ static constexpr char measurement_description_reply[] = R"({
                           "measurementId": 2
                         },
                         {
+                          "measurementType": "power"
+                        },
+                        {
+                          "commodityType": "electricity"
+                        },
+                        {
+                          "unit": "W"
+                        },
+                        {
+                          "scopeType": "acPower"
+                        }
+                      ],
+                      [
+                        {
+                          "measurementId": 3
+                        },
+                        {
+                          "measurementType": "power"
+                        },
+                        {
+                          "commodityType": "electricity"
+                        },
+                        {
+                          "unit": "W"
+                        },
+                        {
+                          "scopeType": "acPower"
+                        }
+                      ],
+                      [
+                        {
+                          "measurementId": 4
+                        },
+                        {
                           "measurementType": "energy"
                         },
                         {
@@ -111,7 +145,7 @@ static constexpr char measurement_description_reply[] = R"({
                       ],
                       [
                         {
-                          "measurementId": 3
+                          "measurementId": 5
                         },
                         {
                           "measurementType": "energy"
@@ -128,7 +162,7 @@ static constexpr char measurement_description_reply[] = R"({
                       ],
                       [
                         {
-                          "measurementId": 4
+                          "measurementId": 6
                         },
                         {
                           "measurementType": "current"
@@ -145,7 +179,143 @@ static constexpr char measurement_description_reply[] = R"({
                       ],
                       [
                         {
-                          "measurementId": 5
+                          "measurementId": 7
+                        },
+                        {
+                          "measurementType": "current"
+                        },
+                        {
+                          "commodityType": "electricity"
+                        },
+                        {
+                          "unit": "A"
+                        },
+                        {
+                          "scopeType": "acCurrent"
+                        }
+                      ],
+                      [
+                        {
+                          "measurementId": 8
+                        },
+                        {
+                          "measurementType": "current"
+                        },
+                        {
+                          "commodityType": "electricity"
+                        },
+                        {
+                          "unit": "A"
+                        },
+                        {
+                          "scopeType": "acCurrent"
+                        }
+                      ],
+                      [
+                        {
+                          "measurementId": 9
+                        },
+                        {
+                          "measurementType": "voltage"
+                        },
+                        {
+                          "commodityType": "electricity"
+                        },
+                        {
+                          "unit": "V"
+                        },
+                        {
+                          "scopeType": "acVoltage"
+                        }
+                      ],
+                      [
+                        {
+                          "measurementId": 10
+                        },
+                        {
+                          "measurementType": "voltage"
+                        },
+                        {
+                          "commodityType": "electricity"
+                        },
+                        {
+                          "unit": "V"
+                        },
+                        {
+                          "scopeType": "acVoltage"
+                        }
+                      ],
+                      [
+                        {
+                          "measurementId": 11
+                        },
+                        {
+                          "measurementType": "voltage"
+                        },
+                        {
+                          "commodityType": "electricity"
+                        },
+                        {
+                          "unit": "V"
+                        },
+                        {
+                          "scopeType": "acVoltage"
+                        }
+                      ],
+                      [
+                        {
+                          "measurementId": 12
+                        },
+                        {
+                          "measurementType": "voltage"
+                        },
+                        {
+                          "commodityType": "electricity"
+                        },
+                        {
+                          "unit": "V"
+                        },
+                        {
+                          "scopeType": "acVoltage"
+                        }
+                      ],
+                      [
+                        {
+                          "measurementId": 13
+                        },
+                        {
+                          "measurementType": "voltage"
+                        },
+                        {
+                          "commodityType": "electricity"
+                        },
+                        {
+                          "unit": "V"
+                        },
+                        {
+                          "scopeType": "acVoltage"
+                        }
+                      ],
+                      [
+                        {
+                          "measurementId": 14
+                        },
+                        {
+                          "measurementType": "voltage"
+                        },
+                        {
+                          "commodityType": "electricity"
+                        },
+                        {
+                          "unit": "V"
+                        },
+                        {
+                          "scopeType": "acVoltage"
+                        }
+                      ],
+                      [
+                        {
+                          "measurementId": 15
                         },
                         {
                           "measurementType": "frequency"

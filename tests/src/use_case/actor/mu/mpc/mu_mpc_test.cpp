@@ -55,6 +55,11 @@
 #include "tests/src/use_case/actor/mu/mpc/send/measurement_description_reply.inc"
 #include "tests/src/use_case/actor/mu/mpc/send/node_management_subscription_call.inc"
 #include "tests/src/use_case/actor/mu/mpc/send/result_data_msg_cnt_ref_3.inc"
+#include "tests/src/use_case/actor/mu/mpc/send/measurement_notify_current.inc"
+#include "tests/src/use_case/actor/mu/mpc/send/measurement_notify_energy.inc"
+#include "tests/src/use_case/actor/mu/mpc/send/measurement_notify_frequency.inc"
+#include "tests/src/use_case/actor/mu/mpc/send/measurement_notify_power.inc"
+#include "tests/src/use_case/actor/mu/mpc/send/measurement_notify_voltage.inc"
 #include "tests/src/use_case/actor/mu/mpc/send/result_data_msg_cnt_ref_5.inc"
 #include "tests/src/use_case/actor/mu/mpc/send/result_data_msg_cnt_ref_8.inc"
 #include "tests/src/use_case/actor/mu/mpc/send/use_case_data_read.inc"
@@ -91,6 +96,17 @@ class MuMpcTestFixture : public UseCaseTestFixture {
 
     static constexpr MuMpcMonitorCurrentConfig current_cfg = {
         .current_phase_a_cfg = &measurement_default_cfg,
+        .current_phase_b_cfg = &measurement_default_cfg,
+        .current_phase_c_cfg = &measurement_default_cfg,
+    };
+
+    static constexpr MuMpcMonitorVoltageConfig voltage_cfg = {
+        .voltage_phase_a_cfg  = &measurement_default_cfg,
+        .voltage_phase_b_cfg  = &measurement_default_cfg,
+        .voltage_phase_c_cfg  = &measurement_default_cfg,
+        .voltage_phase_ab_cfg = &measurement_default_cfg,
+        .voltage_phase_bc_cfg = &measurement_default_cfg,
+        .voltage_phase_ac_cfg = &measurement_default_cfg,
     };
 
     static constexpr MuMpcMonitorFrequencyConfig frequency_cfg = {
@@ -101,10 +117,13 @@ class MuMpcTestFixture : public UseCaseTestFixture {
       .power_cfg = {
           .power_total_cfg   = measurement_default_cfg,
           .power_phase_a_cfg = &measurement_default_cfg,
+          .power_phase_b_cfg = &measurement_default_cfg,
+          .power_phase_c_cfg = &measurement_default_cfg,
       },
 
       .energy_cfg    = &energy_cfg,
       .current_cfg   = &current_cfg,
+      .voltage_cfg   = &voltage_cfg,
       .frequency_cfg = &frequency_cfg
     };
 
@@ -113,6 +132,15 @@ class MuMpcTestFixture : public UseCaseTestFixture {
     static constexpr ScaledValue power_total = {1000, 0};
     MuMpcSetMeasurementDataCache(use_case_.get(), kMpcPowerTotal, &power_total, NULL, NULL);
 
+    static constexpr ScaledValue power_phase_a = {500, 0};
+    MuMpcSetMeasurementDataCache(use_case_.get(), kMpcPowerPhaseA, &power_phase_a, NULL, NULL);
+
+    static constexpr ScaledValue power_phase_b = {1200, 0};
+    MuMpcSetMeasurementDataCache(use_case_.get(), kMpcPowerPhaseB, &power_phase_b, NULL, NULL);
+
+    static constexpr ScaledValue power_phase_c = {800, 0};
+    MuMpcSetMeasurementDataCache(use_case_.get(), kMpcPowerPhaseC, &power_phase_c, NULL, NULL);
+
     static constexpr ScaledValue current_phase_a = {33, -1};
     static constexpr EebusDateTime timestamp     = {
             .date = {.year = 2025, .month = 7, .day = 1},
@@ -120,6 +148,30 @@ class MuMpcTestFixture : public UseCaseTestFixture {
     };
 
     MuMpcSetMeasurementDataCache(use_case_.get(), kMpcCurrentPhaseA, &current_phase_a, &timestamp, NULL);
+
+    static constexpr ScaledValue current_phase_b = {20, -1};
+    MuMpcSetMeasurementDataCache(use_case_.get(), kMpcCurrentPhaseB, &current_phase_b, NULL, NULL);
+
+    static constexpr ScaledValue current_phase_c = {18, -1};
+    MuMpcSetMeasurementDataCache(use_case_.get(), kMpcCurrentPhaseC, &current_phase_c, NULL, NULL);
+
+    static constexpr ScaledValue voltage_phase_a = {23000, -2};
+    MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseA, &voltage_phase_a, NULL, NULL);
+
+    static constexpr ScaledValue voltage_phase_b = {23100, -2};
+    MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseB, &voltage_phase_b, NULL, NULL);
+
+    static constexpr ScaledValue voltage_phase_c = {22900, -2};
+    MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseC, &voltage_phase_c, NULL, NULL);
+
+    static constexpr ScaledValue voltage_phase_ab = {40000, -2};
+    MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseAb, &voltage_phase_ab, NULL, NULL);
+
+    static constexpr ScaledValue voltage_phase_bc = {40100, -2};
+    MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseBc, &voltage_phase_bc, NULL, NULL);
+
+    static constexpr ScaledValue voltage_phase_ac = {39900, -2};
+    MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseAc, &voltage_phase_ac, NULL, NULL);
 
     static constexpr ScaledValue energy_consumed = {5000, 0};
     static constexpr EebusDateTime start_time    = {
@@ -165,6 +217,38 @@ TEST_F(MuMpcTestFixture, MuMpcTest) {
   EXPECT_EQ(MuMpcGetMeasurementData(use_case_.get(), kMpcCurrentPhaseA, &value), kEebusErrorOk);
   EXPECT_EQ(value.value, 33);
   EXPECT_EQ(value.scale, -1);
+
+  EXPECT_EQ(MuMpcGetMeasurementData(use_case_.get(), kMpcCurrentPhaseB, &value), kEebusErrorOk);
+  EXPECT_EQ(value.value, 20);
+  EXPECT_EQ(value.scale, -1);
+
+  EXPECT_EQ(MuMpcGetMeasurementData(use_case_.get(), kMpcCurrentPhaseC, &value), kEebusErrorOk);
+  EXPECT_EQ(value.value, 18);
+  EXPECT_EQ(value.scale, -1);
+
+  EXPECT_EQ(MuMpcGetMeasurementData(use_case_.get(), kMpcVoltagePhaseA, &value), kEebusErrorOk);
+  EXPECT_EQ(value.value, 23000);
+  EXPECT_EQ(value.scale, -2);
+
+  EXPECT_EQ(MuMpcGetMeasurementData(use_case_.get(), kMpcVoltagePhaseB, &value), kEebusErrorOk);
+  EXPECT_EQ(value.value, 23100);
+  EXPECT_EQ(value.scale, -2);
+
+  EXPECT_EQ(MuMpcGetMeasurementData(use_case_.get(), kMpcVoltagePhaseC, &value), kEebusErrorOk);
+  EXPECT_EQ(value.value, 22900);
+  EXPECT_EQ(value.scale, -2);
+
+  EXPECT_EQ(MuMpcGetMeasurementData(use_case_.get(), kMpcVoltagePhaseAb, &value), kEebusErrorOk);
+  EXPECT_EQ(value.value, 40000);
+  EXPECT_EQ(value.scale, -2);
+
+  EXPECT_EQ(MuMpcGetMeasurementData(use_case_.get(), kMpcVoltagePhaseBc, &value), kEebusErrorOk);
+  EXPECT_EQ(value.value, 40100);
+  EXPECT_EQ(value.scale, -2);
+
+  EXPECT_EQ(MuMpcGetMeasurementData(use_case_.get(), kMpcVoltagePhaseAc, &value), kEebusErrorOk);
+  EXPECT_EQ(value.value, 39900);
+  EXPECT_EQ(value.scale, -2);
 
   EXPECT_EQ(MuMpcGetMeasurementData(use_case_.get(), kMpcFrequency, &value), kEebusErrorOk);
   EXPECT_EQ(value.value, 50);
@@ -216,6 +300,63 @@ TEST_F(MuMpcTestFixture, MuMpcTest) {
 
   // 13. Receive the Use Case reply
   HandleMessage(receive::use_case_reply);
+
+  // 14. Update scenario 1 (power) and expect the notify
+  static constexpr ScaledValue new_power_total = {2000, 0};
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcPowerTotal,  &new_power_total, NULL, NULL);
+  static constexpr ScaledValue new_power_a = {700, 0};
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcPowerPhaseA, &new_power_a,     NULL, NULL);
+  static constexpr ScaledValue new_power_b = {750, 0};
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcPowerPhaseB, &new_power_b,     NULL, NULL);
+  static constexpr ScaledValue new_power_c = {550, 0};
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcPowerPhaseC, &new_power_c,     NULL, NULL);
+
+  ExpectSendMessage(send::measurement_notify_power);
+  MuMpcUpdate(use_case_.get());
+
+  // 15. Update scenario 2 (energy) and expect the notify
+  static constexpr ScaledValue new_energy_consumed = {6000, 0};
+  MuMpcSetEnergyConsumedCache(use_case_.get(), &new_energy_consumed, NULL, NULL, NULL, NULL);
+  static constexpr ScaledValue new_energy_produced = {2500, 0};
+  MuMpcSetEnergyProducedCache(use_case_.get(), &new_energy_produced, NULL, NULL, NULL, NULL);
+
+  ExpectSendMessage(send::measurement_notify_energy);
+  MuMpcUpdate(use_case_.get());
+
+  // 16. Update scenario 3 (current) and expect the notify
+  static constexpr ScaledValue new_current_a = {150, -1};
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcCurrentPhaseA, &new_current_a, NULL, NULL);
+  static constexpr ScaledValue new_current_b = {160, -1};
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcCurrentPhaseB, &new_current_b, NULL, NULL);
+  static constexpr ScaledValue new_current_c = {170, -1};
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcCurrentPhaseC, &new_current_c, NULL, NULL);
+
+  ExpectSendMessage(send::measurement_notify_current);
+  MuMpcUpdate(use_case_.get());
+
+  // 17. Update scenario 4 (voltage) and expect the notify
+  static constexpr ScaledValue new_voltage_a  = {23500, -2};
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseA,  &new_voltage_a,  NULL, NULL);
+  static constexpr ScaledValue new_voltage_b  = {23600, -2};
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseB,  &new_voltage_b,  NULL, NULL);
+  static constexpr ScaledValue new_voltage_c  = {23400, -2};
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseC,  &new_voltage_c,  NULL, NULL);
+  static constexpr ScaledValue new_voltage_ab = {40500, -2};
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseAb, &new_voltage_ab, NULL, NULL);
+  static constexpr ScaledValue new_voltage_bc = {40600, -2};
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseBc, &new_voltage_bc, NULL, NULL);
+  static constexpr ScaledValue new_voltage_ac = {40400, -2};
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseAc, &new_voltage_ac, NULL, NULL);
+
+  ExpectSendMessage(send::measurement_notify_voltage);
+  MuMpcUpdate(use_case_.get());
+
+  // 18. Update scenario 5 (frequency) and expect the notify
+  static constexpr ScaledValue new_frequency = {6000, -2};
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcFrequency, &new_frequency, NULL, NULL);
+
+  ExpectSendMessage(send::measurement_notify_frequency);
+  MuMpcUpdate(use_case_.get());
 }
 
 }  // namespace mu_mpc_test
