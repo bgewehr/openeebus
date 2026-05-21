@@ -244,7 +244,7 @@ void Destruct(ServiceReaderObject* self) {
   hems->ma_mpc_listener = NULL;
 
   UseCaseDelete(USE_CASE_OBJECT(hems->eg_lpp));
-  hems->eg_lpc = NULL;
+  hems->eg_lpp = NULL;
 
   EgLppListenerDelete(hems->eg_lpp_listener);
   hems->eg_lpp_listener = NULL;
