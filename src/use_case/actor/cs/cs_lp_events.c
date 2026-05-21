@@ -149,7 +149,8 @@ void OnLoadControlLimitDataUpdate(CsLpUseCase* self, const EventPayload* payload
   LoadLimit limit;
   EebusError ret = CsLpGetActivePowerLimitInternal(CS_LP_USE_CASE(self), &limit);
   if (ret == kEebusErrorOk) {
-    CS_LP_LISTENER_ON_POWER_LIMIT_RECEIVE(self->cs_lp_listener, &limit.value, &limit.duration, limit.is_active);
+    const DurationType* duration = limit.delete_duration ? NULL : &limit.duration;
+    CS_LP_LISTENER_ON_POWER_LIMIT_RECEIVE(self->cs_lp_listener, &limit.value, duration, limit.is_active);
   }
 }
 
