@@ -169,7 +169,7 @@ static inline void EgLpcStopHeartbeat(EgLpUseCaseObject* self) {
 }
 
 /**
- * @brief Check wether there was a heartbeat received within the last 2 minutes
+ * @brief Check whether there was a heartbeat received within the last 2 minutes
  *
  * @param self EG LPC Use Case instance to check the heartbeat data with
  * @return true if check is passed, false otherwise

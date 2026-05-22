@@ -27,11 +27,11 @@
 #include "src/common/eebus_malloc.h"
 #include "src/use_case/api/eg_lp_listener_interface.h"
 
-EgLpListenerObject* EgLppListenerCreate(HemsObject* hems);
-
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
+
+EgLpListenerObject* EgLppListenerCreate(HemsObject* hems);
 
 static inline void EgLppListenerDelete(EgLpListenerObject* eg_lpp_listener) {
   if (eg_lpp_listener != NULL) {

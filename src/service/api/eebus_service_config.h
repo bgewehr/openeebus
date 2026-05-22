@@ -104,7 +104,7 @@ struct EebusServiceConfig {
   int32_t port;
 
   /**
-   * Wether remote devices should be automatically accepted
+   * Whether remote devices should be automatically accepted
    * If enabled will automatically search for other services with
    * the same setting and automatically connect to them.
    * Has to be set on configuring the service!

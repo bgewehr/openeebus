@@ -81,6 +81,9 @@ void EgLpcListenerConstruct(EgLpcListener* self, HemsObject* hems) {
 
 EgLpListenerObject* EgLpcListenerCreate(HemsObject* hems) {
   EgLpcListener* const cs_lpc_listener = (EgLpcListener*)EEBUS_MALLOC(sizeof(EgLpcListener));
+  if (cs_lpc_listener == NULL) {
+    return NULL;
+  }
 
   EgLpcListenerConstruct(cs_lpc_listener, hems);
 
