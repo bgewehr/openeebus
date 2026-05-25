@@ -118,7 +118,14 @@ char* EebusDateToString(const EebusDate* self) {
   }
 
   // Format the date into the string
-  snprintf(buffer, buffer_size, "%04d-%02d-%02d", (int)self->year, (int)self->month, (int)self->day);
+  snprintf(
+      buffer,
+      buffer_size,
+      "%04u-%02u-%02u",
+      (unsigned)self->year % 10000u,
+      (unsigned)self->month % 100u,
+      (unsigned)self->day % 100u
+  );
 
   return buffer;
 }
