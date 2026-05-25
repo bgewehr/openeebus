@@ -35,11 +35,15 @@ static void StringLutRecordRelease(StringLutRecord* record);
 static void StringLutRecordDelete(StringLutRecord* record);
 
 EebusError StringLutRecordInit(StringLutRecord* record, const char* key, void* value, StringLutValueDeleter deleter) {
-  if ((record == NULL) || (key == NULL) || (value == NULL)) {
+  if (record == NULL) {
     return kEebusErrorInputArgumentNull;
   }
 
   memset(record, 0, sizeof(*record));
+
+  if ((key == NULL) || (value == NULL)) {
+    return kEebusErrorInputArgumentNull;
+  }
 
   record->key = StringCopy(key);
   if (record->key == NULL) {
