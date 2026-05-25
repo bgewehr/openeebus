@@ -156,7 +156,7 @@ bool IsNull(const EebusDataCfg* cfg, const void* base_addr) {
 
   if (*type_id >= (int32_t)EebusDataGetCfgSize(choice_cfg)) {
     EEBUS_ASSERT_ALWAYS();
-    return kEebusErrorInputArgument;
+    return false;
   }
 
   return EEBUS_DATA_IS_NULL(&choice_cfg[*type_id], (const uint8_t*)base_addr + cfg->offset);
@@ -169,7 +169,7 @@ bool IsEmpty(const EebusDataCfg* cfg, const void* base_addr) {
 
   if (*type_id >= (int32_t)EebusDataGetCfgSize(choice_cfg)) {
     EEBUS_ASSERT_ALWAYS();
-    return kEebusErrorInputArgument;
+    return false;
   }
 
   return EEBUS_DATA_IS_EMPTY(&choice_cfg[*type_id], (const uint8_t*)base_addr + cfg->offset);
