@@ -82,18 +82,21 @@ const EebusDataInterface eebus_data_stub_methods = {
 void* CreateEmpty(const EebusDataCfg* cfg, void* base_addr) {
   UNUSED(cfg);
   UNUSED(base_addr);
+
   return NULL;
 }
 
 void* Parse(const EebusDataCfg* cfg, const char* s) {
   UNUSED(cfg);
   UNUSED(s);
+
   return NULL;
 }
 
 char* PrintUnformatted(const EebusDataCfg* cfg, const void* base_addr) {
   UNUSED(cfg);
   UNUSED(base_addr);
+
   return NULL;
 }
 
@@ -101,6 +104,7 @@ EebusError FromJsonObjectItem(const EebusDataCfg* cfg, void* base_addr, const Js
   UNUSED(cfg);
   UNUSED(base_addr);
   UNUSED(json_obj);
+
   return kEebusErrorOk;
 }
 
@@ -109,12 +113,14 @@ EebusError FromJsonObject(const EebusDataCfg* cfg, void* base_addr, const JsonOb
   UNUSED(base_addr);
   UNUSED(json_obj);
   UNUSED(is_root);
+
   return kEebusErrorOk;
 }
 
 EebusError ToJsonObjectItem(const EebusDataCfg* cfg, const void* base_addr, JsonObject** json_obj) {
   UNUSED(cfg);
   UNUSED(base_addr);
+
   *json_obj = NULL;
   return kEebusErrorOk;
 }
@@ -124,6 +130,7 @@ EebusError ToJsonObject(const EebusDataCfg* cfg, const void* base_addr, JsonObje
   UNUSED(base_addr);
   UNUSED(json_obj);
   UNUSED(is_root);
+
   return kEebusErrorOk;
 }
 
@@ -132,24 +139,28 @@ bool Compare(const EebusDataCfg* a_cfg, const void* a_base_addr, const EebusData
   UNUSED(a_base_addr);
   UNUSED(b_cfg);
   UNUSED(b_base_addr);
+
   return true;
 }
 
 bool IsNull(const EebusDataCfg* cfg, const void* base_addr) {
   UNUSED(cfg);
   UNUSED(base_addr);
+
   return true;
 }
 
 bool IsEmpty(const EebusDataCfg* cfg, const void* base_addr) {
   UNUSED(cfg);
   UNUSED(base_addr);
+
   return false;
 }
 
 bool HasIdentifiers(const EebusDataCfg* cfg, const void* base_addr) {
   UNUSED(cfg);
   UNUSED(base_addr);
+
   return false;
 }
 
@@ -159,6 +170,7 @@ bool SelectorsMatch(const EebusDataCfg* cfg, const void* base_addr, const EebusD
   UNUSED(base_addr);
   UNUSED(selectors_cfg);
   UNUSED(selectors_base_addr);
+
   return false;
 }
 
@@ -166,6 +178,7 @@ bool IdentifiersMatch(const EebusDataCfg* cfg, const void* base_addr, const void
   UNUSED(cfg);
   UNUSED(base_addr);
   UNUSED(src_base_addr);
+
   return false;
 }
 
@@ -176,6 +189,7 @@ EebusError ReadElements(const EebusDataCfg* cfg, const void* base_addr, void* ds
   UNUSED(dst_base_addr);
   UNUSED(elements_cfg);
   UNUSED(elements_base_addr);
+
   return kEebusErrorOk;
 }
 
@@ -183,6 +197,7 @@ EebusError Write(const EebusDataCfg* cfg, void* base_addr, const void* src_base)
   UNUSED(cfg);
   UNUSED(base_addr);
   UNUSED(src_base);
+
   return kEebusErrorOk;
 }
 
@@ -190,6 +205,7 @@ EebusError WriteElements(const EebusDataCfg* cfg, void* base_addr, const void* s
   UNUSED(cfg);
   UNUSED(base_addr);
   UNUSED(src_base);
+
   return kEebusErrorOk;
 }
 
@@ -201,6 +217,7 @@ EebusError WritePartial(const EebusDataCfg* cfg, void* base_addr, const void* sr
   UNUSED(selectors_cfg);
   UNUSED(selectors_base_addr);
   UNUSED(selectors_matcher);
+
   return kEebusErrorOk;
 }
 

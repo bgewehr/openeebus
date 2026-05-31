@@ -252,6 +252,7 @@ TlsCertificateParseX509KeyPair(const char* cert_buf, size_t cert_buf_size, const
   UNUSED(cert_buf_size);
   UNUSED(key_buf);
   UNUSED(key_buf_size);
+
   return NULL;  // Not implemented
 }
 

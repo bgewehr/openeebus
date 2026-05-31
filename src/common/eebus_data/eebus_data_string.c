@@ -63,6 +63,7 @@ const EebusDataInterface eebus_data_string_methods = {
 void* CreateEmpty(const EebusDataCfg* cfg, void* base_addr) {
   UNUSED(cfg);
   UNUSED(base_addr);
+
   EEBUS_ASSERT_ALWAYS();
   return NULL;
 }

@@ -248,6 +248,7 @@ void OnHandleShipStateUpdate(ShipNodeReaderObject* self, const char* ski, SmeSta
 
 bool IsWaitingForTrustAllowed(ShipNodeReaderObject* self, const char* ski) {
   UNUSED(ski);
+
   return EEBUS_SERVICE(self)->is_pairing_possible;
 }
 

@@ -91,6 +91,7 @@ const char* SmeStateToString(SmeState state) {
 
 const char* SmeStateToString(SmeState state) {
   UNUSED(state);
+
   return "";
 }
 

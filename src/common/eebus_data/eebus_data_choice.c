@@ -75,6 +75,7 @@ const EebusDataInterface eebus_data_choice_methods = {
 void* CreateEmpty(const EebusDataCfg* cfg, void* base_addr) {
   UNUSED(cfg);
   UNUSED(base_addr);
+
   EEBUS_ASSERT_ALWAYS();
   return NULL;
 }
@@ -83,6 +84,7 @@ EebusError FromJsonObjectItem(const EebusDataCfg* cfg, void* base_addr, const Js
   UNUSED(cfg);
   UNUSED(base_addr);
   UNUSED(json_item);
+
   EEBUS_ASSERT_ALWAYS();
   return kEebusErrorOther;
 }
@@ -108,6 +110,7 @@ EebusError ToJsonObjectItem(const EebusDataCfg* cfg, const void* base_addr, Json
   UNUSED(cfg);
   UNUSED(base_addr);
   UNUSED(json_item);
+
   EEBUS_ASSERT_ALWAYS();
   return kEebusErrorOther;
 }
@@ -178,6 +181,7 @@ bool IsEmpty(const EebusDataCfg* cfg, const void* base_addr) {
 bool HasIdentifiers(const EebusDataCfg* cfg, const void* base_addr) {
   UNUSED(cfg);
   UNUSED(base_addr);
+
   EEBUS_ASSERT_ALWAYS();
   return false;
 }
@@ -188,6 +192,7 @@ bool SelectorsMatch(const EebusDataCfg* cfg, const void* base_addr, const EebusD
   UNUSED(base_addr);
   UNUSED(selectors_cfg);
   UNUSED(selectors_base_addr);
+
   EEBUS_ASSERT_ALWAYS();
   return false;
 }
@@ -196,6 +201,7 @@ bool IdentifiersMatch(const EebusDataCfg* cfg, const void* base_addr, const void
   UNUSED(cfg);
   UNUSED(base_addr);
   UNUSED(src_base_addr);
+
   EEBUS_ASSERT_ALWAYS();
   return false;
 }
@@ -207,6 +213,7 @@ EebusError ReadElements(const EebusDataCfg* cfg, const void* base_addr, void* ds
   UNUSED(dst_base_addr);
   UNUSED(elements_cfg);
   UNUSED(elements_base_addr);
+
   EEBUS_ASSERT_ALWAYS();
   return kEebusErrorOther;
 }
@@ -237,6 +244,7 @@ void DeleteElements(
   UNUSED(base_addr);
   UNUSED(elements_cfg);
   UNUSED(elements_base_addr);
+
   EEBUS_ASSERT_ALWAYS();
 }
 

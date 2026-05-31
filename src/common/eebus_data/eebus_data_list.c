@@ -138,6 +138,7 @@ const EebusDataInterface eebus_data_list_simple_methods = {
 void* CreateEmpty(const EebusDataCfg* cfg, void* base_addr) {
   UNUSED(cfg);
   UNUSED(base_addr);
+
   EEBUS_ASSERT_ALWAYS();
   return NULL;
 }
@@ -316,6 +317,7 @@ bool IsNull(const EebusDataCfg* cfg, const void* base_addr) {
 bool IsEmpty(const EebusDataCfg* cfg, const void* base_addr) {
   UNUSED(cfg);
   UNUSED(base_addr);
+
   return false;
 }
 

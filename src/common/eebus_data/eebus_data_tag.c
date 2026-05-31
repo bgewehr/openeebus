@@ -116,6 +116,7 @@ bool IsNull(const EebusDataCfg* cfg, const void* base_addr) {
 bool IsEmpty(const EebusDataCfg* cfg, const void* base_addr) {
   UNUSED(cfg);
   UNUSED(base_addr);
+
   return false;
 }
 
