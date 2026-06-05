@@ -21,6 +21,7 @@
 #include "mocks/ship/ship_node/ship_node_mock.h"
 #include "mocks/ship/tls_certificate/tls_certificate_mock.h"
 #include "mocks/spine/device/device_local_mock.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_device_info.h"
 #include "src/common/eebus_malloc.h"
 #include "src/common/vector.h"
@@ -50,6 +51,8 @@ static DeviceLocalMock* device_local_mock;
 
 DeviceLocalObject*
 DeviceLocalCreate(const EebusDeviceInfo* device_info, const NetworkManagementFeatureSetType* feature_set) {
+  UNUSED(device_info);
+  UNUSED(feature_set);
   return DEVICE_LOCAL_OBJECT(device_local_mock);
 }
 
@@ -65,12 +68,18 @@ ShipNodeObject* ShipNodeCreate(
     ShipNodeReaderObject* ship_node_reader,
     ServiceDetails* local_service_details
 ) {
+  UNUSED(ski);
+  UNUSED(role);
+  UNUSED(device_info);
+  UNUSED(service_name);
+  UNUSED(port);
+  UNUSED(ssl_cert);
+  UNUSED(ship_node_reader);
+  UNUSED(local_service_details);
   return SHIP_NODE_OBJECT(ship_node_mock);
 }
 
 void EebusServiceTestSuite::SetUp() {
-  static constexpr EntityTypeType entity_types[] = {kEntityTypeTypeCEM};
-
   configuration_ = EebusServiceConfigCreate("vendor", "brand", "model", "serial", "EnergyManagementSystem", 4729);
 
   tls_certificate_mock_ = TlsCertificateMockCreate();
@@ -106,10 +115,6 @@ void EebusServiceTestSuite::TearDown() {
 
 TEST_F(EebusServiceTestSuite, eebus_service_service_reader) {
   static constexpr char test_ski[] = "test";
-
-  RemoteServiceInfo entry = {
-      .ski = test_ski,
-  };
 
   const Vector* entries = VectorCreate();
 

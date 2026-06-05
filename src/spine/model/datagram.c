@@ -20,6 +20,7 @@
 
 #include "src/spine/model/datagram.h"
 
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_data/eebus_data.h"
 #include "src/spine/model/feature_types.h"
 #include "src/spine/model/model.h"
@@ -45,6 +46,7 @@ bool DatagramHeaderIsValid(const HeaderType* header) {
 }
 
 bool DatagramPayloadIsValid(const PayloadType* payload) {
+  UNUSED(payload);
   // TODO: Implement function
   return true;
 }

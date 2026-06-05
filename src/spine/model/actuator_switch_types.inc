@@ -16,7 +16,7 @@ static const EnumMapping actuator_switch_fct_lut[] = {
     {"on", kActuatorSwitchFctTypeOn},
     {"off", kActuatorSwitchFctTypeOff},
     {"toggle", kActuatorSwitchFctTypeToggle},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg actuator_switch_data_cfg[] = {

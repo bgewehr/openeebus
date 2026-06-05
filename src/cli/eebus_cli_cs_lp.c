@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "src/cli/eebus_cli_cs_lp.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_bool/eebus_bool.h"
 #include "src/common/eebus_date_time/eebus_date_time.h"
 #include "src/use_case/model/scaled_value.h"
@@ -101,6 +102,7 @@ EebusCliHandlerObject* CsLpCliCreate(EnergyDirectionType energy_direction, CsLpU
 }
 
 void Destruct(EebusCliHandlerObject* self) {
+  UNUSED(self);
   // Nothing to be deallocated yet
 }
 
@@ -110,6 +112,9 @@ void Destruct(EebusCliHandlerObject* self) {
 //
 //-------------------------------------------------------------------------------------------//
 void HandleCmdGetPowerLimit(const CsLpCli* self, const char* const* tokens, size_t num_tokens) {
+  UNUSED(tokens);
+  UNUSED(num_tokens);
+
   LoadLimit limit = {0};
   if (CsLpGetActivePowerLimit(self->cs_lp, &limit) != kEebusErrorOk) {
     printf("%s getting Active Power Limit failed\n", self->cmd_name_caps);
@@ -123,6 +128,9 @@ void HandleCmdGetPowerLimit(const CsLpCli* self, const char* const* tokens, size
 }
 
 void HandleCmdGetFailsafeLimit(const CsLpCli* self, const char* const* tokens, size_t num_tokens) {
+  UNUSED(tokens);
+  UNUSED(num_tokens);
+
   ScaledValue power_limit = {0};
   bool is_changeable      = false;
   if (CsLpGetFailsafeActivePowerLimit(self->cs_lp, &power_limit, &is_changeable) != kEebusErrorOk) {
@@ -136,6 +144,9 @@ void HandleCmdGetFailsafeLimit(const CsLpCli* self, const char* const* tokens, s
 }
 
 void HandleCmdGetFailsafeDuration(const CsLpCli* self, const char* const* tokens, size_t num_tokens) {
+  UNUSED(tokens);
+  UNUSED(num_tokens);
+
   DurationType duration = {0};
   bool is_changeable    = false;
   if (CsLpGetFailsafeDurationMinimum(self->cs_lp, &duration, &is_changeable) != kEebusErrorOk) {

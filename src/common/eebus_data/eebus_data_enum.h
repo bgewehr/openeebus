@@ -21,6 +21,7 @@
 #ifndef SRC_COMMON_EEBUS_DATA_EEBUS_DATA_ENUM_H_
 #define SRC_COMMON_EEBUS_DATA_EEBUS_DATA_ENUM_H_
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include "src/common/api/eebus_data_interface.h"
@@ -49,6 +50,12 @@ struct EnumMapping {
    */
   int32_t value;
 };
+
+#define EEBUS_ENUM_MAPPING_END \
+  {                            \
+      .name  = NULL,           \
+      .value = 0,              \
+  }
 
 extern const EebusDataInterface eebus_data_enum_methods;
 

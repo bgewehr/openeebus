@@ -19,13 +19,13 @@ static const EnumMapping electrical_connection_measurand_variant_lut[] = {
     {"instantaneous", kElectricalConnectionMeasurandVariantTypeInstantaneous},
     {"angle", kElectricalConnectionMeasurandVariantTypeAngle},
     {"cosPhi", kElectricalConnectionMeasurandVariantTypeCosphi},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping electrical_connection_voltage_type_lut[] = {
     {"ac", kElectricalConnectionVoltageTypeTypeAc},
     {"dc", kElectricalConnectionVoltageTypeTypeDc},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping electrical_connection_ac_measurement_type_lut[] = {
@@ -33,7 +33,7 @@ static const EnumMapping electrical_connection_ac_measurement_type_lut[] = {
     {"reactive", kElectricalConnectionAcMeasurementTypeTypeReactive},
     {"apparent", kElectricalConnectionAcMeasurementTypeTypeApparent},
     {"phase", kElectricalConnectionAcMeasurementTypeTypePhase},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping electrical_connection_phase_name_lut[] = {
@@ -47,7 +47,7 @@ static const EnumMapping electrical_connection_phase_name_lut[] = {
     {"neutral", kElectricalConnectionPhaseNameTypeNeutral},
     {"ground", kElectricalConnectionPhaseNameTypeGround},
     {"none", kElectricalConnectionPhaseNameTypeNone},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping electrical_connection_connection_point_lut[] = {
@@ -56,7 +56,7 @@ static const EnumMapping electrical_connection_connection_point_lut[] = {
     {"pv", kElectricalConnectionConnectionPointTypePv},
     {"sd", kElectricalConnectionConnectionPointTypeSd},
     {"other", kElectricalConnectionConnectionPointTypeOther},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping electrical_connection_characteristic_context_lut[] = {
@@ -65,7 +65,7 @@ static const EnumMapping electrical_connection_characteristic_context_lut[] = {
     {"inverter", kElectricalConnectionCharacteristicContextTypeInverter},
     {"pvString", kElectricalConnectionCharacteristicContextTypePvString},
     {"battery", kElectricalConnectionCharacteristicContextTypeBattery},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping electrical_connection_characteristic_type_lut[] = {
@@ -83,7 +83,7 @@ static const EnumMapping electrical_connection_characteristic_type_lut[] = {
     {"apparentPowerProductionNominalMax", kElectricalConnectionCharacteristicTypeTypeApparentPowerProductionNominalMax},
     {"apparentPowerConsumptionNominalMax",
      kElectricalConnectionCharacteristicTypeTypeApparentPowerConsumptionNominalMax},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg electrical_connection_parameter_description_data_cfg[] = {

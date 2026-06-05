@@ -49,7 +49,7 @@
   const JsonNumConvInterface name = {                                                  \
       .json_to_num = JsonToNum##type,                                                  \
       .num_to_json = NumToJson##type,                                                  \
-  };
+  }
 
 JSON_NUM_CONV_DECL(json_num_conv_uint8, uint8_t);
 JSON_NUM_CONV_DECL(json_num_conv_uint16, uint16_t);

@@ -24,6 +24,7 @@
 #include <libwebsockets.h>
 
 #include "src/common/debug.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_malloc.h"
 #include "src/common/eebus_mutex/eebus_mutex.h"
 #include "src/common/eebus_thread/eebus_thread.h"
@@ -135,8 +136,8 @@ void HttpServerConstruct(
   self->conn_establish_cb  = conn_establish_cb;
   self->conn_establish_ctx = conn_establish_ctx;
 
-  self->port = port;
-  self->ws   = NULL;
+  self->port         = port;
+  self->ws           = NULL;
   self->ws_is_active = false;
 
   self->lws_ctx = NULL;
@@ -327,6 +328,8 @@ int HttpServerOnClientConnect(HttpServer* self, struct lws* wsi) {
 }
 
 int HttpServerOnReceive(HttpServer* self, struct lws* wsi, void* in, size_t len) {
+  UNUSED(self);
+
   WebsocketObject* ws = (WebsocketObject*)lws_wsi_user(wsi);
   if (ws == NULL) {
     HTTP_SERVER_DEBUG_PRINTF("%s(), websocket object is NULL\n", __func__);
@@ -342,6 +345,7 @@ int HttpServerOnReceive(HttpServer* self, struct lws* wsi, void* in, size_t len)
 }
 
 int HttpServerOnWriteable(HttpServer* self, struct lws* wsi) {
+  UNUSED(self);
   WebsocketObject* ws = (WebsocketObject*)lws_wsi_user(wsi);
   if (ws == NULL) {
     HTTP_SERVER_DEBUG_PRINTF("%s(), websocket object is NULL\n", __func__);
@@ -371,6 +375,8 @@ int HttpServerOnConnectionClose(HttpServer* self, struct lws* wsi) {
 }
 
 int HttpServerServiceCallback(struct lws* wsi, enum lws_callback_reasons reason, void* user, void* in, size_t len) {
+  UNUSED(user);
+
   HTTP_SERVER_DEBUG_PRINTF("%s(), reason = %s\n", __func__, WebsocketLwsReasonToString(reason));
   HttpServer* const srv = lws_context_user(lws_get_context(wsi));
   int ret               = 0;

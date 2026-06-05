@@ -17,6 +17,7 @@
 #include "src/use_case/actor/mu/mpc/mu_mpc.h"
 
 #include "src/common/array_util.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_mutex/eebus_mutex.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_internal.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_measurement.h"
@@ -341,5 +342,7 @@ void Destruct(UseCaseObject* self) {
 }
 
 bool IsEntityCompatible(const UseCaseObject* self, const EntityRemoteObject* remote_entity) {
+  UNUSED(self);
+  UNUSED(remote_entity);
   return true;  // For now, all entities are compatible with this use case
 }

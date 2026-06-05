@@ -16,7 +16,7 @@ static const EnumMapping time_slot_time_mode_lut[] = {
     {"absolute", kTimeSlotTimeModeTypeAbsolute},
     {"recurring", kTimeSlotTimeModeTypeRecurring},
     {"both", kTimeSlotTimeModeTypeBoth},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg time_table_data_cfg[] = {

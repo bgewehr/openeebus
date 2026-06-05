@@ -37,7 +37,7 @@ static const EnumMapping recurring_interval_lut[] = {
     {"hourly", kRecurringIntervalTypeHourly},
     {"everyMinute", kRecurringIntervalTypeEveryminute},
     {"everySecond", kRecurringIntervalTypeEverysecond},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping month_lut[] = {
@@ -53,7 +53,7 @@ static const EnumMapping month_lut[] = {
     {"october", kMonthTypeOctober},
     {"november", kMonthTypeNovember},
     {"december", kMonthTypeDecember},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping day_of_week_lut[] = {
@@ -64,7 +64,7 @@ static const EnumMapping day_of_week_lut[] = {
     {"friday", kDayOfWeekTypeFriday},
     {"saturday", kDayOfWeekTypeSaturday},
     {"sunday", kDayOfWeekTypeSunday},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg days_of_week_cfg[] = {
@@ -84,7 +84,7 @@ static const EnumMapping occurrence_lut[] = {
     {"third", kOccurrenceTypeThird},
     {"fourth", kOccurrenceTypeFourth},
     {"last", kOccurrenceTypeLast},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg absolute_or_recurring_time_cfg[] = {
@@ -183,13 +183,13 @@ static const EnumMapping commodity_type_lut[] = {
     {"heat", kCommodityTypeTypeHeat},
     {"coolingLoad", kCommodityTypeTypeCoolingLoad},
     {"air", kCommodityTypeTypeAir},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping energy_direction_lut[] = {
     {"consume", kEnergyDirectionTypeConsume},
     {"produce", kEnergyDirectionTypeProduce},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping energy_mode_lut[] = {
@@ -197,7 +197,7 @@ static const EnumMapping energy_mode_lut[] = {
     {"produce", kEnergyModeTypeProduce},
     {"idle", kEnergyModeTypeIdle},
     {"auto", kEnergyModeTypeAuto},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping unit_of_measurement_lut[] = {
@@ -295,7 +295,7 @@ static const EnumMapping unit_of_measurement_lut[] = {
     {"Btu/h", kUnitOfMeasurementTypeBtuh},
     {"Ah", kUnitOfMeasurementTypeAh},
     {"kg/Wh", kUnitOfMeasurementTypekgWh},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping currency_lut[] = {
@@ -477,7 +477,7 @@ static const EnumMapping currency_lut[] = {
     {"ZAR", kCurrencyTypeZar},
     {"ZMW", kCurrencyTypeZmw},
     {"ZWL", kCurrencyTypeZwl},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping scope_type_lut[] = {
@@ -567,7 +567,7 @@ static const EnumMapping scope_type_lut[] = {
     {"incentiveTableEnConsWithTF", kScopeTypeTypeIncentiveTableEnConsWithTF},
     {"incentiveTableEnProdWithTF", kScopeTypeTypeIncentiveTableEnProdWithTF},
     {"activePowerForecast", kScopeTypeTypeActivePowerForecast},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 #endif  // SRC_SPINE_MODEL_COMMON_DATA_TYPES_INC_

@@ -29,6 +29,7 @@
 #include <libwebsockets.h>
 
 #include "src/common/debug.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_errors.h"
 #include "src/common/eebus_malloc.h"
 #include "src/common/eebus_queue/eebus_queue.h"
@@ -158,6 +159,7 @@ int32_t WebsocketWrite(WebsocketObject* self, const uint8_t* msg, size_t msg_siz
 }
 
 void WebsocketClose(WebsocketObject* self, int32_t close_code, const char* reason) {
+  UNUSED(reason);
   Websocket* const ws = WEBSOCKET(self);
 
   EEBUS_MUTEX_LOCK(ws->wr_mutex);
@@ -214,7 +216,7 @@ int WebsocketOnWritable(WebsocketObject* self) {
   const int n = lws_write(ws->wsi, &wr_msg.data[LWS_PRE], sz, LWS_WRITE_BINARY);
 
   EEBUS_FREE(wr_msg.data);
-  if (n < sz) {
+  if ((n < 0) || ((size_t)n != sz)) {
     WEBSOCKET_DEBUG_PRINTF("sending message failed: %d < %d\n", n, sz);
     return -1;
   }

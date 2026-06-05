@@ -24,6 +24,7 @@
 #include <string.h>
 
 #include "src/common/api/eebus_data_interface.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_data/eebus_data_base.h"
 #include "src/common/eebus_data/eebus_data_util.h"
 #include "src/common/eebus_malloc.h"
@@ -362,6 +363,10 @@ EebusError EebusDataSequenceWritePartial(
     const void* selectors_base_addr,
     SelectorsMatcher selectors_matcher
 ) {
+  UNUSED(selectors_cfg);
+  UNUSED(selectors_base_addr);
+  UNUSED(selectors_matcher);
+
   const void** const src_buf = (const void**)((const uint8_t*)src_base_addr + cfg->offset);
   if (*src_buf == NULL) {
     // Nothing to be copied — ok

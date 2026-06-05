@@ -20,6 +20,7 @@
 
 #include <string.h>
 
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_malloc.h"
 #include "src/common/num_ptr.h"
 #include "src/spine/api/function_interface.h"
@@ -220,6 +221,7 @@ CmdType* CreateNotifyCmd(
 }
 
 EebusError AddDataToWriteCmd(const Function* self, CmdType* cmd, const void* data, const FilterType* filter_partial) {
+  UNUSED(filter_partial);
   const EebusDataCfg* const cfg = ModelGetDataCfg(self->type);
 
   cmd->data_choice_type_id = self->type;
@@ -322,6 +324,7 @@ void* DataCopy(const FunctionObject* self) {
 
 EebusError UpdateData(FunctionObject* self, const void* new_data, const FilterType* filter_partial,
     const FilterType* filter_delete, bool wr_remote, bool persist) {
+  UNUSED(wr_remote);
   Function* const function = FUNCTION(self);
 
   const EebusDataCfg* const cfg = ModelGetDataCfg(function->type);

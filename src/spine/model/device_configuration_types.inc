@@ -16,7 +16,7 @@ static const EnumMapping device_configuration_key_value_string_lut[] = {
     {"iso15118-2ed1", kDeviceConfigurationKeyValueStringTypeISO151182ED1},
     {"iso15118-2ed2", kDeviceConfigurationKeyValueStringTypeISO151182ED2},
     {"iec61851", kDeviceConfigurationKeyValueStringTypeIEC61851},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping device_configuration_key_name_lut[] = {
@@ -58,7 +58,7 @@ static const EnumMapping device_configuration_key_name_lut[] = {
     {"incentivesSimulationConcurrent", kDeviceConfigurationKeyNameTypeIncentivesSimulationConcurrent},
     {"incentivesTimeoutIncentiveRequest", kDeviceConfigurationKeyNameTypeIncentivesTimeoutIncentiveRequest},
     {"incentivesWaitIncentiveWriteable", kDeviceConfigurationKeyNameTypeIncentivesWaitIncentiveWriteable},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping device_configuration_key_value_type_lut[] = {
@@ -70,7 +70,7 @@ static const EnumMapping device_configuration_key_value_type_lut[] = {
     {"time", kDeviceConfigurationKeyValueTypeTypeTime},
     {"scaledNumber", kDeviceConfigurationKeyValueTypeTypeScaledNumber},
     {"integer", kDeviceConfigurationKeyValueTypeTypeInteger},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg device_configuration_key_value_value_cfg[] = {

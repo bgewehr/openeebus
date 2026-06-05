@@ -59,7 +59,6 @@ static const MaMpcListenerInterface ma_mpc_listener_methods = {
 };
 
 static EebusError MaMpcListenerConstruct(MaMpcListener* self, HemsObject* hems);
-static float GetValue(const ScaledValue* value);
 
 EebusError MaMpcListenerConstruct(MaMpcListener* self, HemsObject* hems) {
   // Override "virtual functions table"

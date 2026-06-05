@@ -17,7 +17,7 @@ static const EnumMapping cmd_classifiers[] = {
     {"write", kCommandClassifierTypeWrite},
     {"call", kCommandClassifierTypeCall},
     {"result", kCommandClassifierTypeResult},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg datagram_header_data_cfg[] = {

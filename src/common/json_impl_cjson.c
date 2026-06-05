@@ -33,7 +33,7 @@ const JsonObject* JsonGetItem(const JsonObject* json_obj, const char* name, bool
     return (const JsonObject*)cJSON_GetObjectItem((const cJSON*)json_obj, name);
   } else {
     // Search for named item within sequence
-    for (size_t j = 0; j < cJSON_GetArraySize((const cJSON*)json_obj); ++j) {
+    for (size_t j = 0; j < (size_t)cJSON_GetArraySize((const cJSON*)json_obj); ++j) {
       const cJSON* const json_el   = cJSON_GetArrayItem((const cJSON*)json_obj, (int)j);
       const cJSON* const json_item = cJSON_GetObjectItem(json_el, name);
       if (json_item != NULL) {
@@ -47,7 +47,7 @@ const JsonObject* JsonGetItem(const JsonObject* json_obj, const char* name, bool
 
 JsonObject* JsonAddObjectToArray(JsonObject* json_ar) {
   if (json_ar == NULL) {
-    return false;
+    return NULL;
   }
 
   JsonObject* const json_obj = JsonCreateObject();
@@ -61,7 +61,7 @@ JsonObject* JsonAddObjectToArray(JsonObject* json_ar) {
 
 JsonObject* JsonAddStringToArray(JsonObject* json_ar, const char* s) {
   if ((json_ar == NULL) || (s == NULL)) {
-    return false;
+    return NULL;
   }
 
   JsonObject* const json_str = JsonCreateString(s);
@@ -75,7 +75,7 @@ JsonObject* JsonAddStringToArray(JsonObject* json_ar, const char* s) {
 
 JsonObject* JsonAddNumberToArray(JsonObject* json_obj, double num) {
   if (json_obj == NULL) {
-    return false;
+    return NULL;
   }
 
   JsonObject* const json_num = JsonCreateNumber(num);

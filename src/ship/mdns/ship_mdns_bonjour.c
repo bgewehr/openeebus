@@ -481,6 +481,7 @@ static void MdnsResolveServiceCallback(
 ) {
   UNUSED(service_ref);
   UNUSED(iface);
+  UNUSED(name);
 
   ActiveResolveEntry* const resolve = (ActiveResolveEntry*)ctx;
   if ((resolve == NULL) || (resolve->owner == NULL)) {
@@ -780,6 +781,13 @@ static void MdnsRegisterServiceCallback(
     const char* domain,
     void* ctx
 ) {
+  UNUSED(ref);
+  UNUSED(flags);
+  UNUSED(name);
+  UNUSED(type);
+  UNUSED(domain);
+  UNUSED(ctx);
+
   if (error == kDNSServiceErr_NoError) {
     MDNS_DEBUG_PRINTF("Service registered: %s.%s.%s\n", name, type, domain);
   } else {

@@ -18,6 +18,7 @@
  * @brief EEBUS Date utility implementation
  */
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -118,7 +119,7 @@ char* EebusDateToString(const EebusDate* self) {
   }
 
   // Format the date into the string
-  snprintf(buffer, buffer_size, "%04d-%02d-%02d", (int)self->year, (int)self->month, (int)self->day);
+  snprintf(buffer, buffer_size, "%04" PRId32 "-%02" PRId32 "-%02" PRId32, self->year, self->month, self->day);
 
   return buffer;
 }

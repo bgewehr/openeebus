@@ -21,7 +21,7 @@ static const EnumMapping supply_condition_event_type_lut[] = {
     {"releaseOfLimitations", kSupplyConditionEventTypeTypeReleaseOfLimitations},
     {"otherProblem", kSupplyConditionEventTypeTypeOtherProblem},
     {"gridConditionUpdate", kSupplyConditionEventTypeTypeGridConditionUpdate},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping supply_condition_originator_lut[] = {
@@ -30,7 +30,7 @@ static const EnumMapping supply_condition_originator_lut[] = {
     {"internalLimit", kSupplyConditionOriginatorTypeInternalLimit},
     {"internalService", kSupplyConditionOriginatorTypeInternalService},
     {"internalUser", kSupplyConditionOriginatorTypeInternalUser},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping grid_condition_lut[] = {
@@ -39,7 +39,7 @@ static const EnumMapping grid_condition_lut[] = {
     {"good", kGridConditionTypeGood},
     {"productionRed", kGridConditionTypeProductionRed},
     {"productionYellow", kGridConditionTypeProductionYellow},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg supply_condition_data_cfg[] = {

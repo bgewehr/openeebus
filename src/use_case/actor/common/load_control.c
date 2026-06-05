@@ -67,9 +67,14 @@ EebusError LoadControlWriteLimit(
       .limit_id = limit_data->limit_id,
   };
 
+  // clang-format off
   const LoadControlLimitDataElementsType* delete_elements = &(LoadControlLimitDataElementsType){
-      .time_period = &(TimePeriodElementsType){EEBUS_TAG_RESET},
+      .time_period = &(TimePeriodElementsType){
+          .start_time = EEBUS_TAG_RESET,
+          .end_time   = EEBUS_TAG_RESET,
+      },
   };
+  // clang-format on
 
   // If timer period should not be deleted, reset delete_selectors and delete_elements
   if (!limit->delete_duration) {

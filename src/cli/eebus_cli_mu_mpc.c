@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "src/cli/eebus_cli_mu_mpc.h"
+#include "src/common/eebus_arguments.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc.h"
 
 typedef struct MuMpcCli MuMpcCli;
@@ -76,6 +77,7 @@ EebusCliHandlerObject* MuMpcCliCreate(MuMpcUseCaseObject* mu_mpc) {
 }
 
 void Destruct(EebusCliHandlerObject* self) {
+  UNUSED(self);
   // Nothing to be deallocated yet
 }
 

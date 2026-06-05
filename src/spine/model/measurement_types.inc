@@ -56,7 +56,7 @@ static const EnumMapping measurement_type_lut[] = {
     {"voltage", kMeasurementTypeTypeVoltage},
     {"volume", kMeasurementTypeTypeVolume},
     {"volumetricFlow", kMeasurementTypeTypeVolumetricFlow},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping measurement_value_type_lut[] = {
@@ -65,28 +65,28 @@ static const EnumMapping measurement_value_type_lut[] = {
     {"minValue", kMeasurementValueTypeTypeMinValue},
     {"maxValue", kMeasurementValueTypeTypeMaxValue},
     {"standardDeviation", kMeasurementValueTypeTypeStandardDeviation},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping measurement_value_source_lut[] = {
     {"measuredValue", kMeasurementValueSourceTypeMeasuredValue},
     {"calculatedValue", kMeasurementValueSourceTypeCalculatedValue},
     {"empiricalValue", kMeasurementValueSourceTypeEmpiricalValue},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping measurement_value_tendency_lut[] = {
     {"rising", kMeasurementValueTendencyTypeRising},
     {"stable", kMeasurementValueTendencyTypeStable},
     {"falling", kMeasurementValueTendencyTypeFalling},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping measurement_value_state_lut[] = {
     {"normal", kMeasurementValueStateTypeNormal},
     {"outOfRange", kMeasurementValueStateTypeOutofrange},
     {"error", kMeasurementValueStateTypeError},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg measurement_data_cfg[] = {

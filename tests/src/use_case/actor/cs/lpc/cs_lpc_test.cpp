@@ -237,7 +237,7 @@ class CsLpcTestFixture : public UseCaseTestFixture {
 
     HandleMessage(receive::limits_write);
 
-    LoadLimit limit{0};
+    LoadLimit limit{{0}};
     EXPECT_EQ(CsLpcGetActiveConsumptionPowerLimit(use_case_.get(), &limit), kEebusErrorOk);
     EXPECT_THAT(&limit.value, ScaledValueEq(100, 0));
   }
@@ -246,7 +246,7 @@ class CsLpcTestFixture : public UseCaseTestFixture {
     ExpectSendMessage(send::result_data_msg_cnt_ref_21);
     HandleMessage(receive::negative_limits_write);
 
-    LoadLimit limit{0};
+    LoadLimit limit{{0}};
     EXPECT_EQ(CsLpcGetActiveConsumptionPowerLimit(use_case_.get(), &limit), kEebusErrorOk);
     EXPECT_THAT(&limit.value, ScaledValueEq(100, 0));
   }

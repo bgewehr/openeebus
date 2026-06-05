@@ -19,6 +19,8 @@
  */
 
 #include <string.h>
+
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_malloc.h"
 #include "src/common/uint64_lut.h"
 #include "src/spine/api/device_local_interface.h"
@@ -521,6 +523,9 @@ EebusError FeatureLocalRequestRemoteDataBySenderAddress(
     const FeatureAddressType* dest_addr,
     uint32_t max_delay
 ) {
+  UNUSED(dest_ski);
+  UNUSED(max_delay);
+
   return SEND_READ(sender, FEATURE_GET_ADDRESS(FEATURE_OBJECT(self)), dest_addr, cmd);
 }
 

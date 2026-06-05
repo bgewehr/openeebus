@@ -136,6 +136,9 @@ const EebusDataInterface eebus_data_list_simple_methods = {
 };
 
 void* CreateEmpty(const EebusDataCfg* cfg, void* base_addr) {
+  UNUSED(cfg);
+  UNUSED(base_addr);
+
   EEBUS_ASSERT_ALWAYS();
   return NULL;
 }
@@ -312,10 +315,15 @@ bool IsNull(const EebusDataCfg* cfg, const void* base_addr) {
 }
 
 bool IsEmpty(const EebusDataCfg* cfg, const void* base_addr) {
+  UNUSED(cfg);
+  UNUSED(base_addr);
+
   return false;
 }
 
 bool HasIdentifiers(const EebusDataCfg* cfg, const void* base_addr) {
+  UNUSED(cfg);
+  UNUSED(base_addr);
   // Return false is required to handle differnet nested lists partial write separately
   return false;
 }
@@ -395,6 +403,8 @@ EebusError CopyToSelectedData(
     const void* selectors_base_addr,
     SelectorsMatcher selectors_matcher
 ) {
+  UNUSED(selectors_matcher);
+
   if (EEBUS_DATA_IS_NULL(cfg, src_base_addr)) {
     return kEebusErrorOk;
   }
@@ -545,6 +555,8 @@ void DeleteListItems(
     const void* selectors_base_addr,
     SelectorsMatcher selectors_matcher
 ) {
+  UNUSED(selectors_matcher);
+
   void*** const ar      = (void***)((uint8_t*)base_addr + cfg->offset);
   size_t* const ar_size = (size_t*)((uint8_t*)base_addr + cfg->size_offset);
 
@@ -595,6 +607,8 @@ void DeleteListItemsElements(
     const EebusDataCfg* elements_cfg,
     const void* elements_base_addr
 ) {
+  UNUSED(selectors_matcher);
+
   void*** const ar      = (void***)((uint8_t*)base_addr + cfg->offset);
   size_t* const ar_size = (size_t*)((uint8_t*)base_addr + cfg->size_offset);
 

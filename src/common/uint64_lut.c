@@ -36,11 +36,15 @@ static void Uint64LutRecordRelease(Uint64LutRecord* record);
 static void Uint64LutRecordDelete(Uint64LutRecord* record);
 
 EebusError Uint64LutRecordInit(Uint64LutRecord* record, uint64_t key, void* value, Uint64LutValueDeleter deleter) {
-  if ((record == NULL) || (value == NULL)) {
+  if (record == NULL) {
     return kEebusErrorInputArgumentNull;
   }
 
   memset(record, 0, sizeof(*record));
+
+  if (value == NULL) {
+    return kEebusErrorInputArgumentNull;
+  }
 
   record->key     = key;
   record->value   = value;

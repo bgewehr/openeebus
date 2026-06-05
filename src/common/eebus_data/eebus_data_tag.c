@@ -23,6 +23,7 @@
 #include <stdbool.h>
 
 #include "src/common/api/eebus_data_interface.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_assert.h"
 #include "src/common/eebus_data/eebus_data_base.h"
 #include "src/common/eebus_errors.h"
@@ -112,7 +113,12 @@ bool IsNull(const EebusDataCfg* cfg, const void* base_addr) {
   return *buf == EEBUS_TAG_RESET;
 }
 
-bool IsEmpty(const EebusDataCfg* cfg, const void* base_addr) { return false; }
+bool IsEmpty(const EebusDataCfg* cfg, const void* base_addr) {
+  UNUSED(cfg);
+  UNUSED(base_addr);
+
+  return false;
+}
 
 EebusError ReadElements(const EebusDataCfg* cfg, const void* base_addr, void* dst_base_addr,
     const EebusDataCfg* elements_cfg, const void* elements_base_addr) {

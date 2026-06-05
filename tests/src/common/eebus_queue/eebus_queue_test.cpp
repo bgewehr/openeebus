@@ -33,7 +33,7 @@ TEST(EebusQueueTest, EebusQueueTestGeneric) {
   ASSERT_FALSE(EEBUS_QUEUE_IS_FULL(queue.get()));
 
   int32_t msg_wr = 1;
-  for (int i = 0; i < kQueueMaxSize; ++i) {
+  for (size_t i = 0; i < kQueueMaxSize; ++i) {
     EXPECT_FALSE(EEBUS_QUEUE_IS_FULL(queue.get()));
     EXPECT_EQ(EEBUS_QUEUE_SEND(queue.get(), &msg_wr, 0), kEebusErrorOk);
     ++msg_wr;
@@ -43,7 +43,7 @@ TEST(EebusQueueTest, EebusQueueTestGeneric) {
 
   msg_wr         = 1;
   int32_t msg_rd = 0;
-  for (int i = 0; i < kQueueMaxSize; ++i) {
+  for (size_t i = 0; i < kQueueMaxSize; ++i) {
     EXPECT_FALSE(EEBUS_QUEUE_IS_EMPTY(queue.get()));
     EXPECT_EQ(EEBUS_QUEUE_RECEIVE(queue.get(), &msg_rd, 0), kEebusErrorOk);
     EXPECT_EQ(msg_rd, msg_wr);
@@ -60,7 +60,7 @@ TEST(EebusQueueTest, EebusQueueTestGeneric) {
   msg_rd = 0;
 
   msg_wr = 6;
-  for (int i = 0; i < kQueueMaxSize; ++i) {
+  for (size_t i = 0; i < kQueueMaxSize; ++i) {
     EXPECT_EQ(EEBUS_QUEUE_SEND(queue.get(), &msg_wr, 0), kEebusErrorOk);
     ++msg_wr;
   }
@@ -70,7 +70,7 @@ TEST(EebusQueueTest, EebusQueueTestGeneric) {
 
   msg_wr = 6;
   msg_rd = 0;
-  for (int i = 0; i < kQueueMaxSize; ++i) {
+  for (size_t i = 0; i < kQueueMaxSize; ++i) {
     EXPECT_FALSE(EEBUS_QUEUE_IS_EMPTY(queue.get()));
     EXPECT_EQ(EEBUS_QUEUE_RECEIVE(queue.get(), &msg_rd, 0), kEebusErrorOk);
     EXPECT_EQ(msg_rd, msg_wr);

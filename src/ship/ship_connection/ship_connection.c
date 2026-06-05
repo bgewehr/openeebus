@@ -21,6 +21,7 @@
 
 #include "src/common/array_util.h"
 #include "src/common/debug.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_errors.h"
 #include "src/common/eebus_malloc.h"
 #include "src/common/eebus_queue/eebus_queue.h"
@@ -344,6 +345,7 @@ void WriteMessage(DataWriterObject* self, const uint8_t* msg, size_t msg_size) {
 }
 
 void ReportConnectionError(ShipConnection* self, EebusError err) {
+  UNUSED(err);
   // if the handshake is aborted, a closed connection is no error
   const SmeState state = self->sme_state;
 
@@ -823,7 +825,10 @@ EebusError SmePinStateCommonPinRequirementSendProcedure(
   return ret;
 }
 
-void SmePinStateCommonConnectionDataExchangeEnableProcedure(ShipConnection* self, PinStateType node_pin_state) {}
+void SmePinStateCommonConnectionDataExchangeEnableProcedure(ShipConnection* self, PinStateType node_pin_state) {
+  UNUSED(self);
+  UNUSED(node_pin_state);
+}
 
 void SmePinStateHandlePermissionType(ShipConnection* self, const PinInputPermissionType* node_pin_requirement) {
   if (node_pin_requirement == NULL) {

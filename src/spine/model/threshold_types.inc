@@ -23,7 +23,7 @@ static const EnumMapping threshold_type_lut[] = {
     {"maxValueThresholdExtreme", kThresholdTypeTypeMaxValueThresholdExtreme},
     {"sagThreshold", kThresholdTypeTypeSagThreshold},
     {"swellThreshold", kThresholdTypeTypeSwellThreshold},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg threshold_data_cfg[] = {

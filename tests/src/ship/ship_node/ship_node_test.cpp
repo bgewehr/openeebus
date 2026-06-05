@@ -18,6 +18,7 @@
 #include <iostream>
 #include <memory>
 
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_device_info.h"
 #include "src/common/eebus_thread/eebus_thread.h"
 #include "src/ship/ship_connection/ship_connection.h"
@@ -32,11 +33,16 @@ ShipConnectionObject* ShipConnectionCreate(
     const char* remote_ski,
     const char* remote_ship_id
 ) {
+  UNUSED(info_provider);
+  UNUSED(role);
+  UNUSED(local_ship_id);
+  UNUSED(remote_ski);
+  UNUSED(remote_ship_id);
   // Connection will not be started within test
   return nullptr;
 }
 
-int main(int argc, char** argv) {
+int main() {
   std::cout << "ShipNode start-stop test\n";
 
   // Create the ship node

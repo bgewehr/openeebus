@@ -87,6 +87,12 @@ const char* SmeStateToString(SmeState state) {
 
 #else
 
-const char* SmeStateToString(SmeState state) { return ""; }
+#include "src/common/eebus_arguments.h"
+
+const char* SmeStateToString(SmeState state) {
+  UNUSED(state);
+
+  return "";
+}
 
 #endif  // #if SHIP_CONNECTION_DEBUG

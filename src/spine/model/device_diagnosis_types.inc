@@ -23,7 +23,7 @@ static const EnumMapping device_diagnosis_operating_state_lut[] = {
     {"finished", kDeviceDiagnosisOperatingStateTypeFinished},
     {"temporarilyNotReady", kDeviceDiagnosisOperatingStateTypeTemporarilyNotReady},
     {"off", kDeviceDiagnosisOperatingStateTypeOff},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping power_supply_condition_lut[] = {
@@ -32,7 +32,7 @@ static const EnumMapping power_supply_condition_lut[] = {
     {"critical", kPowerSupplyConditionTypeCritical},
     {"unknown", kPowerSupplyConditionTypeUnknown},
     {"error", kPowerSupplyConditionTypeError},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg device_diagnosis_state_data_cfg[] = {

@@ -20,6 +20,7 @@
 
 #include <libwebsockets.h>
 
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_malloc.h"
 #include "src/ship/api/http_server_interface.h"
 #include "src/ship/api/websocket_creator_interface.h"
@@ -63,6 +64,7 @@ WebsocketCreatorObject* WebsocketServerCreatorCreate(HttpServerObject* srv, stru
 }
 
 void Destruct(WebsocketCreatorObject* self) {
+  UNUSED(self);
   // WSI release is handled by the WebsocketServer, since it provides the WSI
 }
 

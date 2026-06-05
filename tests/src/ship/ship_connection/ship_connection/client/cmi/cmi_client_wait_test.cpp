@@ -39,7 +39,7 @@ std::ostream& operator<<(std::ostream& os, const ShipCmiClientWaitStateTestInput
 TEST_P(ShipConnectionCmiWaitStateTests, CmiClientWaitReplyReceivedTest) {
   // Arrange:
   // Create message and add it to the queue
-  ShipConnectionQueueMessage queue_msg = {GetParam().msg_type, NULL};
+  ShipConnectionQueueMessage queue_msg{GetParam().msg_type, {NULL}};
   EEBUS_QUEUE_SEND(sc.msg_queue, &queue_msg, sizeof(queue_msg));
 
   // Expect timer function calls

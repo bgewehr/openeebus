@@ -20,6 +20,7 @@
 #include <string.h>
 
 #include "ship_node_internal.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_device_info.h"
 #include "src/common/eebus_mutex/eebus_mutex.h"
 #include "src/common/eebus_queue/eebus_queue.h"
@@ -284,11 +285,15 @@ void ShipNodeOnMdnsEntriesFoundCallback(Vector* found_entries, void* ctx) {
 }
 
 bool IsRemoteServiceForSkiPaired(InfoProviderObject* self, const char* ski) {
+  UNUSED(self);
+  UNUSED(ski);
   // TODO: Implement method
   return false;
 }
 
 void CloseShipConnection(ShipNode* self, ShipConnectionObject* sc, bool had_error) {
+  UNUSED(had_error);
+
   if ((sc == NULL) || (sc != self->ship_connection)) {
     SHIP_NODE_DEBUG_PRINTF("%s(), invalid Ship Connection instance\n", __func__);
     return;
@@ -317,15 +322,21 @@ void HandleConnectionClosed(InfoProviderObject* self, ShipConnectionObject* sc, 
 }
 
 void ReportServiceShipId(InfoProviderObject* self, const char* service_id, const char* ship_id) {
+  UNUSED(self);
+  UNUSED(service_id);
+  UNUSED(ship_id);
   // TODO: Implement method
 }
 
 bool IsWaitingForTrustAllowed(InfoProviderObject* self, const char* ski) {
+  UNUSED(self);
+  UNUSED(ski);
   // TODO: Implement method
   return false;
 }
 
 void HandleShipStateUpdate(InfoProviderObject* self, const char* ski, SmeState state, const char* err) {
+  UNUSED(err);
   const ShipNode* const sn = SHIP_NODE(self);
 
   SHIP_NODE_READER_ON_SHIP_STATE_UPDATE(sn->ship_node_reader, ski, state);
@@ -535,6 +546,7 @@ void Stop(ShipNodeObject* self) {
 }
 
 void ShipNodeRegisterSki(ShipNodeObject* self, const char* ski, bool is_trusted) {
+  UNUSED(is_trusted);
   ShipNode* const sn = SHIP_NODE(self);
 
   EEBUS_MUTEX_LOCK(sn->mutex);
@@ -544,6 +556,7 @@ void ShipNodeRegisterSki(ShipNodeObject* self, const char* ski, bool is_trusted)
 }
 
 void RegisterRemoteSki(ShipNodeObject* self, const char* ski, bool is_trusted) {
+  UNUSED(is_trusted);
   ShipNode* const sn = SHIP_NODE(self);
 
   ShipNodeQueueMessage queue_msg = {
@@ -557,6 +570,7 @@ void RegisterRemoteSki(ShipNodeObject* self, const char* ski, bool is_trusted) {
 }
 
 void ShipNodeUnregisterSki(ShipNodeObject* self, const char* ski) {
+  UNUSED(ski);
   ShipNode* const sn = SHIP_NODE(self);
 
   EEBUS_MUTEX_LOCK(sn->mutex);
@@ -590,5 +604,7 @@ void UnregisterRemoteSki(ShipNodeObject* self, const char* ski) {
 }
 
 void CancelPairingWithSki(ShipNodeObject* self, const char* ski) {
+  UNUSED(self);
+  UNUSED(ski);
   // TODO: Implement method
 }

@@ -29,6 +29,7 @@
 #include "mocks/ship/ship_connection/data_writer_mock.h"
 #include "mocks/use_case/api/eg_lp_listener_mock.h"
 #include "src/common/array_util.h"
+#include "src/common/eebus_arguments.h"
 #include "src/common/eebus_malloc.h"
 #include "src/common/eebus_timer/eebus_timer.h"
 #include "src/common/message_buffer.h"

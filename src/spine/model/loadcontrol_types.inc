@@ -20,7 +20,7 @@ static const EnumMapping load_control_event_action_lut[] = {
     {"increase", kLoadControlEventActionTypeIncrease},
     {"emergency", kLoadControlEventActionTypeEmergency},
     {"normal", kLoadControlEventActionTypeNormal},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping load_control_event_state_lut[] = {
@@ -30,21 +30,21 @@ static const EnumMapping load_control_event_state_lut[] = {
     {"eventRejected", kLoadControlEventStateTypeEventRejected},
     {"eventCancelled", kLoadControlEventStateTypeEventCancelled},
     {"eventError", kLoadControlEventStateTypeEventError},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping load_control_limit_type_lut[] = {
     {"minValueLimit", kLoadControlLimitTypeTypeMinValueLimit},
     {"maxValueLimit", kLoadControlLimitTypeTypeMaxValueLimit},
     {"signDependentAbsValueLimit", kLoadControlLimitTypeTypeSignDependentAbsValueLimit},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping load_control_category_lut[] = {
     {"obligation", kLoadControlCategoryTypeObligation},
     {"recommendation", kLoadControlCategoryTypeRecommendation},
     {"optimization", kLoadControlCategoryTypeOptimization},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg load_control_node_data_cfg[] = {

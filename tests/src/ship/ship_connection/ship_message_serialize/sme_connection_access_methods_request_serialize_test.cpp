@@ -32,7 +32,7 @@ TEST(SmeConnectionAccessMethodsRequestSerializeTests, SmeConnectionAccessMethods
   EXPECT_EQ(SHIP_MESSAGE_SERIALIZE_GET_BUFFER(serialize), nullptr);
   ShipMessageSerializeDelete(serialize);
 
-  AccessMethodsRequest sme_access_methods_req;
+  AccessMethodsRequest sme_access_methods_req{};
   serialize = ShipMessageSerializeCreate(&sme_access_methods_req, kValueUndefined);
   EXPECT_EQ(SHIP_MESSAGE_SERIALIZE_GET_BUFFER(serialize), nullptr);
   ShipMessageSerializeDelete(serialize);
@@ -52,7 +52,7 @@ class SmeConnectionAccessMethodsRequestSerializeTests
 
 TEST_P(SmeConnectionAccessMethodsRequestSerializeTests, SmeConnectionAccessMethodsRequestSerializeTests) {
   // Arrange: Initialize the AccessMethodsRequest from test input
-  AccessMethodsRequest sme_access_methods_req;
+  AccessMethodsRequest sme_access_methods_req = {};
 
   // Act: Run the AccessMethodsRequest serialization procedure
   auto serialize = ShipMessageSerializeCreate(&sme_access_methods_req, kSmeConnectionAccessMethodsRequest);

@@ -19,6 +19,7 @@
  */
 
 #include "src/common/array_util.h"
+#include "src/common/eebus_arguments.h"
 #include "src/spine/api/device_local_interface.h"
 #include "src/spine/entity/entity.h"
 #include "src/spine/events/events.h"
@@ -186,6 +187,7 @@ EebusError ProcessReadDetailedDiscoveryData(NodeManagement* self, const Message*
 }
 
 EebusError ProcessReplyDetailedDiscoveryData(NodeManagement* self, const Message* msg) {
+  UNUSED(self);
   DeviceRemoteObject* const dr = msg->device_remote;
 
   const NodeManagementDetailedDiscoveryDataType* const discovery_data
@@ -255,6 +257,8 @@ EebusError ProcessReplyDetailedDiscoveryData(NodeManagement* self, const Message
 }
 
 EebusError ProcessNotifyDetailedDiscoveryData(NodeManagement* self, const Message* msg) {
+  UNUSED(self);
+  UNUSED(msg);
   // TODO: Implement method
   return kEebusErrorNotImplemented;
 }

@@ -14,8 +14,26 @@ ProcessorCount(PROCESSORS_NUM)
 
 set(CMAKE_ECLIPSE_MAKE_ARGUMENTS ${CMAKE_ECLIPSE_MAKE_ARGUMENTS} "--no-print-directory -j${PROCESSORS_NUM} -r -s" CACHE STRING "Make parameters")
 
-# Check if the build run from Jenkins or locally 
 project(${PROJECT_NAME} LANGUAGES C)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+option(OPTION_ASAN "Enable AddressSanitizer" OFF)
+
+set(PROJECT_COMPILE_OPTIONS "")
+
+if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    list(APPEND PROJECT_COMPILE_OPTIONS -Wall -Wextra -Werror)
+
+    if(OPTION_ASAN)
+        message(STATUS "AddressSanitizer enabled")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fno-omit-frame-pointer -g3")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
+        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
+    endif()
+elseif(OPTION_ASAN)
+    message(WARNING "AddressSanitizer is only supported with GCC and Clang compilers.")
+endif()
 
 # TODO: Change STATIC to SHARED when libeebus is a part of SDK
 add_library(${PROJECT_NAME} STATIC)
@@ -159,6 +177,12 @@ target_include_directories(
   ${PROJECT_NAME}
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_compile_options(
+  ${PROJECT_NAME}
+  PRIVATE
+    ${PROJECT_COMPILE_OPTIONS}
 )
 
 # Warn if there are unresolved symbols in libeebus.

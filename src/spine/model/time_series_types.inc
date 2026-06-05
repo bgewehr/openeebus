@@ -21,7 +21,7 @@ static const EnumMapping time_series_type_lut[] = {
     {"dischargingEnergyRequest", kTimeSeriesTypeTypeDischargingEnergyRequest},
     {"consumptionLimitCurve", kTimeSeriesTypeTypeConsumptionLimitCurve},
     {"productionLimitCurve", kTimeSeriesTypeTypeProductionLimitCurve},
-    {NULL},
+    EEBUS_ENUM_MAPPING_END,
 };
 
 static const EebusDataCfg time_series_slot_cfg[] = {
