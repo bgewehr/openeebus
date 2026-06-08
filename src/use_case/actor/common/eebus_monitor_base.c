@@ -127,10 +127,10 @@ EebusError EebusMonitorBaseConstruct(
     EebusMeasurementMonitorNameId name_id_mask,
     EebusMonitorMeasurementCreator measurement_creator
 ) {
-  EEBUS_MONITOR_INTERFACE(self)  = &kEebusMonitorMethods;
-  self->name                     = name;
-  self->name_id_mask             = name_id_mask;
-  self->measurement_creator      = measurement_creator;
+  EEBUS_MONITOR_INTERFACE(self) = &kEebusMonitorMethods;
+  self->name                    = name;
+  self->name_id_mask            = name_id_mask;
+  self->measurement_creator     = measurement_creator;
   VectorConstructWithDeallocator(&self->measurements, MeasurementDeallocator);
   return kEebusErrorOk;
 }

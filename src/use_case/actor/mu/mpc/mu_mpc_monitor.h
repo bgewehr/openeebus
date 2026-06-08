@@ -32,8 +32,8 @@
 
 #include <stddef.h>
 
-#include "src/use_case/actor/mu/mpc/mu_mpc_measurement.h"
 #include "src/use_case/actor/common/eebus_monitor_base.h"
+#include "src/use_case/actor/mu/mpc/mu_mpc_measurement.h"
 
 #ifdef __cplusplus
 extern "C" {

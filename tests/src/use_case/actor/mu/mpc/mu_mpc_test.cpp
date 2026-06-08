@@ -53,13 +53,13 @@
 #include "tests/src/use_case/actor/mu/mpc/send/electrical_connection_parameter_description_reply.inc"
 #include "tests/src/use_case/actor/mu/mpc/send/measurement_constraints_reply.inc"
 #include "tests/src/use_case/actor/mu/mpc/send/measurement_description_reply.inc"
-#include "tests/src/use_case/actor/mu/mpc/send/node_management_subscription_call.inc"
-#include "tests/src/use_case/actor/mu/mpc/send/result_data_msg_cnt_ref_3.inc"
 #include "tests/src/use_case/actor/mu/mpc/send/measurement_notify_current.inc"
 #include "tests/src/use_case/actor/mu/mpc/send/measurement_notify_energy.inc"
 #include "tests/src/use_case/actor/mu/mpc/send/measurement_notify_frequency.inc"
 #include "tests/src/use_case/actor/mu/mpc/send/measurement_notify_power.inc"
 #include "tests/src/use_case/actor/mu/mpc/send/measurement_notify_voltage.inc"
+#include "tests/src/use_case/actor/mu/mpc/send/node_management_subscription_call.inc"
+#include "tests/src/use_case/actor/mu/mpc/send/result_data_msg_cnt_ref_3.inc"
 #include "tests/src/use_case/actor/mu/mpc/send/result_data_msg_cnt_ref_5.inc"
 #include "tests/src/use_case/actor/mu/mpc/send/result_data_msg_cnt_ref_8.inc"
 #include "tests/src/use_case/actor/mu/mpc/send/use_case_data_read.inc"
@@ -303,13 +303,13 @@ TEST_F(MuMpcTestFixture, MuMpcTest) {
 
   // 14. Update scenario 1 (power) and expect the notify
   static constexpr ScaledValue new_power_total = {2000, 0};
-  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcPowerTotal,  &new_power_total, NULL, NULL);
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcPowerTotal, &new_power_total, NULL, NULL);
   static constexpr ScaledValue new_power_a = {700, 0};
-  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcPowerPhaseA, &new_power_a,     NULL, NULL);
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcPowerPhaseA, &new_power_a, NULL, NULL);
   static constexpr ScaledValue new_power_b = {750, 0};
-  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcPowerPhaseB, &new_power_b,     NULL, NULL);
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcPowerPhaseB, &new_power_b, NULL, NULL);
   static constexpr ScaledValue new_power_c = {550, 0};
-  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcPowerPhaseC, &new_power_c,     NULL, NULL);
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcPowerPhaseC, &new_power_c, NULL, NULL);
 
   ExpectSendMessage(send::measurement_notify_power);
   MuMpcUpdate(use_case_.get());
@@ -335,12 +335,12 @@ TEST_F(MuMpcTestFixture, MuMpcTest) {
   MuMpcUpdate(use_case_.get());
 
   // 17. Update scenario 4 (voltage) and expect the notify
-  static constexpr ScaledValue new_voltage_a  = {23500, -2};
-  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseA,  &new_voltage_a,  NULL, NULL);
-  static constexpr ScaledValue new_voltage_b  = {23600, -2};
-  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseB,  &new_voltage_b,  NULL, NULL);
-  static constexpr ScaledValue new_voltage_c  = {23400, -2};
-  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseC,  &new_voltage_c,  NULL, NULL);
+  static constexpr ScaledValue new_voltage_a = {23500, -2};
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseA, &new_voltage_a, NULL, NULL);
+  static constexpr ScaledValue new_voltage_b = {23600, -2};
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseB, &new_voltage_b, NULL, NULL);
+  static constexpr ScaledValue new_voltage_c = {23400, -2};
+  MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseC, &new_voltage_c, NULL, NULL);
   static constexpr ScaledValue new_voltage_ab = {40500, -2};
   MuMpcSetMeasurementDataCache(use_case_.get(), kMpcVoltagePhaseAb, &new_voltage_ab, NULL, NULL);
   static constexpr ScaledValue new_voltage_bc = {40600, -2};

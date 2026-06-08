@@ -330,12 +330,12 @@ TEST_F(GcpMgcpTestFixture, GcpMgcpTest) {
   GcpMgcpUpdate(use_case_.get());
 
   // 20. Update scenario 6 (voltage) and expect the notify
-  static constexpr ScaledValue new_voltage_a  = {24000, -2};
-  GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseA,  &new_voltage_a,  NULL, NULL);
-  static constexpr ScaledValue new_voltage_b  = {24100, -2};
-  GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseB,  &new_voltage_b,  NULL, NULL);
-  static constexpr ScaledValue new_voltage_c  = {23900, -2};
-  GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseC,  &new_voltage_c,  NULL, NULL);
+  static constexpr ScaledValue new_voltage_a = {24000, -2};
+  GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseA, &new_voltage_a, NULL, NULL);
+  static constexpr ScaledValue new_voltage_b = {24100, -2};
+  GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseB, &new_voltage_b, NULL, NULL);
+  static constexpr ScaledValue new_voltage_c = {23900, -2};
+  GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseC, &new_voltage_c, NULL, NULL);
   static constexpr ScaledValue new_voltage_ab = {41000, -2};
   GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseAb, &new_voltage_ab, NULL, NULL);
   static constexpr ScaledValue new_voltage_bc = {41100, -2};

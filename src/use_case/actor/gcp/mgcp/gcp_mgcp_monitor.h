@@ -30,8 +30,8 @@
 #ifndef SRC_USE_CASE_ACTOR_GCP_MGCP_GCP_MGCP_MONITOR_H_
 #define SRC_USE_CASE_ACTOR_GCP_MGCP_GCP_MGCP_MONITOR_H_
 
-#include "src/use_case/actor/gcp/mgcp/gcp_mgcp_measurement.h"
 #include "src/use_case/actor/common/eebus_monitor_base.h"
+#include "src/use_case/actor/gcp/mgcp/gcp_mgcp_measurement.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,8 +60,8 @@ struct GcpMgcpMonitorEnergyConfig {
   const GcpMgcpMeasurementConfig* energy_consumed_cfg;
 };
 
-typedef EebusMonitorCurrentConfig   GcpMgcpMonitorCurrentConfig;
-typedef EebusMonitorVoltageConfig   GcpMgcpMonitorVoltageConfig;
+typedef EebusMonitorCurrentConfig GcpMgcpMonitorCurrentConfig;
+typedef EebusMonitorVoltageConfig GcpMgcpMonitorVoltageConfig;
 typedef EebusMonitorFrequencyConfig GcpMgcpMonitorFrequencyConfig;
 
 EebusMonitorObject* GcpMgcpMonitorPowerCreate(const GcpMgcpMonitorPowerConfig* cfg);

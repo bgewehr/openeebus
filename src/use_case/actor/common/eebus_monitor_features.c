@@ -36,7 +36,10 @@ EebusError EebusMonitorFeaturesSetup(
 
   FEATURE_LOCAL_SET_FUNCTION_OPERATIONS(ecfl, kFunctionTypeElectricalConnectionDescriptionListData, true, false);
   FEATURE_LOCAL_SET_FUNCTION_OPERATIONS(
-      ecfl, kFunctionTypeElectricalConnectionParameterDescriptionListData, true, false
+      ecfl,
+      kFunctionTypeElectricalConnectionParameterDescriptionListData,
+      true,
+      false
   );
 
   FeatureLocalObject* const mfl

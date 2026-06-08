@@ -58,7 +58,8 @@ EebusMonitorObject* MuMpcMonitorPowerCreate(const MuMpcMonitorPowerConfig* cfg) 
     return NULL;
   }
 
-  if (EebusMonitorBaseConstruct(base, kMpcMonitorPower, kMpcMonitorNameIdMask, MuMpcMeasurementCreate) != kEebusErrorOk) {
+  if (EebusMonitorBaseConstruct(base, kMpcMonitorPower, kMpcMonitorNameIdMask, MuMpcMeasurementCreate)
+      != kEebusErrorOk) {
     EebusMonitorDelete(EEBUS_MONITOR_OBJECT(base));
     return NULL;
   }
@@ -107,7 +108,13 @@ EebusMonitorObject* MuMpcMonitorEnergyCreate(const MuMpcMonitorEnergyConfig* cfg
       {kMpcEnergyProduced,  cfg->energy_production_cfg},
   };
 
-  return EebusMonitorCreate(kMpcMonitorEnergy, kMpcMonitorNameIdMask, MuMpcMeasurementCreate, params, ARRAY_SIZE(params));
+  return EebusMonitorCreate(
+      kMpcMonitorEnergy,
+      kMpcMonitorNameIdMask,
+      MuMpcMeasurementCreate,
+      params,
+      ARRAY_SIZE(params)
+  );
 }
 
 //-------------------------------------------------------------------------------------------//
@@ -130,7 +137,13 @@ EebusMonitorObject* MuMpcMonitorCurrentCreate(const MuMpcMonitorCurrentConfig* c
       {kMpcCurrentPhaseC, cfg->current_phase_c_cfg},
   };
 
-  return EebusMonitorCreate(kMpcMonitorCurrent, kMpcMonitorNameIdMask, MuMpcMeasurementCreate, params, ARRAY_SIZE(params));
+  return EebusMonitorCreate(
+      kMpcMonitorCurrent,
+      kMpcMonitorNameIdMask,
+      MuMpcMeasurementCreate,
+      params,
+      ARRAY_SIZE(params)
+  );
 }
 
 //-------------------------------------------------------------------------------------------//
@@ -167,7 +180,13 @@ EebusMonitorObject* MuMpcMonitorVoltageCreate(const MuMpcMonitorVoltageConfig* c
       {kMpcVoltagePhaseAc, cfg->voltage_phase_ac_cfg},
   };
 
-  return EebusMonitorCreate(kMpcMonitorVoltage, kMpcMonitorNameIdMask, MuMpcMeasurementCreate, params, ARRAY_SIZE(params));
+  return EebusMonitorCreate(
+      kMpcMonitorVoltage,
+      kMpcMonitorNameIdMask,
+      MuMpcMeasurementCreate,
+      params,
+      ARRAY_SIZE(params)
+  );
 }
 
 //-------------------------------------------------------------------------------------------//
@@ -184,5 +203,11 @@ EebusMonitorObject* MuMpcMonitorFrequencyCreate(const MuMpcMonitorFrequencyConfi
       {kMpcFrequency, &cfg->frequency_cfg},
   };
 
-  return EebusMonitorCreate(kMpcMonitorFrequency, kMpcMonitorNameIdMask, MuMpcMeasurementCreate, params, ARRAY_SIZE(params));
+  return EebusMonitorCreate(
+      kMpcMonitorFrequency,
+      kMpcMonitorNameIdMask,
+      MuMpcMeasurementCreate,
+      params,
+      ARRAY_SIZE(params)
+  );
 }

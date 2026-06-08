@@ -34,7 +34,8 @@ EebusMonitorObject* GcpMgcpMonitorPowerCreate(const GcpMgcpMonitorPowerConfig* c
     return NULL;
   }
 
-  if (EebusMonitorBaseConstruct(base, kGcpMonitorPower, kGcpMonitorNameIdMask, GcpMgcpMeasurementCreate) != kEebusErrorOk) {
+  if (EebusMonitorBaseConstruct(base, kGcpMonitorPower, kGcpMonitorNameIdMask, GcpMgcpMeasurementCreate)
+      != kEebusErrorOk) {
     EebusMonitorDelete(EEBUS_MONITOR_OBJECT(base));
     return NULL;
   }
@@ -63,7 +64,13 @@ EebusMonitorObject* GcpMgcpMonitorEnergyCreate(const GcpMgcpMonitorEnergyConfig*
       {kGcpEnergyConsumed, cfg->energy_consumed_cfg},
   };
 
-  return EebusMonitorCreate(kGcpMonitorEnergy, kGcpMonitorNameIdMask, GcpMgcpMeasurementCreate, params, ARRAY_SIZE(params));
+  return EebusMonitorCreate(
+      kGcpMonitorEnergy,
+      kGcpMonitorNameIdMask,
+      GcpMgcpMeasurementCreate,
+      params,
+      ARRAY_SIZE(params)
+  );
 }
 
 EebusMonitorObject* GcpMgcpMonitorCurrentCreate(const GcpMgcpMonitorCurrentConfig* cfg) {
@@ -81,7 +88,13 @@ EebusMonitorObject* GcpMgcpMonitorCurrentCreate(const GcpMgcpMonitorCurrentConfi
       {kGcpCurrentPhaseC, cfg->current_phase_c_cfg},
   };
 
-  return EebusMonitorCreate(kGcpMonitorCurrent, kGcpMonitorNameIdMask, GcpMgcpMeasurementCreate, params, ARRAY_SIZE(params));
+  return EebusMonitorCreate(
+      kGcpMonitorCurrent,
+      kGcpMonitorNameIdMask,
+      GcpMgcpMeasurementCreate,
+      params,
+      ARRAY_SIZE(params)
+  );
 }
 
 EebusMonitorObject* GcpMgcpMonitorVoltageCreate(const GcpMgcpMonitorVoltageConfig* cfg) {
@@ -113,7 +126,13 @@ EebusMonitorObject* GcpMgcpMonitorVoltageCreate(const GcpMgcpMonitorVoltageConfi
       {kGcpVoltagePhaseAc, cfg->voltage_phase_ac_cfg},
   };
 
-  return EebusMonitorCreate(kGcpMonitorVoltage, kGcpMonitorNameIdMask, GcpMgcpMeasurementCreate, params, ARRAY_SIZE(params));
+  return EebusMonitorCreate(
+      kGcpMonitorVoltage,
+      kGcpMonitorNameIdMask,
+      GcpMgcpMeasurementCreate,
+      params,
+      ARRAY_SIZE(params)
+  );
 }
 
 EebusMonitorObject* GcpMgcpMonitorFrequencyCreate(const GcpMgcpMonitorFrequencyConfig* cfg) {
@@ -125,5 +144,11 @@ EebusMonitorObject* GcpMgcpMonitorFrequencyCreate(const GcpMgcpMonitorFrequencyC
       {kGcpFrequency, &cfg->frequency_cfg},
   };
 
-  return EebusMonitorCreate(kGcpMonitorFrequency, kGcpMonitorNameIdMask, GcpMgcpMeasurementCreate, params, ARRAY_SIZE(params));
+  return EebusMonitorCreate(
+      kGcpMonitorFrequency,
+      kGcpMonitorNameIdMask,
+      GcpMgcpMeasurementCreate,
+      params,
+      ARRAY_SIZE(params)
+  );
 }
