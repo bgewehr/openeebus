@@ -279,10 +279,10 @@ TEST_F(MaMgcpTestFixture, MaMgcpTest) {
   // 25. Get all 13 measurements via GetMeasurementData() and verify the final stored values
   //     after all notifies (overwritten values reflect the latest notify that touched each ID).
   //     Also verify the PV curtailment limit factor from step 16.
-  ScaledValue value;
-  static constexpr uint32_t remote_entity_id = 1;
+  ScaledValue value{0};
+  static constexpr uint32_t remote_entity_id{1};
 
-  static constexpr const uint32_t* const remote_entity_ids[] = {&remote_entity_id};
+  static constexpr const uint32_t* const remote_entity_ids[]{&remote_entity_id};
 
   const EntityAddressType remote_entity_addr
       = {"d:_n:GridConnectionPoint_123456789", remote_entity_ids, ARRAY_SIZE(remote_entity_ids)};

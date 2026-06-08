@@ -91,7 +91,7 @@ class GcpMgcpTestFixture : public UseCaseTestFixture {
         kHeartbeatTimeout
     );
 
-    static constexpr GcpMgcpMeasurementConfig measurement_default_cfg = {
+    static constexpr GcpMgcpMeasurementConfig measurement_default_cfg{
         .value_source = kMeasurementValueSourceTypeMeasuredValue,
     };
 
@@ -100,13 +100,13 @@ class GcpMgcpTestFixture : public UseCaseTestFixture {
         .energy_consumed_cfg = &measurement_default_cfg,
     };
 
-    static constexpr GcpMgcpMonitorCurrentConfig current_cfg = {
+    static constexpr GcpMgcpMonitorCurrentConfig current_cfg{
         .current_phase_a_cfg = &measurement_default_cfg,
         .current_phase_b_cfg = &measurement_default_cfg,
         .current_phase_c_cfg = &measurement_default_cfg,
     };
 
-    static constexpr GcpMgcpMonitorVoltageConfig voltage_cfg = {
+    static constexpr GcpMgcpMonitorVoltageConfig voltage_cfg{
         .voltage_phase_a_cfg  = &measurement_default_cfg,
         .voltage_phase_b_cfg  = &measurement_default_cfg,
         .voltage_phase_c_cfg  = &measurement_default_cfg,
@@ -115,11 +115,11 @@ class GcpMgcpTestFixture : public UseCaseTestFixture {
         .voltage_phase_ac_cfg = &measurement_default_cfg,
     };
 
-    static constexpr GcpMgcpMonitorFrequencyConfig frequency_cfg = {
+    static constexpr GcpMgcpMonitorFrequencyConfig frequency_cfg{
         .frequency_cfg = measurement_default_cfg,
     };
 
-    static constexpr GcpMgcpPvCurtailmentConfig pv_curtailment_cfg = {};
+    static constexpr GcpMgcpPvCurtailmentConfig pv_curtailment_cfg{};
 
     static constexpr GcpMgcpConfig cfg{
         .pv_curtailment_cfg = &pv_curtailment_cfg,
@@ -137,51 +137,51 @@ class GcpMgcpTestFixture : public UseCaseTestFixture {
 
     use_case_.reset(GcpMgcpUseCaseCreate(entity, 0, &cfg));
 
-    static constexpr ScaledValue power_total = {1000, 0};
+    static constexpr ScaledValue power_total{1000, 0};
     GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpPowerTotal, &power_total, NULL, NULL);
 
-    static constexpr ScaledValue energy_feed_in = {200, 0};
-    static constexpr EebusDateTime start_time   = {
-          .date = {.year = 2025, .month = 9, .day = 1},
-          .time = {   .hour = 0,   .min = 0, .sec = 0}
+    static constexpr ScaledValue energy_feed_in{200, 0};
+    static constexpr EebusDateTime start_time{
+        .date = {.year = 2025, .month = 9, .day = 1},
+        .time = {   .hour = 0,   .min = 0, .sec = 0}
     };
 
-    static constexpr EebusDateTime end_time = {
+    static constexpr EebusDateTime end_time{
         .date = {.year = 2025, .month = 10, .day = 2},
         .time = {   .hour = 0,    .min = 0, .sec = 0}
     };
 
     GcpMgcpSetEnergyFeedInCache(use_case_.get(), &energy_feed_in, NULL, NULL, &start_time, &end_time);
 
-    static constexpr ScaledValue energy_consumed = {800, 0};
+    static constexpr ScaledValue energy_consumed{800, 0};
     GcpMgcpSetEnergyConsumedCache(use_case_.get(), &energy_consumed, NULL, NULL, &start_time, &end_time);
 
-    static constexpr ScaledValue current_phase_a = {15, -1};
+    static constexpr ScaledValue current_phase_a{15, -1};
     GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpCurrentPhaseA, &current_phase_a, NULL, NULL);
 
-    static constexpr ScaledValue current_phase_b = {16, -1};
+    static constexpr ScaledValue current_phase_b{16, -1};
     GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpCurrentPhaseB, &current_phase_b, NULL, NULL);
 
-    static constexpr ScaledValue current_phase_c = {17, -1};
+    static constexpr ScaledValue current_phase_c{17, -1};
     GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpCurrentPhaseC, &current_phase_c, NULL, NULL);
 
-    static constexpr ScaledValue voltage_phase_a = {23000, -2};
+    static constexpr ScaledValue voltage_phase_a{23000, -2};
     GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseA, &voltage_phase_a, NULL, NULL);
-    static constexpr ScaledValue voltage_phase_b = {23100, -2};
+    static constexpr ScaledValue voltage_phase_b{23100, -2};
     GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseB, &voltage_phase_b, NULL, NULL);
-    static constexpr ScaledValue voltage_phase_c = {22900, -2};
+    static constexpr ScaledValue voltage_phase_c{22900, -2};
     GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseC, &voltage_phase_c, NULL, NULL);
-    static constexpr ScaledValue voltage_phase_ab = {40000, -2};
+    static constexpr ScaledValue voltage_phase_ab{40000, -2};
     GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseAb, &voltage_phase_ab, NULL, NULL);
-    static constexpr ScaledValue voltage_phase_bc = {40100, -2};
+    static constexpr ScaledValue voltage_phase_bc{40100, -2};
     GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseBc, &voltage_phase_bc, NULL, NULL);
-    static constexpr ScaledValue voltage_phase_ac = {39900, -2};
+    static constexpr ScaledValue voltage_phase_ac{39900, -2};
     GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseAc, &voltage_phase_ac, NULL, NULL);
 
-    static constexpr ScaledValue frequency = {50, 0};
+    static constexpr ScaledValue frequency{50, 0};
     GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpFrequency, &frequency, NULL, NULL);
 
-    static constexpr ScaledValue pv_curtailment_limit_factor = {75, 0};
+    static constexpr ScaledValue pv_curtailment_limit_factor{75, 0};
     GcpMgcpSetPvCurtailmentLimitFactor(use_case_.get(), &pv_curtailment_limit_factor);
 
     GcpMgcpUpdate(use_case_.get());
@@ -306,47 +306,47 @@ TEST_F(GcpMgcpTestFixture, GcpMgcpTest) {
   HandleMessage(receive::use_case_reply);
 
   // 17. Update scenario 2 (power) and expect the notify
-  static constexpr ScaledValue new_power_total = {3000, 0};
+  static constexpr ScaledValue new_power_total{3000, 0};
   GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpPowerTotal, &new_power_total, NULL, NULL);
   ExpectSendMessage(send::measurement_notify_power);
   GcpMgcpUpdate(use_case_.get());
 
   // 18. Update scenarios 3+4 (energy) and expect the notify
-  static constexpr ScaledValue new_energy_feed_in = {5000, 0};
+  static constexpr ScaledValue new_energy_feed_in{5000, 0};
   GcpMgcpSetEnergyFeedInCache(use_case_.get(), &new_energy_feed_in, NULL, NULL, NULL, NULL);
-  static constexpr ScaledValue new_energy_consumed = {8000, 0};
+  static constexpr ScaledValue new_energy_consumed{8000, 0};
   GcpMgcpSetEnergyConsumedCache(use_case_.get(), &new_energy_consumed, NULL, NULL, NULL, NULL);
   ExpectSendMessage(send::measurement_notify_energy);
   GcpMgcpUpdate(use_case_.get());
 
   // 19. Update scenario 5 (current) and expect the notify
-  static constexpr ScaledValue new_current_a = {200, -1};
+  static constexpr ScaledValue new_current_a{200, -1};
   GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpCurrentPhaseA, &new_current_a, NULL, NULL);
-  static constexpr ScaledValue new_current_b = {210, -1};
+  static constexpr ScaledValue new_current_b{210, -1};
   GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpCurrentPhaseB, &new_current_b, NULL, NULL);
-  static constexpr ScaledValue new_current_c = {220, -1};
+  static constexpr ScaledValue new_current_c{220, -1};
   GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpCurrentPhaseC, &new_current_c, NULL, NULL);
   ExpectSendMessage(send::measurement_notify_current);
   GcpMgcpUpdate(use_case_.get());
 
   // 20. Update scenario 6 (voltage) and expect the notify
-  static constexpr ScaledValue new_voltage_a = {24000, -2};
+  static constexpr ScaledValue new_voltage_a{24000, -2};
   GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseA, &new_voltage_a, NULL, NULL);
-  static constexpr ScaledValue new_voltage_b = {24100, -2};
+  static constexpr ScaledValue new_voltage_b{24100, -2};
   GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseB, &new_voltage_b, NULL, NULL);
-  static constexpr ScaledValue new_voltage_c = {23900, -2};
+  static constexpr ScaledValue new_voltage_c{23900, -2};
   GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseC, &new_voltage_c, NULL, NULL);
-  static constexpr ScaledValue new_voltage_ab = {41000, -2};
+  static constexpr ScaledValue new_voltage_ab{41000, -2};
   GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseAb, &new_voltage_ab, NULL, NULL);
-  static constexpr ScaledValue new_voltage_bc = {41100, -2};
+  static constexpr ScaledValue new_voltage_bc{41100, -2};
   GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseBc, &new_voltage_bc, NULL, NULL);
-  static constexpr ScaledValue new_voltage_ac = {40900, -2};
+  static constexpr ScaledValue new_voltage_ac{40900, -2};
   GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpVoltagePhaseAc, &new_voltage_ac, NULL, NULL);
   ExpectSendMessage(send::measurement_notify_voltage);
   GcpMgcpUpdate(use_case_.get());
 
   // 21. Update scenario 7 (frequency) and expect the notify
-  static constexpr ScaledValue new_frequency = {5000, -2};
+  static constexpr ScaledValue new_frequency{5000, -2};
   GcpMgcpSetMeasurementDataCache(use_case_.get(), kGcpFrequency, &new_frequency, NULL, NULL);
   ExpectSendMessage(send::measurement_notify_frequency);
   GcpMgcpUpdate(use_case_.get());
