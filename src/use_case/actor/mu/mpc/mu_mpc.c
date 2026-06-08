@@ -17,6 +17,7 @@
 #include "src/use_case/actor/mu/mpc/mu_mpc.h"
 
 #include "src/common/array_util.h"
+#include "src/common/eebus_arguments.h"
 #include "src/use_case/actor/common/eebus_monitor_features.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_internal.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc_measurement.h"

@@ -268,6 +268,8 @@ AddInverterEntity(Hpsrv* self, DeviceLocalObject* device_local, const uint32_t* 
 }
 
 EebusError AddGcpMgcp(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
+  UNUSED(device_local);
+
   static const GcpMgcpMeasurementConfig measurement_default_cfg = {
       .value_source = kMeasurementValueSourceTypeMeasuredValue,
   };

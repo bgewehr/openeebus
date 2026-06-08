@@ -165,6 +165,8 @@ EebusError AddMaMpc(Hems* self, DeviceLocalObject* device_local, EntityLocalObje
 }
 
 EebusError AddMaMgcp(Hems* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
+  UNUSED(device_local);
+
   self->ma_mgcp_listener = MaMgcpListenerCreate(HEMS_OBJECT(self));
   if (self->ma_mgcp_listener == NULL) {
     return kEebusErrorMemoryAllocate;
