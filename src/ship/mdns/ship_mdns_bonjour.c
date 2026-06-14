@@ -92,7 +92,6 @@
 #include "src/common/vector.h"
 #include "src/ship/api/mdns_entry.h"
 #include "src/ship/api/ship_mdns_interface.h"
-#include "src/ship/ship_connection/types.h"
 
 /** Set MDNS_DEBUG 1 to enable debug prints */
 #ifndef MDNS_DEBUG
