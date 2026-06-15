@@ -29,6 +29,11 @@ extern "C" {
 
 typedef struct EebusMeasurementBase EebusMeasurementBase;
 
+/**
+ * @brief Strategy function pointer type used to register a measurement's SPINE
+ *        description and electrical connection parameter description during
+ *        use-case initialisation.
+ */
 typedef EebusError (*EebusMeasurementConfigureStrategy)(
     EebusMeasurementBase* self,
     MeasurementServer* msrv,
@@ -43,7 +48,13 @@ typedef struct EebusMeasurementBaseConfig {
 
 /**
  * @brief Allocate and initialise a measurement object.
- * @return Pointer to the created object, or NULL on failure.
+ * @param name     Measurement name identifier (used to look up this object later).
+ * @param scope    SPINE scope type (e.g. acPowerTotal, acCurrent).
+ * @param phases   Electrical connection phase(s) this measurement applies to.
+ * @param cfg      Value source and optional constraints — must not be NULL.
+ * @param strategy Configuration strategy called during use-case initialisation
+ *                 to register the SPINE measurement and parameter descriptions.
+ * @return Pointer to the created object, or NULL on allocation failure.
  */
 EebusMeasurementObject* EebusMeasurementBaseCreate(
     EebusMeasurementNameId name,
@@ -53,30 +64,85 @@ EebusMeasurementObject* EebusMeasurementBaseCreate(
     EebusMeasurementConfigureStrategy strategy
 );
 
+/**
+ * @brief Configure strategy: registers a power measurement description and
+ *        the corresponding electrical connection parameter description.
+ *        Intended to be passed as the @p strategy argument of EebusMeasurementBaseCreate().
+ * @param self  Measurement object being configured.
+ * @param msrv  Measurement server used to add the measurement description.
+ * @param ecsrv Electrical connection server used to add the parameter description.
+ * @param ec_id Electrical connection ID to associate with the parameter description.
+ * @return kEebusErrorOk on success, or an error code on failure.
+ */
 EebusError EebusMeasurementBaseConfigurePower(
     EebusMeasurementBase* self,
     MeasurementServer* msrv,
     ElectricalConnectionServer* ecsrv,
     ElectricalConnectionIdType ec_id
 );
+
+/**
+ * @brief Configure strategy: registers an energy measurement description and
+ *        the corresponding electrical connection parameter description.
+ *        Intended to be passed as the @p strategy argument of EebusMeasurementBaseCreate().
+ * @param self  Measurement object being configured.
+ * @param msrv  Measurement server used to add the measurement description.
+ * @param ecsrv Electrical connection server used to add the parameter description.
+ * @param ec_id Electrical connection ID to associate with the parameter description.
+ * @return kEebusErrorOk on success, or an error code on failure.
+ */
 EebusError EebusMeasurementBaseConfigureEnergy(
     EebusMeasurementBase* self,
     MeasurementServer* msrv,
     ElectricalConnectionServer* ecsrv,
     ElectricalConnectionIdType ec_id
 );
+
+/**
+ * @brief Configure strategy: registers a current measurement description and
+ *        the corresponding electrical connection parameter description.
+ *        Intended to be passed as the @p strategy argument of EebusMeasurementBaseCreate().
+ * @param self  Measurement object being configured.
+ * @param msrv  Measurement server used to add the measurement description.
+ * @param ecsrv Electrical connection server used to add the parameter description.
+ * @param ec_id Electrical connection ID to associate with the parameter description.
+ * @return kEebusErrorOk on success, or an error code on failure.
+ */
 EebusError EebusMeasurementBaseConfigureCurrent(
     EebusMeasurementBase* self,
     MeasurementServer* msrv,
     ElectricalConnectionServer* ecsrv,
     ElectricalConnectionIdType ec_id
 );
+
+/**
+ * @brief Configure strategy: registers a voltage measurement description and
+ *        the corresponding electrical connection parameter description.
+ *        Phase mapping (from/to) is derived from the phases field set at creation time.
+ *        Intended to be passed as the @p strategy argument of EebusMeasurementBaseCreate().
+ * @param self  Measurement object being configured.
+ * @param msrv  Measurement server used to add the measurement description.
+ * @param ecsrv Electrical connection server used to add the parameter description.
+ * @param ec_id Electrical connection ID to associate with the parameter description.
+ * @return kEebusErrorOk on success, or an error code on failure.
+ */
 EebusError EebusMeasurementBaseConfigureVoltage(
     EebusMeasurementBase* self,
     MeasurementServer* msrv,
     ElectricalConnectionServer* ecsrv,
     ElectricalConnectionIdType ec_id
 );
+
+/**
+ * @brief Configure strategy: registers a frequency measurement description and
+ *        the corresponding electrical connection parameter description.
+ *        Intended to be passed as the @p strategy argument of EebusMeasurementBaseCreate().
+ * @param self  Measurement object being configured.
+ * @param msrv  Measurement server used to add the measurement description.
+ * @param ecsrv Electrical connection server used to add the parameter description.
+ * @param ec_id Electrical connection ID to associate with the parameter description.
+ * @return kEebusErrorOk on success, or an error code on failure.
+ */
 EebusError EebusMeasurementBaseConfigureFrequency(
     EebusMeasurementBase* self,
     MeasurementServer* msrv,
