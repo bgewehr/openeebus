@@ -76,6 +76,17 @@ static EebusError Construct(
     ElectricalConnectionPhaseNameType phases,
     const EebusMeasurementBaseConfig* cfg,
     EebusMeasurementConfigureStrategy strategy
+);
+static ElectricalConnectionPhaseNameType VoltagePhaseFrom(ElectricalConnectionPhaseNameType phases);
+static ElectricalConnectionPhaseNameType VoltagePhaseTo(ElectricalConnectionPhaseNameType phases);
+
+static EebusError Construct(
+    EebusMeasurementBase* self,
+    EebusMeasurementNameId name,
+    ScopeTypeType scope,
+    ElectricalConnectionPhaseNameType phases,
+    const EebusMeasurementBaseConfig* cfg,
+    EebusMeasurementConfigureStrategy strategy
 ) {
   EEBUS_MEASUREMENT_INTERFACE(self) = &measurement_base_methods;
 
