@@ -94,8 +94,23 @@ static const ServiceReaderInterface hpsrv_methods = {
 };
 
 static EebusError HpsrvConstruct(Hpsrv* self);
+static EebusError HpsrvStart(Hpsrv* self, int32_t port, const char* role, TlsCertificateObject* tls_certificate);
 
-EebusError HpsrvConstruct(Hpsrv* self) {
+static EebusError AddLpc(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local);
+static EebusError AddLpp(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local);
+static EebusError AddMpc(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local);
+static EebusError AddGcpMgcp(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local);
+
+static EebusError
+AddHeatPumpApplianceEntity(Hpsrv* self, DeviceLocalObject* device_local, const uint32_t* entity_ids, size_t entity_id_size);
+static EebusError
+AddInverterEntity(Hpsrv* self, DeviceLocalObject* device_local, const uint32_t* entity_ids, size_t entity_id_size);
+static EebusError
+AddGridConnectionPointEntity(Hpsrv* self, DeviceLocalObject* device_local, const uint32_t* entity_ids, size_t entity_id_size);
+
+static EebusError SetMpcData(Hpsrv* self, const MpcData* mpc_data, size_t mpc_data_size);
+
+static EebusError HpsrvConstruct(Hpsrv* self) {
   // Override "virtual functions table"
   SERVICE_READER_INTERFACE(self) = &hpsrv_methods;
 
@@ -117,7 +132,7 @@ EebusError HpsrvConstruct(Hpsrv* self) {
   return kEebusErrorOk;
 }
 
-EebusError AddLpc(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
+static EebusError AddLpc(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
   UNUSED(device_local);
 
   self->cs_lpc_listener = CsLpcListenerCreate();
@@ -136,7 +151,7 @@ EebusError AddLpc(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObjec
   return kEebusErrorOk;
 }
 
-EebusError AddLpp(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
+static EebusError AddLpp(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
   UNUSED(device_local);
 
   self->cs_lpp_listener = CsLppListenerCreate();
@@ -155,7 +170,7 @@ EebusError AddLpp(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObjec
   return kEebusErrorOk;
 }
 
-EebusError AddMpc(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
+static EebusError AddMpc(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
   UNUSED(device_local);
 
   static const MuMpcMeasurementConfig measurement_default_cfg = {
@@ -214,7 +229,7 @@ EebusError AddMpc(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObjec
   return kEebusErrorOk;
 }
 
-EebusError AddHeatPumpApplianceEntity(
+static EebusError AddHeatPumpApplianceEntity(
     Hpsrv* self,
     DeviceLocalObject* device_local,
     const uint32_t* entity_ids,
@@ -267,7 +282,7 @@ AddInverterEntity(Hpsrv* self, DeviceLocalObject* device_local, const uint32_t* 
   return kEebusErrorOk;
 }
 
-EebusError AddGcpMgcp(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
+static EebusError AddGcpMgcp(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local) {
   UNUSED(device_local);
 
   static const GcpMgcpMeasurementConfig measurement_default_cfg = {
@@ -332,7 +347,7 @@ EebusError AddGcpMgcp(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalO
   return kEebusErrorOk;
 }
 
-EebusError AddGridConnectionPointEntity(
+static EebusError AddGridConnectionPointEntity(
     Hpsrv* self,
     DeviceLocalObject* device_local,
     const uint32_t* entity_ids,
@@ -359,7 +374,7 @@ EebusError AddGridConnectionPointEntity(
   return kEebusErrorOk;
 }
 
-EebusError HpsrvStart(Hpsrv* hpsrv, int32_t port, const char* role, TlsCertificateObject* tls_certificate) {
+static EebusError HpsrvStart(Hpsrv* hpsrv, int32_t port, const char* role, TlsCertificateObject* tls_certificate) {
   if (tls_certificate == NULL) {
     return kEebusErrorInputArgument;
   }
@@ -505,7 +520,7 @@ void HpsrvUnregisterRemoteSki(HpsrvObject* self, const char* ski) {
   EEBUS_SERVICE_UNREGISTER_REMOTE_SKI(HPSRV(self)->service, ski);
 }
 
-EebusError SetMpcData(Hpsrv* self, const MpcData* mpc_data, size_t mpc_data_size) {
+static EebusError SetMpcData(Hpsrv* self, const MpcData* mpc_data, size_t mpc_data_size) {
   EebusError err = kEebusErrorOk;
 
   for (size_t i = 0; i < mpc_data_size; ++i) {
