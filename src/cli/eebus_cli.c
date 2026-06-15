@@ -149,7 +149,9 @@ void Destruct(EebusCliObject* self) {
 void SetCsLpc(EebusCliObject* self, CsLpUseCaseObject* cs_lpc_use_case) {
   EebusCli* const eebus_cli = EEBUS_CLI(self);
 
-  // Release the previously created CLI instance and create a new one
+  // Free the existing CLI instance before creating a new one — this function may be
+  // called multiple times (e.g. on use case re-registration), so the old instance
+  // must be released first to prevent a memory leak.
   CsLpCliDelete(eebus_cli->cs_lpc_cli);
   eebus_cli->cs_lpc_cli = CsLpCliCreate(kEnergyDirectionTypeConsume, cs_lpc_use_case);
 }
@@ -157,7 +159,9 @@ void SetCsLpc(EebusCliObject* self, CsLpUseCaseObject* cs_lpc_use_case) {
 void SetCsLpp(EebusCliObject* self, CsLpUseCaseObject* cs_lpp_use_case) {
   EebusCli* const eebus_cli = EEBUS_CLI(self);
 
-  // Release the previously created CLI instance and create a new one
+  // Free the existing CLI instance before creating a new one — this function may be
+  // called multiple times (e.g. on use case re-registration), so the old instance
+  // must be released first to prevent a memory leak.
   CsLpCliDelete(eebus_cli->cs_lpp_cli);
   eebus_cli->cs_lpp_cli = CsLpCliCreate(kEnergyDirectionTypeProduce, cs_lpp_use_case);
 }
@@ -169,7 +173,10 @@ void SetEgLpc(
 ) {
   EebusCli* const eebus_cli = EEBUS_CLI(self);
 
-  // Release the previously created CLI instance
+  // Always tear down the existing CLI instance — this function may be called
+  // multiple times (e.g. on reconnection), so the old instance must be released
+  // first to prevent a memory leak. A NULL remote address signals disconnection,
+  // in which case no new instance will be created below.
   EgLpCliDelete(eebus_cli->eg_lpc_cli);
   eebus_cli->eg_lpc_cli = NULL;
 
@@ -182,7 +189,9 @@ void SetEgLpc(
 static void SetMuMpc(EebusCliObject* self, MuMpcUseCaseObject* mu_mpc_use_case) {
   EebusCli* const eebus_cli = EEBUS_CLI(self);
 
-  // Release the previously created CLI instance and create a new one
+  // Free the existing CLI instance before creating a new one — this function may be
+  // called multiple times (e.g. on use case re-registration), so the old instance
+  // must be released first to prevent a memory leak.
   MuMpcCliDelete(eebus_cli->mu_mpc_cli);
   eebus_cli->mu_mpc_cli = MuMpcCliCreate(mu_mpc_use_case);
 }
@@ -194,7 +203,10 @@ void SetEgLpp(
 ) {
   EebusCli* const eebus_cli = EEBUS_CLI(self);
 
-  // Release the previously created CLI instance
+  // Always tear down the existing CLI instance — this function may be called
+  // multiple times (e.g. on reconnection), so the old instance must be released
+  // first to prevent a memory leak. A NULL remote address signals disconnection,
+  // in which case no new instance will be created below.
   EgLpCliDelete(eebus_cli->eg_lpp_cli);
   eebus_cli->eg_lpp_cli = NULL;
 
@@ -211,7 +223,10 @@ void SetMaMpc(
 ) {
   EebusCli* const eebus_cli = EEBUS_CLI(self);
 
-  // Release the previously created CLI instance
+  // Always tear down the existing CLI instance — this function may be called
+  // multiple times (e.g. on reconnection), so the old instance must be released
+  // first to prevent a memory leak. A NULL remote address signals disconnection,
+  // in which case no new instance will be created below.
   MaMpcCliDelete(eebus_cli->ma_mpc_cli);
   eebus_cli->ma_mpc_cli = NULL;
 
@@ -224,7 +239,9 @@ void SetMaMpc(
 static void SetGcpMgcp(EebusCliObject* self, GcpMgcpUseCaseObject* gcp_mgcp_use_case) {
   EebusCli* const eebus_cli = EEBUS_CLI(self);
 
-  // Release the previously created CLI instance and create a new one
+  // Free the existing CLI instance before creating a new one — this function may be
+  // called multiple times (e.g. on use case re-registration), so the old instance
+  // must be released first to prevent a memory leak.
   GcpMgcpCliDelete(eebus_cli->gcp_mgcp_cli);
   eebus_cli->gcp_mgcp_cli = GcpMgcpCliCreate(gcp_mgcp_use_case);
 }
@@ -233,7 +250,10 @@ static void
 SetMaMgcp(EebusCliObject* self, MaMgcpUseCaseObject* ma_mgcp_use_case, const EntityAddressType* remote_entity_address) {
   EebusCli* const eebus_cli = EEBUS_CLI(self);
 
-  // Release the previously created CLI instance
+  // Always tear down the existing CLI instance — this function may be called
+  // multiple times (e.g. on reconnection), so the old instance must be released
+  // first to prevent a memory leak. A NULL remote address signals disconnection,
+  // in which case no new instance will be created below.
   MaMgcpCliDelete(eebus_cli->ma_mgcp_cli);
   eebus_cli->ma_mgcp_cli = NULL;
 
