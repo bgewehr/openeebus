@@ -7,6 +7,8 @@ set(SOURCES
   src/cli/eebus_cli_eg_lp.c
   src/cli/eebus_cli_ma_mpc.c
   src/cli/eebus_cli_mu_mpc.c
+  src/cli/eebus_cli_ma_mgcp.c
+  src/cli/eebus_cli_gcp_mgcp.c
   src/common/debug.c
   src/common/eebus_device_info.c
   src/common/eebus_math/eebus_math.c
@@ -82,6 +84,10 @@ set(SOURCES
   src/spine/node_management/node_management_subscription.c
   src/spine/node_management/node_management_usecase.c
   src/spine/subscription/subscription_manager.c
+  src/use_case/actor/common/eebus_measurement_base.c
+  src/use_case/actor/common/eebus_monitor_base.c
+  src/use_case/actor/common/eebus_monitor_container.c
+  src/use_case/actor/common/eebus_monitor_features.c
   src/use_case/actor/common/load_control.c
   src/use_case/actor/cs/lpc/cs_lpc.c
   src/use_case/actor/cs/lpp/cs_lpp.c
@@ -93,6 +99,8 @@ set(SOURCES
   src/use_case/actor/eg/eg_lp_events.c
   src/use_case/actor/eg/eg_lp_public.c
   src/use_case/actor/eg/eg_lp.c
+  src/use_case/actor/ma/ma_events.c
+  src/use_case/actor/ma/ma_measurement_base.c
   src/use_case/actor/ma/mpc/ma_mpc.c
   src/use_case/actor/ma/mpc/ma_mpc_events.c
   src/use_case/actor/ma/mpc/ma_mpc_measurement.c
@@ -101,7 +109,16 @@ set(SOURCES
   src/use_case/actor/mu/mpc/mu_mpc_measurement.c
   src/use_case/actor/mu/mpc/mu_mpc_monitor.c
   src/use_case/actor/mu/mpc/mu_mpc_public.c
+  src/use_case/actor/ma/mgcp/ma_mgcp.c
+  src/use_case/actor/ma/mgcp/ma_mgcp_events.c
+  src/use_case/actor/ma/mgcp/ma_mgcp_measurement.c
+  src/use_case/actor/ma/mgcp/ma_mgcp_public.c
+  src/use_case/actor/gcp/mgcp/gcp_mgcp.c
+  src/use_case/actor/gcp/mgcp/gcp_mgcp_measurement.c
+  src/use_case/actor/gcp/mgcp/gcp_mgcp_monitor.c
+  src/use_case/actor/gcp/mgcp/gcp_mgcp_public.c
   src/use_case/model/load_limit_types.c
+  src/use_case/model/mgcp_types.c
   src/use_case/model/mpc_types.c
   src/use_case/model/scaled_value.c
   src/use_case/specialization/device_configuration/device_configuration_client.c
@@ -135,6 +152,8 @@ set(HEADERS
   src/cli/eebus_cli_interface.h
   src/cli/eebus_cli_ma_mpc.h
   src/cli/eebus_cli_mu_mpc.h
+  src/cli/eebus_cli_ma_mgcp.h
+  src/cli/eebus_cli_gcp_mgcp.h
   src/common/api/eebus_mutex_interface.h
   src/common/api/eebus_queue_interface.h
   src/common/api/eebus_timer_interface.h
@@ -336,7 +355,14 @@ set(HEADERS
   src/spine/node_management/node_management_internal.h
   src/spine/node_management/node_management_remote.h
   src/spine/subscription/subscription_manager.h
+  src/use_case/api/ma_measurement_interface.h
   src/use_case/api/ma_mpc_listener_interface.h
+  src/use_case/api/ma_mgcp_listener_interface.h
+  src/use_case/api/eebus_monitor_interface.h
+  src/use_case/actor/common/eebus_measurement_base.h
+  src/use_case/actor/common/eebus_monitor_base.h
+  src/use_case/actor/common/eebus_monitor_container.h
+  src/use_case/actor/common/eebus_monitor_features.h
   src/use_case/actor/common/load_control.h
   src/use_case/actor/cs/cs_lp_events.h
   src/use_case/actor/cs/cs_lp_internal.h
@@ -348,6 +374,8 @@ set(HEADERS
   src/use_case/actor/eg/eg_lp_events.h
   src/use_case/actor/eg/eg_lp_internal.h
   src/use_case/actor/eg/eg_lp.h
+  src/use_case/actor/ma/ma_events.h
+  src/use_case/actor/ma/ma_measurement_base.h
   src/use_case/actor/ma/mpc/ma_mpc.h
   src/use_case/actor/ma/mpc/ma_mpc_events.h
   src/use_case/actor/ma/mpc/ma_mpc_internal.h
@@ -356,6 +384,15 @@ set(HEADERS
   src/use_case/actor/mu/mpc/mu_mpc_internal.h
   src/use_case/actor/mu/mpc/mu_mpc_monitor.h
   src/use_case/actor/mu/mpc/mu_mpc_measurement.h
+  src/use_case/actor/ma/mgcp/ma_mgcp.h
+  src/use_case/actor/ma/mgcp/ma_mgcp_events.h
+  src/use_case/actor/ma/mgcp/ma_mgcp_internal.h
+  src/use_case/actor/ma/mgcp/ma_mgcp_measurement.h
+  src/use_case/actor/gcp/mgcp/gcp_mgcp.h
+  src/use_case/actor/gcp/mgcp/gcp_mgcp_internal.h
+  src/use_case/actor/gcp/mgcp/gcp_mgcp_measurement.h
+  src/use_case/actor/gcp/mgcp/gcp_mgcp_monitor.h
+  src/use_case/model/mgcp_types.h
   src/use_case/model/mpc_types.h
   src/use_case/model/scaled_value.h
   src/use_case/model/load_limit_types.h

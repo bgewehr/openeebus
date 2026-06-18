@@ -1,6 +1,6 @@
-MuMpcMeasurement
+EebusMeasurement
 void Destruct()
-MeasurementNameId GetName() const
+EebusMeasurementNameId GetName() const
 EebusError GetDataValue(MeasurementServer* msrv, ScaledValue* measurement_value) const
 const MeasurementConstraintsDataType* GetConstraints() const
 EebusError Configure(MeasurementServer* msrv, ElectricalConnectionServer* ecsrv, ElectricalConnectionIdType electrical_connection_id)

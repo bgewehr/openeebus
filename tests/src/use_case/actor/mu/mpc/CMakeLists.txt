@@ -88,6 +88,10 @@ target_sources(
   ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/device_configuration/device_configuration_server.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/electrical_connection/electrical_connection_common.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/electrical_connection/electrical_connection_server.c
+  ${MAIN_PROJ_SOURCES_PATH}/use_case/actor/common/eebus_measurement_base.c
+  ${MAIN_PROJ_SOURCES_PATH}/use_case/actor/common/eebus_monitor_base.c
+  ${MAIN_PROJ_SOURCES_PATH}/use_case/actor/common/eebus_monitor_container.c
+  ${MAIN_PROJ_SOURCES_PATH}/use_case/actor/common/eebus_monitor_features.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/measurement/measurement_common.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/measurement/measurement_server.c
   ${MAIN_PROJ_SOURCES_PATH}/use_case/specialization/feature_info_client.c

@@ -25,6 +25,8 @@
 #include "src/spine/model/entity_types.h"
 #include "src/use_case/actor/cs/cs_lp.h"
 #include "src/use_case/actor/eg/eg_lp.h"
+#include "src/use_case/actor/gcp/mgcp/gcp_mgcp.h"
+#include "src/use_case/actor/ma/mgcp/ma_mgcp.h"
 #include "src/use_case/actor/ma/mpc/ma_mpc.h"
 #include "src/use_case/actor/mu/mpc/mu_mpc.h"
 
@@ -106,6 +108,23 @@ struct EebusCliInterface {
       const EntityAddressType* remote_entity_address
   );
   /**
+   * @brief Set the GCP MGCP use case instance to be used by the CLI handler
+   * @param self Pointer to the EEBUS CLI handler instance
+   * @param gcp_mgcp_use_case GCP MGCP use case instance to be used by the CLI handler
+   */
+  void (*set_gcp_mgcp)(EebusCliObject* self, GcpMgcpUseCaseObject* gcp_mgcp_use_case);
+  /**
+   * @brief Set the MA MGCP use case instance to be used by the CLI handler
+   * @param self Pointer to the EEBUS CLI handler instance
+   * @param ma_mgcp_use_case MA MGCP use case instance to be used by the CLI handler
+   * @param remote_entity_address MA MGCP remote entity address to be used by the CLI handler
+   */
+  void (*set_ma_mgcp)(
+      EebusCliObject* self,
+      MaMgcpUseCaseObject* ma_mgcp_use_case,
+      const EntityAddressType* remote_entity_address
+  );
+  /**
    * @brief Handle the command passed as a string
    * @param self Pointer to the EEBUS CLI handler instance
    * @param cmd Command string to be handled
@@ -168,6 +187,17 @@ struct EebusCliObject {
  */
 #define EEBUS_CLI_SET_MA_MPC(obj, ma_mpc_use_case, remote_entity_address) \
   (EEBUS_CLI_INTERFACE(obj)->set_ma_mpc(obj, ma_mpc_use_case, remote_entity_address))
+
+/**
+ * @brief EEBUS CLI Set GCP MGCP caller definition
+ */
+#define EEBUS_CLI_SET_GCP_MGCP(obj, gcp_mgcp_use_case) (EEBUS_CLI_INTERFACE(obj)->set_gcp_mgcp(obj, gcp_mgcp_use_case))
+
+/**
+ * @brief EEBUS CLI Set MA MGCP caller definition
+ */
+#define EEBUS_CLI_SET_MA_MGCP(obj, ma_mgcp_use_case, remote_entity_address) \
+  (EEBUS_CLI_INTERFACE(obj)->set_ma_mgcp(obj, ma_mgcp_use_case, remote_entity_address))
 
 /**
  * @brief EEBUS CLI Handle Cmd caller definition

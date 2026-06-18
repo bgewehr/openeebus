@@ -98,6 +98,49 @@
  * // ma_mpc get <measurement_name>
  * // For power_total use e.g.:
  * ma_mpc get power_total
+ *
+ * GCP MGCP:
+ * // GCP MGCP commands format:
+ * // gcp_mgcp get <measurement_name>
+ * // gcp_mgcp set <measurement_name> <value>
+ * // The list of available measurement names:
+ * // power_total
+ * // energy_feed_in
+ * // energy_consumed
+ * // current_phase_a
+ * // current_phase_b
+ * // current_phase_c
+ * // voltage_phase_a
+ * // voltage_phase_b
+ * // voltage_phase_c
+ * // voltage_phase_ab
+ * // voltage_phase_bc
+ * // voltage_phase_ac
+ * // frequency
+ * // For power_total use e.g.:
+ * gcp_mgcp get power_total
+ * gcp_mgcp set power_total 1200.0
+ *
+ * MA MGCP:
+ * // MA MGCP commands format:
+ * // ma_mgcp get <measurement_name>
+ * // The list of available measurement names:
+ * // power_total
+ * // energy_feed_in
+ * // energy_consumed
+ * // current_phase_a
+ * // current_phase_b
+ * // current_phase_c
+ * // voltage_phase_a
+ * // voltage_phase_b
+ * // voltage_phase_c
+ * // voltage_phase_ab
+ * // voltage_phase_bc
+ * // voltage_phase_ac
+ * // frequency
+ * // For power_total use e.g.:
+ * ma_mgcp get power_total
+ *
  */
 
 #ifndef SRC_CLI_EEBUS_CLI_H_

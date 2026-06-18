@@ -21,47 +21,8 @@
 #include "src/common/eebus_errors.h"
 
 #include "src/use_case/actor/ma/mpc/ma_mpc.h"
-#include "src/use_case/actor/ma/mpc/ma_mpc_internal.h"
 #include "src/use_case/actor/ma/mpc/ma_mpc_measurement.h"
 #include "src/use_case/use_case.h"
-
-EebusError MaMpcGetMeasurementDataInternal(
-    const MaMpcUseCase* self,
-    MuMpcMeasurementNameId measurement_name_id,
-    const EntityAddressType* remote_entity_addr,
-    ScaledValue* measurement_value
-) {
-  const UseCase* const use_case = USE_CASE(self);
-
-  EntityRemoteObject* const remote_entity
-      = USE_CASE_GET_REMOTE_ENTITY_WITH_ADDRESS(USE_CASE_OBJECT(self), remote_entity_addr);
-
-  if (remote_entity == NULL) {
-    return kEebusErrorNoChange;
-  }
-
-  MeasurementClient mcl = {0};
-
-  EebusError err = MeasurementClientConstruct(&mcl, use_case->local_entity, remote_entity);
-  if (err != kEebusErrorOk) {
-    return err;
-  }
-
-  ElectricalConnectionClient ecl = {0};
-
-  err = ElectricalConnectionClientConstruct(&ecl, use_case->local_entity, remote_entity);
-  if (err != kEebusErrorOk) {
-    return err;
-  }
-
-  const MaMpcMeasurementObject* const measurement = MaMpcMeasurementGetInstanceWithNameId(measurement_name_id);
-
-  if (measurement == NULL) {
-    return kEebusErrorNotSupported;
-  }
-
-  return MA_MPC_MEASUREMENT_GET_DATA_VALUE(measurement, &mcl, &ecl, measurement_value);
-}
 
 EebusError MaMpcGetMeasurementData(
     const MaMpcUseCaseObject* self,
@@ -79,12 +40,16 @@ EebusError MaMpcGetMeasurementData(
 
   DEVICE_LOCAL_LOCK(use_case->local_device);
 
-  err = MaMpcGetMeasurementDataInternal(
-      MA_MPC_USE_CASE(self),
-      measurement_name_id,
-      remote_entity_addr,
-      measurement_value
-  );
+  EntityRemoteObject* const remote_entity
+      = USE_CASE_GET_REMOTE_ENTITY_WITH_ADDRESS(USE_CASE_OBJECT(use_case), remote_entity_addr);
+
+  const MaMeasurementObject* const measurement = MaMpcMeasurementGetInstanceWithNameId(measurement_name_id);
+
+  if (measurement != NULL) {
+    err = MA_MEASUREMENT_GET_DATA(measurement, use_case->local_entity, remote_entity, measurement_value);
+  } else {
+    err = kEebusErrorNotSupported;
+  }
 
   DEVICE_LOCAL_UNLOCK(use_case->local_device);
 

@@ -50,10 +50,7 @@ MaMpcUseCaseObject* MaMpcUseCaseCreate(EntityLocalObject* local_entity, MaMpcLis
  * @param ma_mpc_use_case Pointer to the MA MPC use case instance to delete
  */
 static inline void MaMpcUseCaseDelete(MaMpcUseCaseObject* ma_mpc_use_case) {
-  if (ma_mpc_use_case != NULL) {
-    USE_CASE_DESTRUCT(USE_CASE_OBJECT(ma_mpc_use_case));
-    EEBUS_FREE(ma_mpc_use_case);
-  }
+  UseCaseDelete(USE_CASE_OBJECT(ma_mpc_use_case));
 }
 
 /**

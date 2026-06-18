@@ -27,6 +27,7 @@
 #include "src/common/eebus_malloc.h"
 #include "src/service/api/service_reader_interface.h"
 #include "src/ship/api/tls_certificate_interface.h"
+#include "src/use_case/model/scaled_value.h"
 
 typedef struct HpsrvObject HpsrvObject;
 
@@ -147,6 +148,89 @@ EebusError HpsrvSetVoltagePerPhase(
  * @return kEebusErrorOk on success or error code on failure
  */
 EebusError HpsrvSetAcFrequency(HpsrvObject* self, int32_t ac_frequency);
+
+/**
+ * @brief Set the GCP MGCP power total.
+ * Passing e.g. 50000 will result in setting 500.00W
+ * @param self Pointer to the HpsrvObject instance
+ * @param power_total Total active power in W scaled by 10^(-2)
+ * @return kEebusErrorOk on success or error code on failure
+ */
+EebusError HpsrvSetGcpMgcpPowerTotal(HpsrvObject* self, int32_t power_total);
+
+/**
+ * @brief Set the GCP MGCP grid feed-in energy (Scenario 3).
+ * Passing e.g. 100000 will result in setting 1000.00Wh
+ * @param self Pointer to the HpsrvObject instance
+ * @param energy_feed_in Feed-in energy in Wh scaled by 10^(-2)
+ * @return kEebusErrorOk on success or error code on failure
+ */
+EebusError HpsrvSetGcpMgcpEnergyFeedIn(HpsrvObject* self, int32_t energy_feed_in);
+
+/**
+ * @brief Set the GCP MGCP grid consumed energy (Scenario 4).
+ * Passing e.g. 100000 will result in setting 1000.00Wh
+ * @param self Pointer to the HpsrvObject instance
+ * @param energy_consumed Consumed energy in Wh scaled by 10^(-2)
+ * @return kEebusErrorOk on success or error code on failure
+ */
+EebusError HpsrvSetGcpMgcpEnergyConsumed(HpsrvObject* self, int32_t energy_consumed);
+
+/**
+ * @brief Set the GCP MGCP AC current per phase (Scenario 5).
+ * Passing e.g. 200 will result in setting 2.00A
+ * @param self Pointer to the HpsrvObject instance
+ * @param current_phase_a Phase A RMS current in A scaled by 10^(-2)
+ * @param current_phase_b Phase B RMS current in A scaled by 10^(-2)
+ * @param current_phase_c Phase C RMS current in A scaled by 10^(-2)
+ * @return kEebusErrorOk on success or error code on failure
+ */
+EebusError HpsrvSetGcpMgcpCurrentPerPhase(
+    HpsrvObject* self,
+    int32_t current_phase_a,
+    int32_t current_phase_b,
+    int32_t current_phase_c
+);
+
+/**
+ * @brief Set the GCP MGCP AC voltage per phase (Scenario 6).
+ * Passing e.g. 22000 will result in setting 220.00V
+ * @param self Pointer to the HpsrvObject instance
+ * @param voltage_phase_a  A to Neutral voltage scaled by 10^(-2)
+ * @param voltage_phase_b  B to Neutral voltage scaled by 10^(-2)
+ * @param voltage_phase_c  C to Neutral voltage scaled by 10^(-2)
+ * @param voltage_phase_ab A to B voltage scaled by 10^(-2)
+ * @param voltage_phase_bc B to C voltage scaled by 10^(-2)
+ * @param voltage_phase_ac C to A voltage scaled by 10^(-2)
+ * @return kEebusErrorOk on success or error code on failure
+ */
+EebusError HpsrvSetGcpMgcpVoltagePerPhase(
+    HpsrvObject* self,
+    int32_t voltage_phase_a,
+    int32_t voltage_phase_b,
+    int32_t voltage_phase_c,
+    int32_t voltage_phase_ab,
+    int32_t voltage_phase_bc,
+    int32_t voltage_phase_ac
+);
+
+/**
+ * @brief Set the GCP MGCP AC frequency (Scenario 7).
+ * Passing e.g. 5000 will result in setting 50.00Hz
+ * @param self Pointer to the HpsrvObject instance
+ * @param frequency AC grid frequency in Hz scaled by 10^(-2)
+ * @return kEebusErrorOk on success or error code on failure
+ */
+EebusError HpsrvSetGcpMgcpFrequency(HpsrvObject* self, int32_t frequency);
+
+/**
+ * @brief Set the GCP MGCP PV curtailment limit factor (Scenario 1).
+ * Passing e.g. a ScaledValue with value=75 scale=0 will result in setting 75%
+ * @param self Pointer to the HpsrvObject instance
+ * @param value PV curtailment limit factor in % as a ScaledValue
+ * @return kEebusErrorOk on success or error code on failure
+ */
+EebusError HpsrvSetGcpMgcpPvCurtailmentLimitFactor(HpsrvObject* self, const ScaledValue* value);
 
 /**
  * @brief Handle command line input

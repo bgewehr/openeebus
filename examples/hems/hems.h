@@ -90,6 +90,13 @@ void HemsSetEgLppRemoteEntity(HemsObject* self, const EntityAddressType* entity_
 void HemsSetMaMpcRemoteEntity(HemsObject* self, const EntityAddressType* entity_addr);
 
 /**
+ * @brief Set the MA MGCP remote entity address
+ * @param self HEMS instance to set the remote entity for
+ * @param entity_addr Pointer to the entity address (NULL = disconnected)
+ */
+void HemsSetMaMgcpRemoteEntity(HemsObject* self, const EntityAddressType* entity_addr);
+
+/**
  * @brief Handle command line input
  * @param self HEMS instance to handle the command for
  * @param cmd Command string to be handled
