@@ -153,12 +153,12 @@ static EebusError GetDataValue(const EebusMeasurementObject* self, MeasurementSe
   if ((msrv == NULL) || (value == NULL)) {
     return kEebusErrorInputArgumentNull;
   }
-  
+
   const MeasurementDataType* const data = MeasurementCommonGetMeasurementWithId(&msrv->measurement_common, m->id);
   if (data == NULL) {
     return kEebusErrorNoChange;
   }
-  
+
   return ScaledValueInitWithScaledNumber(value, data->value);
 }
 

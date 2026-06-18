@@ -101,12 +101,20 @@ static EebusError AddLpp(Hpsrv* self, DeviceLocalObject* device_local, EntityLoc
 static EebusError AddMpc(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local);
 static EebusError AddGcpMgcp(Hpsrv* self, DeviceLocalObject* device_local, EntityLocalObject* entity_local);
 
-static EebusError
-AddHeatPumpApplianceEntity(Hpsrv* self, DeviceLocalObject* device_local, const uint32_t* entity_ids, size_t entity_id_size);
+static EebusError AddHeatPumpApplianceEntity(
+    Hpsrv* self,
+    DeviceLocalObject* device_local,
+    const uint32_t* entity_ids,
+    size_t entity_id_size
+);
 static EebusError
 AddInverterEntity(Hpsrv* self, DeviceLocalObject* device_local, const uint32_t* entity_ids, size_t entity_id_size);
-static EebusError
-AddGridConnectionPointEntity(Hpsrv* self, DeviceLocalObject* device_local, const uint32_t* entity_ids, size_t entity_id_size);
+static EebusError AddGridConnectionPointEntity(
+    Hpsrv* self,
+    DeviceLocalObject* device_local,
+    const uint32_t* entity_ids,
+    size_t entity_id_size
+);
 
 static EebusError SetMpcData(Hpsrv* self, const MpcData* mpc_data, size_t mpc_data_size);
 
