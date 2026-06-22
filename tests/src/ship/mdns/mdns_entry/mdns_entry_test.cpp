@@ -282,6 +282,27 @@ INSTANTIATE_TEST_SUITE_P(
             .brand       = "Elli",
             .type        = "Wallbox",
             .model       = "Wallbox",
+        },
+        MdnsEntrySetResolveInfoTestInput{
+            .description = "Test Elli txt record"sv,
+            .txt_record  = "\011type=GCPH"
+                           "\054ski=efb02aecb789f309f5169f99ac7b9487e04a1d9b"
+                           "\006serial"
+                           "\016register=false"
+                           "\013path=/ship/"
+                           "\027model=Steuereinrichtung"
+                           "\057id=i:32266_u:EPPCC001161955_r:Steuereinrichtung"
+                           "\005cat=1"
+                           "\011brand=PPC"
+                           "\011txtvers=1",
+            .txtvers     = "1",
+            .id          = "i:32266_u:EPPCC001161955_r:Steuereinrichtung",
+            .path        = "/ship/",
+            .ski         = "efb02aecb789f309f5169f99ac7b9487e04a1d9b",
+            .reg         = "false",
+            .brand       = "PPC",
+            .type        = "GCPH",
+            .model       = "Steuereinrichtung",
         }
     )
 );
