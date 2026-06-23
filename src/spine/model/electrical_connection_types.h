@@ -280,7 +280,7 @@ typedef struct ElectricalConnectionDescriptionDataType ElectricalConnectionDescr
 struct ElectricalConnectionDescriptionDataType {
   const ElectricalConnectionIdType* electrical_connection_id;   /**< "electricalConnectionId" */
   const ElectricalConnectionVoltageTypeType* power_supply_type; /**< "powerSupplyType" */
-  const ElectricalConnectionPhaseNameType* ac_connected_phases; /**< "acConnectedPhases" */
+  const uint32_t* ac_connected_phases;                          /**< "acConnectedPhases" */
   const DurationType* ac_rms_period_duration;                   /**< "acRmsPeriodDuration" */
   const EnergyDirectionType* positive_energy_direction;         /**< "positiveEnergyDirection" */
   const ScopeTypeType* scope_type;                              /**< "scopeType" */
