@@ -208,3 +208,127 @@ text_sensor:
       }
       return std::string("Normalbetrieb");
     update_interval: 10s
+
+# ============================================================================
+# Web Server – HEMS Status UI
+# Erreichbar unter http://<ip-adresse>/
+# Alle Entities erscheinen automatisch gruppiert nach Kategorie.
+# "area" gruppiert zusammengehörige Geräte im Dashboard.
+# ============================================================================
+web_server:
+  port: 80
+  version: 3          # Version 3 hat besseres Layout und Gruppenunterstützung
+  include_internal: false
+
+# Damit die Entities im Web UI sauber als HEMS-Rubrik erscheinen,
+# werden sie über "entity_category" und aussagekräftige Namen strukturiert.
+# ESPHome Web Server v3 gruppiert automatisch nach Typ (sensor/switch/number).
+
+# ============================================================================
+# Zusätzliche Web-UI Entities — Status-Übersicht
+# ============================================================================
+
+# Bereits definierte Entities bekommen über ihre Namen
+# eine logische Gruppierung:
+#
+#  SENSOREN (Messwerte)
+#    "VNB Leistungslimit [W]"      ← aktuelles EEBus-Limit
+#    "Wallbox Ladestrom Sollwert"  ← aktuell gesetzter Strom
+#    "HEMS Betriebsmodus"          ← 0=Normal, 1=Gedimmt
+#
+#  TEXT-SENSOREN (Status)
+#    "EEBus Status"                ← Klartextmeldung
+#    "SG-Ready Modus"              ← aktueller WP-Modus
+#    "§14a Steuerungskanal"        ← EEBus oder Relais
+#
+#  SCHALTER (nur Diagnose, kein Normalbetrieb)
+#    "SG-Ready Bit 1 (DO1)"
+#    "SG-Ready Bit 2 (DO2)"
+#
+#  ZAHL (Einstellung)
+#    "Wallbox Ladestrom Sollwert"
+
+# Zusätzliche Text-Sensoren für das Web UI
+text_sensor:
+  - platform: template
+    name: "SG-Ready Modus"
+    icon: "mdi:heat-pump"
+    update_interval: 5s
+    lambda: |-
+      bool b1 = id(sg_ready_bit1).state;
+      bool b2 = id(sg_ready_bit2).state;
+      if (!b1 && !b2) return std::string("Modus 1 – EVU-Sperre");
+      if ( b1 && !b2) return std::string("Modus 2 – Normalbetrieb");
+      if (!b1 &&  b2) return std::string("Modus 3 – PV-Empfehlung");
+      return                 std::string("Modus 4 – Maximalleistung");
+
+  - platform: template
+    name: "§14a Steuerungskanal"
+    icon: "mdi:transmission-tower"
+    update_interval: 10s
+    lambda: |-
+      // Zeigt ob aktuell EEBus oder Relaiskontakt aktiv steuert
+      if (id(hems_lpc).is_limit_active())
+        return std::string("EEBus (digital)");
+      if (id(vnb_relay_signal).state)
+        return std::string("Relaiskontakt (FNN-2bit)");
+      return std::string("Kein Eingriff aktiv");
+
+  - platform: template
+    name: "Mindestleistung §14a"
+    icon: "mdi:lightning-bolt-circle"
+    update_interval: 60s
+    lambda: |-
+      // Statisch: gesetzliche Mindestleistung 4200 W
+      return std::string("4200 W (gesetzl. Minimum)");
+    entity_category: diagnostic
+
+# Sensor: Wallbox Ist-Leistung (aus Modbus lesen)
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: wallbox_ctrl
+    name: "Wallbox Ist-Leistung"
+    icon: "mdi:ev-station"
+    register_type: holding
+    address: 300        # Shell Recharge: Active Power Total (Register prüfen)
+    value_type: U_WORD
+    unit_of_measurement: "W"
+    accuracy_decimals: 0
+    filters:
+      - multiply: 1.0
+
+  - platform: template
+    name: "Verfügbare Restleistung"
+    icon: "mdi:gauge"
+    unit_of_measurement: "W"
+    accuracy_decimals: 0
+    update_interval: 5s
+    lambda: |-
+      // Zeigt wie viel vom VNB-Limit noch frei ist
+      if (!id(hems_lpc).is_limit_active()) return 99999.0f;
+      return id(hems_lpc).current_limit_w() - 3900.0f; // WP-Reserve abziehen
+
+# Button für manuelle Steuerung / Test
+button:
+  - platform: template
+    name: "Failsafe testen (4200 W)"
+    icon: "mdi:shield-check"
+    entity_category: diagnostic
+    on_press:
+      - lambda: |-
+          // Simuliert VNB-Eingriff auf Mindestleistung (nur für Tests)
+          id(sg_ready_bit1).turn_off();
+          id(sg_ready_bit2).turn_off();
+          id(wallbox_ladestrom).set_value(6.0f);
+          ESP_LOGW("hems", "Failsafe-Test aktiviert");
+
+  - platform: template
+    name: "Normalbetrieb wiederherstellen"
+    icon: "mdi:restore"
+    entity_category: diagnostic
+    on_press:
+      - lambda: |-
+          id(sg_ready_bit1).turn_on();
+          id(sg_ready_bit2).turn_off();
+          id(wallbox_ladestrom).set_value(16.0f);
+          ESP_LOGI("hems", "Normalbetrieb manuell wiederhergestellt");
