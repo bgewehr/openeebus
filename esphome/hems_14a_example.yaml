@@ -308,3 +308,77 @@ button:
           id(sg_ready_bit1).turn_on();
           id(sg_ready_bit2).turn_off();
           id(wallbox_ladestrom).set_value(16.0f);
+
+# ============================================================================
+# EEBus WP – Leistungssteuerung Bosch Compress 5800i via K40RF Gateway
+# Der HEMS agiert als Energy Guard (EG) und sendet Limits an die WP.
+# Das K40RF wird automatisch per mDNS gefunden.
+# ============================================================================
+eebus_wp:
+  id: hems_wp
+  ship_port: 4713           # Zweiter Port — getrennt von eebus_lpc (4712)
+  # SKI des K40RF — nach erstem Pairing im Web UI unter "K40RF SKI" sichtbar.
+  # Leer lassen für Auto-Discovery beim ersten Start.
+  remote_ski: ""
+  failsafe_limit_w: 4200.0  # WP läuft im Failsafe mit Mindestleistung
+  failsafe_duration_s: 7200 # 2 Stunden Failsafe-Dauer (SHIP-Vorgabe: 2–24h)
+
+  on_wp_connected:
+    - logger.log: "K40RF verbunden — EEBus WP-Steuerung aktiv"
+
+  on_wp_disconnected:
+    - logger.log: "K40RF getrennt — Fallback auf SG-Ready"
+
+  on_power_reading:
+    - lambda: |-
+        // Aktueller WP-Verbrauch vom K40RF per MPC gemeldet
+        ESP_LOGI("hems", "WP Ist-Leistung: %.0f W", x);
+
+# Web-UI Sensoren für WP EEBus Status
+text_sensor:
+  - platform: template
+    name: "K40RF Verbindungsstatus"
+    icon: "mdi:heat-pump"
+    update_interval: 5s
+    lambda: "return id(hems_wp).pairing_state();"
+
+  - platform: template
+    name: "K40RF SKI"
+    icon: "mdi:key-chain"
+    update_interval: 30s
+    entity_category: diagnostic
+    lambda: |-
+      std::string ski = id(hems_wp).remote_ski();
+      return ski.empty() ? std::string("(suche...)") : ski;
+
+sensor:
+  - platform: template
+    name: "WP Ist-Leistung (EEBus)"
+    icon: "mdi:heat-pump"
+    unit_of_measurement: "W"
+    accuracy_decimals: 0
+    update_interval: 5s
+    lambda: "return id(hems_wp).current_power_w();"
+
+  - platform: template
+    name: "WP Aktives Limit"
+    icon: "mdi:gauge"
+    unit_of_measurement: "W"
+    accuracy_decimals: 0
+    update_interval: 5s
+    lambda: "return id(hems_wp).active_limit_w();"
+
+button:
+  - platform: template
+    name: "WP Limit auf 4200 W (§14a Minimum)"
+    icon: "mdi:lightning-bolt-circle"
+    entity_category: diagnostic
+    on_press:
+      - lambda: "id(hems_wp).set_limit(4200.0f);"
+
+  - platform: template
+    name: "WP Vollleistung freigeben"
+    icon: "mdi:check-circle"
+    entity_category: diagnostic
+    on_press:
+      - lambda: "id(hems_wp).clear_limit();"
