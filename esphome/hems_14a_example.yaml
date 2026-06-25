@@ -1,0 +1,210 @@
+# ============================================================================
+# ESPHome HEMS with EEBus LPC – §14a EnWG compliant
+# Bernd Gewehr / bg-hems branch
+#
+# Hardware: ESP32 Hutschienen-Gerät mit 8× DI/DO + Ethernet (z.B. Olimex
+#           ESP32-POE oder LILYGO T-Internet-POE)
+#
+# Steuerbare Verbrauchseinrichtungen:
+#   - Bosch Compress 5800i Wärmepumpe  → SG-Ready via DO1/DO2
+#   - Shell Recharge Wallbox           → Modbus TCP Ladestrom
+#
+# §14a Steuerung:
+#   Option A (Relaiskontakt, bis 31.12.2028):  DI1 von CLS-Steuerbox
+#   Option B (EEBus LPC, zukunftssicher):       eebus_lpc component
+#
+# Diese Datei zeigt Option B (EEBus) mit Option A als Fallback.
+# ============================================================================
+
+esphome:
+  name: hems-14a
+  friendly_name: "HEMS §14a"
+  platform: ESP32
+  board: esp32-poe-iso   # Olimex ESP32-POE-ISO (Ethernet + 8 I/O)
+  framework:
+    type: esp-idf
+
+# Externe Komponente aus dem bg-hems Branch
+external_components:
+  - source: github://bgewehr/openeebus@bg-hems
+    components: [eebus_lpc]
+    refresh: 1d
+
+# Ethernet statt WiFi (empfohlen für EEBus Zuverlässigkeit)
+ethernet:
+  type: LAN8720
+  mdc_pin: GPIO23
+  mdio_pin: GPIO18
+  clk_mode: GPIO17_OUT
+  phy_addr: 0
+
+logger:
+  level: INFO
+
+api:
+  encryption:
+    key: !secret api_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+# ============================================================================
+# EEBus LPC – Empfang des Steuerbefehls vom Netzbetreiber (Westnetz)
+# ============================================================================
+eebus_lpc:
+  id: hems_lpc
+  ship_port: 4712
+  # SKI der Westnetz CLS-Steuerbox – beim Pairing aus dem Steuerbox-Display
+  # oder per mDNS-Scan ermitteln. Leer lassen für Auto-Accept (nur Test!).
+  remote_ski: ""   # TODO: "aabbccddeeffaabbccddeeff..." eintragen
+  device_brand: "DIY"
+  device_type: "HEMS"
+  device_model: "ESP32-HEMS-14a"
+  failsafe_limit_w: 4200.0   # §14a Mindestleistung
+
+  # Steuerungsfall aktiv: VNB begrenzt Leistung
+  on_limit_active:
+    - then:
+        - lambda: |-
+            float limit_w = x;
+            ESP_LOGI("hems", "VNB Leistungsbegrenzung aktiv: %.0f W", limit_w);
+
+            // Mindestleistungs-Wächter: WP-Mindestleistung ca. 3900 W
+            // Wallbox bekommt was übrig bleibt (min. 6A = 1380 W)
+            float wallbox_limit = limit_w - 3900.0f;
+            if (wallbox_limit < 1380.0f) {
+              // WP muss auch reduziert werden
+              // SG-Ready Modus 1 (EVU-Sperre): DO1=0, DO2=0
+              id(sg_ready_bit1).turn_off();
+              id(sg_ready_bit2).turn_off();
+              wallbox_limit = limit_w; // Wallbox bekommt alles
+            } else {
+              // WP normal (Modus 2): DO1=1, DO2=0
+              id(sg_ready_bit1).turn_on();
+              id(sg_ready_bit2).turn_off();
+            }
+
+            // Wallbox-Ladestrom setzen (6–16 A, 3-phasig)
+            float current_a = wallbox_limit / (3.0f * 230.0f);
+            if (current_a < 6.0f)  current_a = 6.0f;
+            if (current_a > 16.0f) current_a = 16.0f;
+            id(wallbox_ladestrom).set_value(current_a);
+
+  # Steuerungsfall beendet: Normalbetrieb wiederherstellen
+  on_limit_cleared:
+    - then:
+        - lambda: |-
+            ESP_LOGI("hems", "VNB Steuerung beendet, Normalbetrieb");
+            // WP Modus 2 (Normal): DO1=1, DO2=0
+            id(sg_ready_bit1).turn_on();
+            id(sg_ready_bit2).turn_off();
+            // Wallbox Maximalstrom
+            id(wallbox_ladestrom).set_value(16.0f);
+
+# ============================================================================
+# Fallback: Relaiskontakt von CLS-Steuerbox (DI1) — Option A bis 2028
+# ============================================================================
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO4
+      mode: INPUT_PULLUP
+      inverted: true   # Schließer = aktiv (Steuerungsfall)
+    name: "VNB Steuersignal (Relais)"
+    id: vnb_relay_signal
+    device_class: power
+    on_press:
+      # CLS-Relais aktiv → gleiche Logik wie EEBus on_limit_active
+      - lambda: |-
+          id(sg_ready_bit1).turn_off();
+          id(sg_ready_bit2).turn_off();
+          id(wallbox_ladestrom).set_value(6.0f);
+    on_release:
+      - lambda: |-
+          id(sg_ready_bit1).turn_on();
+          id(sg_ready_bit2).turn_off();
+          id(wallbox_ladestrom).set_value(16.0f);
+
+# ============================================================================
+# SG-Ready Ausgänge für Bosch Compress 5800i
+# DO1 = SG-Ready Bit 1, DO2 = SG-Ready Bit 2
+# ============================================================================
+switch:
+  - platform: gpio
+    pin: GPIO18
+    name: "SG-Ready Bit 1 (DO1)"
+    id: sg_ready_bit1
+    restore_mode: RESTORE_DEFAULT_ON   # Modus 2 nach Neustart
+
+  - platform: gpio
+    pin: GPIO19
+    name: "SG-Ready Bit 2 (DO2)"
+    id: sg_ready_bit2
+    restore_mode: RESTORE_DEFAULT_OFF  # Bit2=0 → Modus 2 (Normal)
+
+# ============================================================================
+# Wallbox Ladestrom via Modbus TCP
+# ============================================================================
+modbus:
+  id: modbus_tcp_client
+  uart_id: uart_bus   # Nicht benötigt bei TCP
+
+modbus_controller:
+  - id: wallbox_ctrl
+    address: 0x01
+    modbus_id: modbus_tcp_client
+    update_interval: 10s
+    # Für Modbus TCP: host und port im code_template
+    # Shell Recharge Modbus Register für Ladestrom-Sollwert: Reg 261 (0x0105)
+
+number:
+  - platform: modbus_controller
+    modbus_controller_id: wallbox_ctrl
+    name: "Wallbox Ladestrom Sollwert"
+    id: wallbox_ladestrom
+    register_type: holding
+    address: 261   # Shell Recharge: Charging Current Setpoint
+    value_type: U_WORD
+    min_value: 6
+    max_value: 16
+    step: 1
+    unit_of_measurement: "A"
+    lambda: "return x / 10.0;"       # Gerät sendet in 0.1A
+    write_lambda: "return x * 10.0;" # Schreiben in 0.1A
+
+# ============================================================================
+# Sensoren
+# ============================================================================
+sensor:
+  - platform: template
+    name: "VNB Leistungslimit"
+    id: vnb_power_limit
+    unit_of_measurement: "W"
+    accuracy_decimals: 0
+    lambda: |-
+      return id(hems_lpc).current_limit_w();
+    update_interval: 5s
+
+  - platform: template
+    name: "HEMS Betriebsmodus"
+    id: hems_mode
+    lambda: |-
+      return id(hems_lpc).is_limit_active() ? 1.0 : 0.0;
+    update_interval: 5s
+
+# ============================================================================
+# Diagnoseinformationen
+# ============================================================================
+text_sensor:
+  - platform: template
+    name: "EEBus Status"
+    lambda: |-
+      if (id(hems_lpc).is_limit_active()) {
+        char buf[32];
+        snprintf(buf, sizeof(buf), "Limit aktiv: %.0f W",
+                 id(hems_lpc).current_limit_w());
+        return std::string(buf);
+      }
+      return std::string("Normalbetrieb");
+    update_interval: 10s
