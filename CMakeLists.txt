@@ -173,10 +173,14 @@ if(WIN32)
   )
 endif()
 
+set(OPENEEBUS_EXTRA_INCLUDES "" CACHE STRING "Additional include directories injected by the product")
+
 target_include_directories(
   ${PROJECT_NAME}
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE
+    ${OPENEEBUS_EXTRA_INCLUDES}
 )
 
 target_compile_options(
