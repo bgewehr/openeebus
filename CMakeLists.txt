@@ -2,7 +2,7 @@
 
 cmake_minimum_required (VERSION 3.15)
 
-set(PROJECT_NAME "eebus")
+set(PROJECT_NAME "openeebus")
 
 # Set consistent runtime library for all targets on Windows BEFORE project()
 if(WIN32)
