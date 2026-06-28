@@ -163,6 +163,16 @@ static inline void EgLppStartHeartbeat(EgLpUseCaseObject* self) {
  * @brief Stop sending heartbeat from the local entity
  *
  * @param self EG LPP Use Case instance to stop the heartbeat with
+ *
+ * @warning Stopping the heartbeat freezes the timestamp published in the local
+ *          DeviceDiagnosis/Server feature. If a remote CS reconnects while the
+ *          heartbeat is stopped, it will receive that stale timestamp, compute
+ *          that the heartbeat window has already expired, and immediately
+ *          disconnect (SHIP state error). The reference HEMS implementation
+ *          never calls this function; the heartbeat manager is started once
+ *          by SetLocalFeature() and must keep running for the lifetime of the
+ *          service. Only call EgLppStopHeartbeat() when you also intend to
+ *          stop the entire service.
  */
 static inline void EgLppStopHeartbeat(EgLpUseCaseObject* self) {
   EgLpStopHeartbeat(self);
