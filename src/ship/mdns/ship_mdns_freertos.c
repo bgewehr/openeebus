@@ -17,9 +17,8 @@
  * @file
  * @brief FreeRTOS specific Mdns implementation
  *
- * Patched to support WiFi (WIFI_STA_DEF) and Ethernet (ETH_DEF / W5500)
- * netifs, and to tolerate ESP_ERR_INVALID_STATE from mdns_init() when
- * mDNS is already initialized by the host framework.
+ * Supported netifs: WiFi station (WIFI_STA_DEF) and Ethernet
+ * (ETH_DEF — covers W5500 SPI, RMII Ethernet, and similar drivers).
  */
 
 #include "mdns.h"
@@ -351,29 +350,33 @@ EebusError RegisterService(ShipMdnsObject* self) {
 }
 
 static esp_netif_t* MdnsGetEspNetif(Mdns* self) {
-  (void)self;
+  UNUSED(self);
+
   // Locate the active netif. Try WiFi STA first (original assumption),
   // then fall back to the default Ethernet interface (ETH_DEF) which is
   // what the W5500 SPI Ethernet driver registers. If neither key matches
   // (custom netif keys), walk all registered netifs for the first UP one.
   static const char* const kNetifKeys[] = {
-      "WIFI_STA_DEF",   /* WiFi station */
-      "ETH_DEF",        /* SPI / RMII Ethernet (W5500 / LAN87xx / …) */
+      "WIFI_STA_DEF",  // WiFi station
+      "ETH_DEF",       // SPI / RMII Ethernet (W5500 / LAN87xx / ...)
   };
+
   esp_netif_t* netif = NULL;
   for (size_t i = 0; i < ARRAY_SIZE(kNetifKeys); i++) {
     netif = esp_netif_get_handle_from_ifkey(kNetifKeys[i]);
-    if (netif != NULL) break;
-  }
-
-  if (netif == NULL) {
-    // Last resort: walk the netif list for any UP interface.
-    netif = esp_netif_next_unsafe(NULL);
-    while (netif != NULL) {
-      if (esp_netif_is_netif_up(netif)) { break; }
-      netif = esp_netif_next_unsafe(netif);
+    if (netif != NULL) {
+      return netif;
     }
   }
+
+  // Last resort: walk the netif list for any UP interface.
+  netif = NULL;
+  while ((netif = esp_netif_next_unsafe(netif)) != NULL) {
+    if (esp_netif_is_netif_up(netif)) {
+      return netif;
+    }
+  }
+
   return netif;
 }
 
