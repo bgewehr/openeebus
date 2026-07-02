@@ -30,12 +30,8 @@
 #include "src/common/eebus_thread/eebus_thread.h"
 #include "src/ship/api/mdns_entry.h"
 #include "src/ship/api/ship_mdns_interface.h"
+#include "src/ship/mdns/mdns_debug.h"
 #include "src/ship/mdns/ship_mdns.h"
-
-/** Set MDNS_DEBUG 1 to enable debug prints */
-#ifndef MDNS_DEBUG
-#define MDNS_DEBUG 0
-#endif
 
 /** mDNS debug printf(), enabled whith MDNS_DEBUG = 1 */
 #if MDNS_DEBUG

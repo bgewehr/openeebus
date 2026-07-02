@@ -23,6 +23,7 @@ set(SOURCES
   src/service/service/eebus_service_config.c
   src/service/service/eebus_service.c
   src/ship/mdns/mdns_entry.c
+  src/ship/mdns/mdns_debug.c
   src/ship/ship_connection/ship_connection.c
   src/ship/ship_connection/ship_connection_debug.c
   src/ship/ship_connection/ship_message.c

@@ -92,11 +92,7 @@
 #include "src/common/vector.h"
 #include "src/ship/api/mdns_entry.h"
 #include "src/ship/api/ship_mdns_interface.h"
-
-/** Set MDNS_DEBUG 1 to enable debug prints */
-#ifndef MDNS_DEBUG
-#define MDNS_DEBUG 0
-#endif
+#include "src/ship/mdns/mdns_debug.h"
 
 /** mDNS debug printf(), enabled whith MDNS_DEBUG = 1 */
 #if MDNS_DEBUG
@@ -518,6 +514,7 @@ static void MdnsResolveServiceCallback(
 
   MdnsEntrySetHost(entry, host);
   MdnsEntrySetPort(entry, port);
+  MDNS_TXT_RECORD_PRINT(txt_record, txt_record_size);
   MdnsEntryParseTxtRecord(entry, (const char*)txt_record, txt_record_size);
   resolve->done = true;
 

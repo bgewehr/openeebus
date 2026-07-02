@@ -168,8 +168,8 @@ MdnsEntry* MdnsEntryCopy(const MdnsEntry* src) {
   return new_entry;
 }
 
-EebusError MdnsEntrySetValue(
-    MdnsEntry* entry, const char* key_ptr, size_t key_size, const char* value_ptr, size_t value_size) {
+EebusError
+MdnsEntrySetValue(MdnsEntry* entry, const char* key_ptr, size_t key_size, const char* value_ptr, size_t value_size) {
   if ((key_ptr == NULL) || (key_size == 0)) {
     return kEebusErrorParse;
   }
@@ -219,7 +219,10 @@ EebusError MdnsEntryParseTxtRecord(MdnsEntry* entry, const char* txt_record, uin
     const char* const key_ptr    = record_ptr + 1;
     const char* const assign_ptr = memchr(key_ptr, '=', record_size);
     if (assign_ptr == NULL) {
-      return kEebusErrorParse;
+      MDNS_ENTRY_DEBUG_PRINTF("%s, Warning! Skipping record: %.*s\n", __func__, (int)record_size, key_ptr);
+      bytes_left -= record_size + 1;
+      record_ptr += record_size + 1;
+      continue;
     }
 
     const char* const value_ptr = assign_ptr + 1;
@@ -233,7 +236,13 @@ EebusError MdnsEntryParseTxtRecord(MdnsEntry* entry, const char* txt_record, uin
     const EebusError ret = MdnsEntrySetValue(entry, key_ptr, key_size, value_ptr, value_size);
     if (ret != kEebusErrorOk) {
       MDNS_ENTRY_DEBUG_PRINTF(
-          "%s, Warning! Unsupported key: %.*s; value: %.*s\n", __func__, key_size, key_ptr, value_size, value_ptr);
+          "%s, Warning! Unsupported key: %.*s; value: %.*s\n",
+          __func__,
+          key_size,
+          key_ptr,
+          value_size,
+          value_ptr
+      );
     }
 
     bytes_left -= record_size + 1;

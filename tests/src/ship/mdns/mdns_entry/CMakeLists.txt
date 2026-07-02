@@ -19,6 +19,7 @@ target_sources(
   # Main project sources
   ${MAIN_PROJ_SOURCES_PATH}/common/string_util.c
   ${MAIN_PROJ_SOURCES_PATH}/ship/mdns/mdns_entry.c
+  ${MAIN_PROJ_SOURCES_PATH}/ship/mdns/mdns_debug.c
 
   # Test helpers
   ${CMAKE_SOURCE_DIR}/src/string_ptr.cpp
