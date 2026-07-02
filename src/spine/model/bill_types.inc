@@ -18,16 +18,16 @@ static const EnumMapping bill_type_lut[] = {
 };
 
 static const EnumMapping bill_position_type_lut[] = {
-    {"gridElectricEnergy", kBillPositionTypeTypeGridElectricEnergy},
+    {        "gridElectricEnergy",         kBillPositionTypeTypeGridElectricEnergy},
     {"selfProducedElectricEnergy", kBillPositionTypeTypeSelfProducedElectricEnergy},
     EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping bill_cost_type_lut[] = {
-    {"absolutePrice", kBillCostTypeTypeAbsolutePrice},
-    {"relativePrice", kBillCostTypeTypeRelativePrice},
-    {"co2Emission", kBillCostTypeTypeCo2Emission},
-    {"renewableEnergy", kBillCostTypeTypeRenewableEnergy},
+    {   "absolutePrice",    kBillCostTypeTypeAbsolutePrice},
+    {   "relativePrice",    kBillCostTypeTypeRelativePrice},
+    {     "co2Emission",      kBillCostTypeTypeCo2Emission},
+    { "renewableEnergy",  kBillCostTypeTypeRenewableEnergy},
     {"radioactiveWaste", kBillCostTypeTypeRadioactiveWaste},
     EEBUS_ENUM_MAPPING_END,
 };
@@ -145,8 +145,12 @@ static const EebusDataCfg bill_constraints_data_element_data_cfg
     = EEBUS_DATA_LIST_ELEMENT(sequence, sizeof(BillConstraintsDataType), bill_constraints_data_cfg);
 
 static const EebusDataCfg bill_constraints_list_data_cfg[] = {
-    EEBUS_DATA_LIST("billConstraintsData", BillConstraintsListDataType, bill_constraints_data,
-        &bill_constraints_data_element_data_cfg),
+    EEBUS_DATA_LIST(
+        "billConstraintsData",
+        BillConstraintsListDataType,
+        bill_constraints_data,
+        &bill_constraints_data_element_data_cfg
+    ),
     EEBUS_DATA_END,
 };
 
@@ -155,14 +159,19 @@ static const EebusDataCfg bill_constraints_list_data_selectors_cfg[] = {
     EEBUS_DATA_END,
 };
 
-static const EebusDataCfg supported_bill_type_element_data_cfg = EEBUS_DATA_LIST_ELEMENT(enum, sizeof(int32_t), NULL);
+static const EebusDataCfg supported_bill_type_element_data_cfg
+    = EEBUS_DATA_LIST_ELEMENT(enum, sizeof(int32_t), bill_type_lut);
 
 static const EebusDataCfg bill_description_data_cfg[] = {
     EEBUS_DATA_UINT32_WITH_FLAGS("billId", BillDescriptionDataType, bill_id, kEebusDataFlagIsIdentifier),
     EEBUS_DATA_BOOL("billWriteable", BillDescriptionDataType, bill_writeable),
     EEBUS_DATA_BOOL("updateRequired", BillDescriptionDataType, update_required),
     EEBUS_DATA_LIST(
-        "supportedBillType", BillDescriptionDataType, supported_bill_type, &supported_bill_type_element_data_cfg),
+        "supportedBillType",
+        BillDescriptionDataType,
+        supported_bill_type,
+        &supported_bill_type_element_data_cfg
+    ),
     EEBUS_DATA_UINT32("sessionId", BillDescriptionDataType, session_id),
     EEBUS_DATA_END,
 };
@@ -180,8 +189,12 @@ static const EebusDataCfg bill_description_data_element_data_cfg
     = EEBUS_DATA_LIST_ELEMENT(sequence, sizeof(BillDescriptionDataType), bill_description_data_cfg);
 
 static const EebusDataCfg bill_description_list_data_cfg[] = {
-    EEBUS_DATA_LIST("billDescriptionData", BillDescriptionListDataType, bill_description_data,
-        &bill_description_data_element_data_cfg),
+    EEBUS_DATA_LIST(
+        "billDescriptionData",
+        BillDescriptionListDataType,
+        bill_description_data,
+        &bill_description_data_element_data_cfg
+    ),
     EEBUS_DATA_END,
 };
 

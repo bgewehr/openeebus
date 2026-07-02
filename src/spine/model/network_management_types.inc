@@ -18,22 +18,22 @@
 
 static const EnumMapping network_management_feature_set_lut[] = {
     {"gateway", kNetworkManagementFeatureSetTypeGateway},
-    {"router", kNetworkManagementFeatureSetTypeRouter},
-    {"smart", kNetworkManagementFeatureSetTypeSmart},
-    {"simple", kNetworkManagementFeatureSetTypeSimple},
+    { "router",  kNetworkManagementFeatureSetTypeRouter},
+    {  "smart",   kNetworkManagementFeatureSetTypeSmart},
+    { "simple",  kNetworkManagementFeatureSetTypeSimple},
     EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping network_management_process_state_state_lut[] = {
     {"succeeded", kNetworkManagementProcessStateStateTypeSucceeded},
-    {"failed", kNetworkManagementProcessStateStateTypeFailed},
-    {"aborted", kNetworkManagementProcessStateStateTypeAborted},
+    {   "failed",    kNetworkManagementProcessStateStateTypeFailed},
+    {  "aborted",   kNetworkManagementProcessStateStateTypeAborted},
     EEBUS_ENUM_MAPPING_END,
 };
 
 static const EnumMapping network_management_state_change_lut[] = {
-    {"added", kNetworkManagementStateChangeTypeAdded},
-    {"removed", kNetworkManagementStateChangeTypeRemoved},
+    {   "added",    kNetworkManagementStateChangeTypeAdded},
+    { "removed",  kNetworkManagementStateChangeTypeRemoved},
     {"modified", kNetworkManagementStateChangeTypeModified},
     EEBUS_ENUM_MAPPING_END,
 };
@@ -49,7 +49,11 @@ static const EebusDataCfg network_management_add_node_call_cfg[] = {
 
 static const EebusDataCfg network_management_add_node_call_elements_cfg[] = {
     EEBUS_DATA_SEQUENCE(
-        "nodeAddress", NetworkManagementAddNodeCallElementsType, node_address, feature_address_elements_cfg),
+        "nodeAddress",
+        NetworkManagementAddNodeCallElementsType,
+        node_address,
+        feature_address_elements_cfg
+    ),
     EEBUS_DATA_TAG("nativeSetup", NetworkManagementAddNodeCallElementsType, native_setup),
     EEBUS_DATA_TAG("timeout", NetworkManagementAddNodeCallElementsType, timeout),
     EEBUS_DATA_TAG("label", NetworkManagementAddNodeCallElementsType, label),
@@ -65,7 +69,11 @@ static const EebusDataCfg network_management_remove_node_call_cfg[] = {
 
 static const EebusDataCfg network_management_remove_node_call_elements_cfg[] = {
     EEBUS_DATA_SEQUENCE(
-        "nodeAddress", NetworkManagementRemoveNodeCallElementsType, node_address, feature_address_elements_cfg),
+        "nodeAddress",
+        NetworkManagementRemoveNodeCallElementsType,
+        node_address,
+        feature_address_elements_cfg
+    ),
     EEBUS_DATA_TAG("timeout", NetworkManagementRemoveNodeCallElementsType, timeout),
     EEBUS_DATA_END,
 };
@@ -81,7 +89,11 @@ static const EebusDataCfg network_management_modify_node_call_cfg[] = {
 
 static const EebusDataCfg network_management_modify_node_call_elements_cfg[] = {
     EEBUS_DATA_SEQUENCE(
-        "nodeAddress", NetworkManagementModifyNodeCallElementsType, node_address, feature_address_elements_cfg),
+        "nodeAddress",
+        NetworkManagementModifyNodeCallElementsType,
+        node_address,
+        feature_address_elements_cfg
+    ),
     EEBUS_DATA_TAG("nativeSetup", NetworkManagementModifyNodeCallElementsType, native_setup),
     EEBUS_DATA_TAG("timeout", NetworkManagementModifyNodeCallElementsType, timeout),
     EEBUS_DATA_TAG("label", NetworkManagementModifyNodeCallElementsType, label),
@@ -108,7 +120,11 @@ static const EebusDataCfg network_management_discover_call_cfg[] = {
 
 static const EebusDataCfg network_management_discover_call_elements_cfg[] = {
     EEBUS_DATA_SEQUENCE(
-        "discoverAddress", NetworkManagementDiscoverCallElementsType, discover_address, feature_address_elements_cfg),
+        "discoverAddress",
+        NetworkManagementDiscoverCallElementsType,
+        discover_address,
+        feature_address_elements_cfg
+    ),
     EEBUS_DATA_END,
 };
 
@@ -151,19 +167,39 @@ static const EebusDataCfg network_management_report_candidate_data_elements_cfg[
 };
 
 static const EebusDataCfg network_management_device_description_data_cfg[] = {
-    EEBUS_DATA_SEQUENCE_WITH_FLAGS("deviceAddress", NetworkManagementDeviceDescriptionDataType, device_address,
-        device_address_cfg, kEebusDataFlagIsIdentifier),
+    EEBUS_DATA_SEQUENCE_WITH_FLAGS(
+        "deviceAddress",
+        NetworkManagementDeviceDescriptionDataType,
+        device_address,
+        device_address_cfg,
+        kEebusDataFlagIsIdentifier
+    ),
     EEBUS_DATA_ENUM("deviceType", NetworkManagementDeviceDescriptionDataType, device_type, device_type_lut),
-    EEBUS_DATA_SEQUENCE("networkManagementResponsibleAddress", NetworkManagementDeviceDescriptionDataType,
-        network_management_responsible_address, feature_address_cfg),
+    EEBUS_DATA_SEQUENCE(
+        "networkManagementResponsibleAddress",
+        NetworkManagementDeviceDescriptionDataType,
+        network_management_responsible_address,
+        feature_address_cfg
+    ),
     EEBUS_DATA_STRING("nativeSetup", NetworkManagementDeviceDescriptionDataType, native_setup),
     EEBUS_DATA_STRING("technologyAddress", NetworkManagementDeviceDescriptionDataType, technology_address),
-    EEBUS_DATA_STRING("communicationsTechnologyInformation", NetworkManagementDeviceDescriptionDataType,
-        communications_technology_information),
-    EEBUS_DATA_ENUM("networkFeatureSet", NetworkManagementDeviceDescriptionDataType, network_feature_set,
-        network_management_feature_set_lut),
-    EEBUS_DATA_ENUM("lastStateChange", NetworkManagementDeviceDescriptionDataType, last_state_change,
-        network_management_state_change_lut),
+    EEBUS_DATA_STRING(
+        "communicationsTechnologyInformation",
+        NetworkManagementDeviceDescriptionDataType,
+        communications_technology_information
+    ),
+    EEBUS_DATA_ENUM(
+        "networkFeatureSet",
+        NetworkManagementDeviceDescriptionDataType,
+        network_feature_set,
+        network_management_feature_set_lut
+    ),
+    EEBUS_DATA_ENUM(
+        "lastStateChange",
+        NetworkManagementDeviceDescriptionDataType,
+        last_state_change,
+        network_management_state_change_lut
+    ),
     EEBUS_DATA_STRING("minimumTrustLevel", NetworkManagementDeviceDescriptionDataType, minimum_trust_level),
     EEBUS_DATA_STRING("label", NetworkManagementDeviceDescriptionDataType, label),
     EEBUS_DATA_STRING("description", NetworkManagementDeviceDescriptionDataType, description),
@@ -173,12 +209,18 @@ static const EebusDataCfg network_management_device_description_data_cfg[] = {
 static const EebusDataCfg network_management_device_description_data_elements_cfg[] = {
     EEBUS_DATA_TAG("deviceAddress", NetworkManagementDeviceDescriptionDataElementsType, device_address),
     EEBUS_DATA_TAG("deviceType", NetworkManagementDeviceDescriptionDataElementsType, device_type),
-    EEBUS_DATA_TAG("networkManagementResponsibleAddress", NetworkManagementDeviceDescriptionDataElementsType,
-        network_management_responsible_address),
+    EEBUS_DATA_TAG(
+        "networkManagementResponsibleAddress",
+        NetworkManagementDeviceDescriptionDataElementsType,
+        network_management_responsible_address
+    ),
     EEBUS_DATA_TAG("nativeSetup", NetworkManagementDeviceDescriptionDataElementsType, native_setup),
     EEBUS_DATA_TAG("technologyAddress", NetworkManagementDeviceDescriptionDataElementsType, technology_address),
-    EEBUS_DATA_TAG("communicationsTechnologyInformation", NetworkManagementDeviceDescriptionDataElementsType,
-        communications_technology_information),
+    EEBUS_DATA_TAG(
+        "communicationsTechnologyInformation",
+        NetworkManagementDeviceDescriptionDataElementsType,
+        communications_technology_information
+    ),
     EEBUS_DATA_TAG("networkFeatureSet", NetworkManagementDeviceDescriptionDataElementsType, network_feature_set),
     EEBUS_DATA_TAG("lastStateChange", NetworkManagementDeviceDescriptionDataElementsType, last_state_change),
     EEBUS_DATA_TAG("minimumTrustLevel", NetworkManagementDeviceDescriptionDataElementsType, minimum_trust_level),
@@ -188,28 +230,52 @@ static const EebusDataCfg network_management_device_description_data_elements_cf
 };
 
 static const EebusDataCfg network_management_device_description_data_element_data_cfg = EEBUS_DATA_LIST_ELEMENT(
-    sequence, sizeof(NetworkManagementDeviceDescriptionDataType), network_management_device_description_data_cfg);
+    sequence,
+    sizeof(NetworkManagementDeviceDescriptionDataType),
+    network_management_device_description_data_cfg
+);
 
 static const EebusDataCfg network_management_device_description_list_data_cfg[] = {
-    EEBUS_DATA_LIST("networkManagementDeviceDescriptionData", NetworkManagementDeviceDescriptionListDataType,
-        network_management_device_description_data, &network_management_device_description_data_element_data_cfg),
+    EEBUS_DATA_LIST(
+        "networkManagementDeviceDescriptionData",
+        NetworkManagementDeviceDescriptionListDataType,
+        network_management_device_description_data,
+        &network_management_device_description_data_element_data_cfg
+    ),
     EEBUS_DATA_END,
 };
 
 static const EebusDataCfg network_management_device_description_list_data_selectors_cfg[] = {
     EEBUS_DATA_SEQUENCE(
-        "deviceAddress", NetworkManagementDeviceDescriptionListDataSelectorsType, device_address, device_address_cfg),
+        "deviceAddress",
+        NetworkManagementDeviceDescriptionListDataSelectorsType,
+        device_address,
+        device_address_cfg
+    ),
     EEBUS_DATA_ENUM(
-        "deviceType", NetworkManagementDeviceDescriptionListDataSelectorsType, device_type, device_type_lut),
+        "deviceType",
+        NetworkManagementDeviceDescriptionListDataSelectorsType,
+        device_type,
+        device_type_lut
+    ),
     EEBUS_DATA_END,
 };
 
 static const EebusDataCfg network_management_entity_description_data_cfg[] = {
-    EEBUS_DATA_SEQUENCE_WITH_FLAGS("entityAddress", NetworkManagementEntityDescriptionDataType, entity_address,
-        entity_address_cfg, kEebusDataFlagIsIdentifier),
+    EEBUS_DATA_SEQUENCE_WITH_FLAGS(
+        "entityAddress",
+        NetworkManagementEntityDescriptionDataType,
+        entity_address,
+        entity_address_cfg,
+        kEebusDataFlagIsIdentifier
+    ),
     EEBUS_DATA_ENUM("entityType", NetworkManagementEntityDescriptionDataType, entity_type, entity_type_lut),
-    EEBUS_DATA_ENUM("lastStateChange", NetworkManagementEntityDescriptionDataType, last_state_change,
-        network_management_state_change_lut),
+    EEBUS_DATA_ENUM(
+        "lastStateChange",
+        NetworkManagementEntityDescriptionDataType,
+        last_state_change,
+        network_management_state_change_lut
+    ),
     EEBUS_DATA_STRING("minimumTrustLevel", NetworkManagementEntityDescriptionDataType, minimum_trust_level),
     EEBUS_DATA_STRING("label", NetworkManagementEntityDescriptionDataType, label),
     EEBUS_DATA_STRING("description", NetworkManagementEntityDescriptionDataType, description),
@@ -227,39 +293,72 @@ static const EebusDataCfg network_management_entity_description_data_elements_cf
 };
 
 static const EebusDataCfg network_management_entity_description_data_element_data_cfg = EEBUS_DATA_LIST_ELEMENT(
-    sequence, sizeof(NetworkManagementEntityDescriptionDataType), network_management_entity_description_data_cfg);
+    sequence,
+    sizeof(NetworkManagementEntityDescriptionDataType),
+    network_management_entity_description_data_cfg
+);
 
 static const EebusDataCfg network_management_entity_description_list_data_cfg[] = {
-    EEBUS_DATA_LIST("networkManagementEntityDescriptionData", NetworkManagementEntityDescriptionListDataType,
-        network_management_entity_description_data, &network_management_entity_description_data_element_data_cfg),
+    EEBUS_DATA_LIST(
+        "networkManagementEntityDescriptionData",
+        NetworkManagementEntityDescriptionListDataType,
+        network_management_entity_description_data,
+        &network_management_entity_description_data_element_data_cfg
+    ),
     EEBUS_DATA_END,
 };
 
 static const EebusDataCfg network_management_entity_description_list_data_selectors_cfg[] = {
     EEBUS_DATA_SEQUENCE(
-        "entityAddress", NetworkManagementEntityDescriptionListDataSelectorsType, entity_address, entity_address_cfg),
+        "entityAddress",
+        NetworkManagementEntityDescriptionListDataSelectorsType,
+        entity_address,
+        entity_address_cfg
+    ),
     EEBUS_DATA_ENUM(
-        "entityType", NetworkManagementEntityDescriptionListDataSelectorsType, entity_type, entity_type_lut),
+        "entityType",
+        NetworkManagementEntityDescriptionListDataSelectorsType,
+        entity_type,
+        entity_type_lut
+    ),
     EEBUS_DATA_END,
 };
 
-static const EebusDataCfg specific_usage_element_data_cfg = EEBUS_DATA_LIST_ELEMENT(enum, sizeof(int32_t), NULL);
+static const EebusDataCfg specific_usage_element_data_cfg
+    = EEBUS_DATA_LIST_ELEMENT(enum, sizeof(int32_t), feature_specific_usage_lut);
 
 static const EebusDataCfg supported_function_element_data_cfg
     = EEBUS_DATA_LIST_ELEMENT(sequence, sizeof(FunctionPropertyType), function_property_cfg);
 
 static const EebusDataCfg network_management_feature_description_data_cfg[] = {
-    EEBUS_DATA_SEQUENCE_WITH_FLAGS("featureAddress", NetworkManagementFeatureDescriptionDataType, feature_address,
-        feature_address_cfg, kEebusDataFlagIsIdentifier),
+    EEBUS_DATA_SEQUENCE_WITH_FLAGS(
+        "featureAddress",
+        NetworkManagementFeatureDescriptionDataType,
+        feature_address,
+        feature_address_cfg,
+        kEebusDataFlagIsIdentifier
+    ),
     EEBUS_DATA_ENUM("featureType", NetworkManagementFeatureDescriptionDataType, feature_type, feature_type_lut),
     EEBUS_DATA_LIST(
-        "specificUsage", NetworkManagementFeatureDescriptionDataType, specific_usage, &specific_usage_element_data_cfg),
+        "specificUsage",
+        NetworkManagementFeatureDescriptionDataType,
+        specific_usage,
+        &specific_usage_element_data_cfg
+    ),
     EEBUS_DATA_STRING("featureGroup", NetworkManagementFeatureDescriptionDataType, feature_group),
     EEBUS_DATA_ENUM("role", NetworkManagementFeatureDescriptionDataType, role, role_lut),
-    EEBUS_DATA_LIST("supportedFunction", NetworkManagementFeatureDescriptionDataType, supported_function,
-        &supported_function_element_data_cfg),
-    EEBUS_DATA_ENUM("lastStateChange", NetworkManagementFeatureDescriptionDataType, last_state_change,
-        network_management_state_change_lut),
+    EEBUS_DATA_LIST(
+        "supportedFunction",
+        NetworkManagementFeatureDescriptionDataType,
+        supported_function,
+        &supported_function_element_data_cfg
+    ),
+    EEBUS_DATA_ENUM(
+        "lastStateChange",
+        NetworkManagementFeatureDescriptionDataType,
+        last_state_change,
+        network_management_state_change_lut
+    ),
     EEBUS_DATA_STRING("minimumTrustLevel", NetworkManagementFeatureDescriptionDataType, minimum_trust_level),
     EEBUS_DATA_STRING("label", NetworkManagementFeatureDescriptionDataType, label),
     EEBUS_DATA_STRING("description", NetworkManagementFeatureDescriptionDataType, description),
@@ -268,14 +367,22 @@ static const EebusDataCfg network_management_feature_description_data_cfg[] = {
 };
 
 static const EebusDataCfg network_management_feature_description_data_elements_cfg[] = {
-    EEBUS_DATA_SEQUENCE("featureAddress", NetworkManagementFeatureDescriptionDataElementsType, feature_address,
-        feature_address_elements_cfg),
+    EEBUS_DATA_SEQUENCE(
+        "featureAddress",
+        NetworkManagementFeatureDescriptionDataElementsType,
+        feature_address,
+        feature_address_elements_cfg
+    ),
     EEBUS_DATA_TAG("featureType", NetworkManagementFeatureDescriptionDataElementsType, feature_type),
     EEBUS_DATA_TAG("specificUsage", NetworkManagementFeatureDescriptionDataElementsType, specific_usage),
     EEBUS_DATA_TAG("featureGroup", NetworkManagementFeatureDescriptionDataElementsType, feature_group),
     EEBUS_DATA_TAG("role", NetworkManagementFeatureDescriptionDataElementsType, role),
-    EEBUS_DATA_SEQUENCE("supportedFunction", NetworkManagementFeatureDescriptionDataElementsType, supported_function,
-        function_property_elements_cfg),
+    EEBUS_DATA_SEQUENCE(
+        "supportedFunction",
+        NetworkManagementFeatureDescriptionDataElementsType,
+        supported_function,
+        function_property_elements_cfg
+    ),
     EEBUS_DATA_TAG("lastStateChange", NetworkManagementFeatureDescriptionDataElementsType, last_state_change),
     EEBUS_DATA_TAG("minimumTrustLevel", NetworkManagementFeatureDescriptionDataElementsType, minimum_trust_level),
     EEBUS_DATA_TAG("label", NetworkManagementFeatureDescriptionDataElementsType, label),
@@ -285,19 +392,34 @@ static const EebusDataCfg network_management_feature_description_data_elements_c
 };
 
 static const EebusDataCfg network_management_feature_description_data_element_data_cfg = EEBUS_DATA_LIST_ELEMENT(
-    sequence, sizeof(NetworkManagementFeatureDescriptionDataType), network_management_feature_description_data_cfg);
+    sequence,
+    sizeof(NetworkManagementFeatureDescriptionDataType),
+    network_management_feature_description_data_cfg
+);
 
 static const EebusDataCfg network_management_feature_description_list_data_cfg[] = {
-    EEBUS_DATA_LIST("networkManagementFeatureDescriptionData", NetworkManagementFeatureDescriptionListDataType,
-        network_management_feature_description_data, &network_management_feature_description_data_element_data_cfg),
+    EEBUS_DATA_LIST(
+        "networkManagementFeatureDescriptionData",
+        NetworkManagementFeatureDescriptionListDataType,
+        network_management_feature_description_data,
+        &network_management_feature_description_data_element_data_cfg
+    ),
     EEBUS_DATA_END,
 };
 
 static const EebusDataCfg network_management_feature_description_list_data_selectors_cfg[] = {
-    EEBUS_DATA_SEQUENCE("featureAddress", NetworkManagementFeatureDescriptionListDataSelectorsType, feature_address,
-        feature_address_cfg),
+    EEBUS_DATA_SEQUENCE(
+        "featureAddress",
+        NetworkManagementFeatureDescriptionListDataSelectorsType,
+        feature_address,
+        feature_address_cfg
+    ),
     EEBUS_DATA_ENUM(
-        "featureType", NetworkManagementFeatureDescriptionListDataSelectorsType, feature_type, feature_type_lut),
+        "featureType",
+        NetworkManagementFeatureDescriptionListDataSelectorsType,
+        feature_type,
+        feature_type_lut
+    ),
     EEBUS_DATA_END,
 };
 

@@ -380,6 +380,11 @@ static constexpr char discovery_response[] = R"({
                               "featureType": "Measurement"
                             },
                             {
+                                "specificUsage": [
+                                    "Electrical"
+                                ]
+                            },
+                            {
                               "role": "server"
                             },
                             {
