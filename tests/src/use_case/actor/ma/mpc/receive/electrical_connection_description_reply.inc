@@ -66,6 +66,9 @@ static constexpr char electrical_connection_description_reply[] = R"({
                           "powerSupplyType": "ac"
                         },
                         {
+                          "acConnectedPhases": 3
+                        },
+                        {
                           "positiveEnergyDirection": "consume"
                         }
                       ]
