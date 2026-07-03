@@ -503,8 +503,7 @@ void OnRemoteServicesUpdate(ServiceReaderObject* self, EebusServiceObject* servi
 
 void OnShipIdUpdate(ServiceReaderObject* self, const char* ski, const char* shipd_id) {
   UNUSED(self);
-  UNUSED(ski);
-  UNUSED(shipd_id);
+  printf("Ship ID update for SKI %s: %s\n", ski, shipd_id);
 }
 
 void OnShipStateUpdate(ServiceReaderObject* self, const char* ski, SmeState state) {

@@ -1037,6 +1037,9 @@ EebusError SmeHandshakeAccessMethodsHandle(ShipConnection* self, ShipMessageDese
     return kEebusErrorCommunication;
   }
 
+  // remote_ship_id is populated by SmeHandshakeAccessMethodsCheckMessageVal above.
+  // Report it now so info-provider clients can display the remote device name.
+  INFO_PROVIDER_REPORT_SERVICE_SHIP_ID(self->info_provider, self->remote_ski, self->remote_ship_id);
   return kEebusErrorOk;
 }
 

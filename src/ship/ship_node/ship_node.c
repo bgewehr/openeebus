@@ -322,17 +322,13 @@ void HandleConnectionClosed(InfoProviderObject* self, ShipConnectionObject* sc, 
 }
 
 void ReportServiceShipId(InfoProviderObject* self, const char* service_id, const char* ship_id) {
-  UNUSED(self);
-  UNUSED(service_id);
-  UNUSED(ship_id);
-  // TODO: Implement method
+  const ShipNode* const sn = SHIP_NODE(self);
+  SHIP_NODE_READER_ON_SHIP_ID_UPDATE(sn->ship_node_reader, service_id, ship_id);
 }
 
 bool IsWaitingForTrustAllowed(InfoProviderObject* self, const char* ski) {
-  UNUSED(self);
-  UNUSED(ski);
-  // TODO: Implement method
-  return false;
+  const ShipNode* const sn = SHIP_NODE(self);
+  return SHIP_NODE_READER_IS_WAITING_FOR_TRUST_ALLOWED(sn->ship_node_reader, ski);
 }
 
 void HandleShipStateUpdate(InfoProviderObject* self, const char* ski, SmeState state, const char* err) {
