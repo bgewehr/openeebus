@@ -16,6 +16,9 @@
 /**
  * @file
  * @brief FreeRTOS specific Mdns implementation
+ *
+ * Supported netifs: WiFi station (WIFI_STA_DEF) and Ethernet
+ * (ETH_DEF — covers W5500 SPI, RMII Ethernet, and similar drivers).
  */
 
 #include "mdns.h"
@@ -346,18 +349,51 @@ EebusError RegisterService(ShipMdnsObject* self) {
   return kEebusErrorOk;
 }
 
+static esp_netif_t* MdnsGetEspNetif(Mdns* self) {
+  UNUSED(self);
+
+  // Locate the active netif. Try WiFi STA first (original assumption),
+  // then fall back to the default Ethernet interface (ETH_DEF) which is
+  // what the W5500 SPI Ethernet driver registers. If neither key matches
+  // (custom netif keys), walk all registered netifs for the first UP one.
+  static const char* const kNetifKeys[] = {
+      "WIFI_STA_DEF",  // WiFi station
+      "ETH_DEF",       // SPI / RMII Ethernet (W5500 / LAN87xx / ...)
+  };
+
+  esp_netif_t* netif = NULL;
+  for (size_t i = 0; i < ARRAY_SIZE(kNetifKeys); i++) {
+    netif = esp_netif_get_handle_from_ifkey(kNetifKeys[i]);
+    if (netif != NULL) {
+      return netif;
+    }
+  }
+
+  // Last resort: walk the netif list for any UP interface.
+  netif = NULL;
+  while ((netif = esp_netif_next_unsafe(netif)) != NULL) {
+    if (esp_netif_is_netif_up(netif)) {
+      return netif;
+    }
+  }
+
+  return netif;
+}
+
 EebusError Start(ShipMdnsObject* self) {
   Mdns* const mdns = MDNS(self);
 
+  // mdns_init() may return ESP_ERR_INVALID_STATE when the host framework has
+  // already initialized mDNS — that is fine, reuse it.
   esp_err_t err = mdns_init();
-  if (err != ESP_OK) {
+  if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
     MDNS_DEBUG_PRINTF("mdns_init() failed: %d\n", err);
     return kEebusErrorInit;
   }
 
-  esp_netif_t* netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+  esp_netif_t* netif = MdnsGetEspNetif(mdns);
   if (netif == NULL) {
-    MDNS_DEBUG_PRINTF("esp_netif_get_handle_from_ifkey() failed\n");
+    MDNS_DEBUG_PRINTF("No suitable netif found (WIFI_STA_DEF, ETH_DEF, any UP)\n");
     return kEebusErrorInit;
   }
 
