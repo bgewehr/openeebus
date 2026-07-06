@@ -482,16 +482,12 @@ int ShipNodeOnWebsocketServerConnectionCallback(const char* ski, WebsocketCreato
   EEBUS_MUTEX_LOCK(sn->mutex);
   bool is_ski_trusted = SkiMatches(ski, sn->remote_ski);
   if (!is_ski_trusted && StringIsEmpty(sn->remote_ski)) {
-    /* Pairing mode: no remote SKI is registered yet.
-     * Ask the service (via ShipNodeReader) whether trust is permitted for
-     * this incoming SKI.  The service returns its is_pairing_possible flag,
-     * which the application sets via EEBUS_SERVICE_SET_PAIRING_POSSIBLE.
-     * When trust is granted we register the SKI so subsequent reconnections
-     * are also accepted without requiring a new pairing cycle. */
-    if (IsWaitingForTrustAllowed((InfoProviderObject*)sn, ski)) {
+    // Pairing mode: no remote SKI registered yet.
+    // Delegate to the info-provider (service layer) to decide whether to trust this SKI.
+    if (INFO_PROVIDER_IS_WAITING_FOR_TRUST_ALLOWED(sn, ski)) {
       StringDelete(sn->remote_ski);
-      sn->remote_ski  = StringCopy(ski);
-      is_ski_trusted  = (sn->remote_ski != NULL);
+      sn->remote_ski = StringCopy(ski);
+      is_ski_trusted = (sn->remote_ski != NULL);
       SHIP_NODE_DEBUG_PRINTF("%s(), Pairing mode: auto-trusting incoming SKI %s\n", __func__, ski);
     }
   }
