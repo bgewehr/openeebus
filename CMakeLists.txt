@@ -19,6 +19,7 @@ project(${PROJECT_NAME} LANGUAGES C)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(OPTION_ASAN "Enable AddressSanitizer" OFF)
+option(OPTION_MDNS_USE_AVAHI_CLIENT "Enable mDNS avahi-client implementation" OFF)
 
 set(PROJECT_COMPILE_OPTIONS "")
 
@@ -43,10 +44,10 @@ if(WIN32)
     set(VCPKG_ROOT $ENV{VCPKG_ROOT})
     set(VCPKG_INSTALLED "${VCPKG_ROOT}/installed/x64-windows")
     message(STATUS "Using vcpkg installed libraries from: ${VCPKG_INSTALLED}")
-    
+
     # Add vcpkg to CMAKE_PREFIX_PATH so find_package can locate packages
     list(APPEND CMAKE_PREFIX_PATH "${VCPKG_INSTALLED}")
-    
+
     # Set proper runtime library for Windows to avoid LIBCMT conflicts
     set_property(TARGET ${PROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
@@ -81,12 +82,12 @@ if(WIN32)
     endif()
 
     # Try to find pthreads via vcpkg with more specific library names
-    find_library(PTHREAD_LIBRARY 
+    find_library(PTHREAD_LIBRARY
         NAMES pthreadVCE32 pthreadVCE3 pthreadVCE3 pthread
         PATHS "${VCPKG_INSTALLED}/lib" "${VCPKG_INSTALLED}/debug/lib"
         NO_DEFAULT_PATH)
 
-    find_path(PTHREAD_INCLUDE_DIR 
+    find_path(PTHREAD_INCLUDE_DIR
         NAMES pthread.h
         PATHS "${VCPKG_INSTALLED}/include"
         NO_DEFAULT_PATH)
@@ -211,12 +212,18 @@ elseif(APPLE)
   # macOS has native mDNS support, no extra library needed
   set(DNS_SD_LIB "")
 else()
-  # Linux uses libavahi-compat-libdnssd
-  find_library(DNS_SD_LIBRARY NAMES dns_sd)
-  if(NOT DNS_SD_LIBRARY)
-    message(FATAL_ERROR "dns_sd library not found. Install libavahi-compat-libdnssd-dev (Debian/Ubuntu) or avahi-compat-libdns_sd-devel (Fedora/RHEL)")
+  if (OPTION_MDNS_USE_AVAHI_CLIENT)
+    # Linux uses Avahi client library
+    pkg_check_modules(AVAHI REQUIRED IMPORTED_TARGET avahi-client)
+    set(DNS_SD_LIB PkgConfig::AVAHI)
+  else()
+    # Linux uses libavahi-compat-libdnssd
+    find_library(DNS_SD_LIBRARY NAMES dns_sd)
+    if(NOT DNS_SD_LIBRARY)
+      message(FATAL_ERROR "dns_sd library not found. Install libavahi-compat-libdnssd-dev (Debian/Ubuntu) or avahi-compat-libdns_sd-devel (Fedora/RHEL)")
+    endif()
+    set(DNS_SD_LIB ${DNS_SD_LIBRARY})
   endif()
-  set(DNS_SD_LIB ${DNS_SD_LIBRARY})
 endif()
 
 target_link_libraries(
