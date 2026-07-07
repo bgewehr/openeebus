@@ -65,6 +65,10 @@ static const HeartbeatManagerInterface heartbeat_manager_methods = {
 static void HeartbeatManagerConstruct(HeartbeatManager* self, EntityLocalObject* local_entity, uint32_t timeout);
 static void UpdateHeartbeatData(HeartbeatManager* self);
 
+// Send interval: 3/4 of the declared timeout so the remote always sees a fresh
+// heartbeat well before its deadline (which is typically 1× or 2× the declared timeout).
+#define HEARTBEAT_SEND_TICKS(timeout) ((3u * (timeout)) / 4u)
+
 void HeartbeatManagerConstruct(HeartbeatManager* self, EntityLocalObject* local_entity, uint32_t timeout) {
   // Override "virtual functions table"
   HEARTBEAT_MANAGER_INTERFACE(self) = &heartbeat_manager_methods;
@@ -72,7 +76,7 @@ void HeartbeatManagerConstruct(HeartbeatManager* self, EntityLocalObject* local_
   self->local_entity      = local_entity;
   self->local_feature     = NULL;
   self->heartbeat_num     = 0;
-  self->tick_cnt          = timeout;
+  self->tick_cnt          = HEARTBEAT_SEND_TICKS(timeout);
   self->heartbeat_timeout = timeout;
   self->running           = false;
 }
@@ -131,8 +135,7 @@ void Tick(HeartbeatManagerObject* self) {
   if (hm->tick_cnt == 0) {
     hm->heartbeat_num++;
     UpdateHeartbeatData(hm);
-    // On timeout, reset the heartbeat counter
-    hm->tick_cnt = hm->heartbeat_timeout;
+    hm->tick_cnt = HEARTBEAT_SEND_TICKS(hm->heartbeat_timeout);
   }
 }
 
