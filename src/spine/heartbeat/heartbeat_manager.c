@@ -39,7 +39,11 @@ struct HeartbeatManager {
   FeatureLocalObject* local_feature;
   uint64_t heartbeat_num;
   uint32_t tick_cnt;
-  uint32_t heartbeat_timeout;
+  // Period (in ticks/seconds) between two heartbeat transmissions.
+  // Note: this is not the remote heartbeat timeout (the deadline by which the
+  // remote expects a heartbeat); the application should choose
+  // heartbeat period <= remote heartbeat timeout.
+  uint32_t heartbeat_period;
 
   bool running;
 };
@@ -62,29 +66,25 @@ static const HeartbeatManagerInterface heartbeat_manager_methods = {
     .stop                 = Stop,
 };
 
-static void HeartbeatManagerConstruct(HeartbeatManager* self, EntityLocalObject* local_entity, uint32_t timeout);
+static void HeartbeatManagerConstruct(HeartbeatManager* self, EntityLocalObject* local_entity, uint32_t period);
 static void UpdateHeartbeatData(HeartbeatManager* self);
 
-// Send interval: 3/4 of the declared timeout so the remote always sees a fresh
-// heartbeat well before its deadline (which is typically 1× or 2× the declared timeout).
-#define HEARTBEAT_SEND_TICKS(timeout) ((3u * (timeout)) / 4u)
-
-void HeartbeatManagerConstruct(HeartbeatManager* self, EntityLocalObject* local_entity, uint32_t timeout) {
+void HeartbeatManagerConstruct(HeartbeatManager* self, EntityLocalObject* local_entity, uint32_t period) {
   // Override "virtual functions table"
   HEARTBEAT_MANAGER_INTERFACE(self) = &heartbeat_manager_methods;
 
-  self->local_entity      = local_entity;
-  self->local_feature     = NULL;
-  self->heartbeat_num     = 0;
-  self->tick_cnt          = HEARTBEAT_SEND_TICKS(timeout);
-  self->heartbeat_timeout = timeout;
-  self->running           = false;
+  self->local_entity     = local_entity;
+  self->local_feature    = NULL;
+  self->heartbeat_num    = 0;
+  self->tick_cnt         = period;
+  self->heartbeat_period = period;
+  self->running          = false;
 }
 
-HeartbeatManagerObject* HeartbeatManagerCreate(EntityLocalObject* local_entity, uint32_t timeout) {
+HeartbeatManagerObject* HeartbeatManagerCreate(EntityLocalObject* local_entity, uint32_t period) {
   HeartbeatManager* const heartbeat_manager = (HeartbeatManager*)EEBUS_MALLOC(sizeof(HeartbeatManager));
 
-  HeartbeatManagerConstruct(heartbeat_manager, local_entity, timeout);
+  HeartbeatManagerConstruct(heartbeat_manager, local_entity, period);
 
   return HEARTBEAT_MANAGER_OBJECT(heartbeat_manager);
 }
@@ -124,7 +124,7 @@ void SetLocalFeature(HeartbeatManagerObject* self, EntityLocalObject* entity, Fe
 void Tick(HeartbeatManagerObject* self) {
   HeartbeatManager* const hm = HEARTBEAT_MANAGER(self);
 
-  if (hm->heartbeat_timeout == 0) {
+  if (hm->heartbeat_period == 0) {
     return;
   }
 
@@ -135,7 +135,8 @@ void Tick(HeartbeatManagerObject* self) {
   if (hm->tick_cnt == 0) {
     hm->heartbeat_num++;
     UpdateHeartbeatData(hm);
-    hm->tick_cnt = HEARTBEAT_SEND_TICKS(hm->heartbeat_timeout);
+    // On period elapse, reset the heartbeat counter
+    hm->tick_cnt = hm->heartbeat_period;
   }
 }
 
@@ -143,7 +144,9 @@ void UpdateHeartbeatData(HeartbeatManager* self) {
   DeviceDiagnosisHeartbeatDataType heartbeat_data = {
       .timestamp         = &ABSOLUTE_OR_RELATIVE_TIME_NOW,
       .heartbeat_counter = &self->heartbeat_num,
-      .heartbeat_timeout = &(DurationType){.seconds = self->heartbeat_timeout},
+      // The SPINE heartbeatTimeout wire field declares how often we send;
+      // it is filled with the configured heartbeat period.
+      .heartbeat_timeout = &(DurationType){.seconds = self->heartbeat_period},
   };
 
   FEATURE_LOCAL_SET_DATA(self->local_feature, kFunctionTypeDeviceDiagnosisHeartbeatData, &heartbeat_data);
