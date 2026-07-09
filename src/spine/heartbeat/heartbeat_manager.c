@@ -146,6 +146,8 @@ void UpdateHeartbeatData(HeartbeatManager* self) {
       .heartbeat_counter = &self->heartbeat_num,
       // The SPINE heartbeatTimeout wire field declares how often we send;
       // it is filled with the configured heartbeat period.
+      // TODO: consider a separate parameter for the declared heartbeatTimeout
+      // wire value so the send period and the declared timeout can differ
       .heartbeat_timeout = &(DurationType){.seconds = self->heartbeat_period},
   };
 
