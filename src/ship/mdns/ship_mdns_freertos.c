@@ -19,19 +19,25 @@
  *
  * Supported netifs: WiFi station (WIFI_STA_DEF) and Ethernet
  * (ETH_DEF — covers W5500 SPI, RMII Ethernet, and similar drivers).
+ *
+ * Advertisement-only: this backend registers the SHIP service in the shared
+ * ESP-IDF mDNS daemon but does not browse for remote services. The ESP-IDF
+ * one-shot query API (mdns_query_async_new) carries no per-query context, so
+ * a browse loop can only serve a single instance — with several EEBus
+ * services on one device (e.g. CS + multiple EG instances) all but the last
+ * created instance would block forever waiting for a completion signal.
+ * Browsing is also not required for connection establishment: SHIP remotes
+ * discover us via our advertisement and connect inbound.
+ * Multiple instances are supported: each instance owns one service entry
+ * (distinct instance name + port) in the shared daemon.
  */
 
 #include "mdns.h"
-
-#include <freertos/FreeRTOS.h>
-#include <freertos/semphr.h>
 
 #include "src/common/array_util.h"
 #include "src/common/debug.h"
 #include "src/common/eebus_arguments.h"
 #include "src/common/eebus_device_info.h"
-#include "src/common/eebus_thread/eebus_thread.h"
-#include "src/ship/api/mdns_entry.h"
 #include "src/ship/api/ship_mdns_interface.h"
 #include "src/ship/mdns/mdns_debug.h"
 #include "src/ship/mdns/ship_mdns.h"
@@ -48,35 +54,22 @@ static const char* kShipServiceProtocol = "_tcp";
 static const char* kShipServicePath     = "/ship/";
 static const char* kShipServiceTxtVer   = "1";
 
-static const uint32_t kMdnsQueryTimeoutMs = 5000;
-static const size_t kMdnsQueryMaxResults  = 40;
-
 typedef struct Mdns Mdns;
 
 struct Mdns {
   /** Implements the Mdns Interface */
   ShipMdnsObject obj;
 
+  // Kept for interface compatibility; never invoked (advertisement-only backend)
   OnMdnsEntriesFoundCallback on_entries_found_cb;
   void* context;
 
-  bool cancel;
   const char* ski;
   EebusDeviceInfo* device_info;
   const char* service_name;
   int port;
   bool autoaccept;
-  Vector* found_entries;
-  EebusThreadObject* thread;
-  SemaphoreHandle_t semaphore;
 };
-
-/**
- * @brief Currently only single mDNS instance is supported,
- * pointer to be used within the MdnsQueryNotifyCallback()
- * as there is no possibility to assign context to the query
- */
-static Mdns* mdns_inst = NULL;
 
 #define MDNS(obj) ((Mdns*)(obj))
 
@@ -86,7 +79,6 @@ static void Stop(ShipMdnsObject* self);
 static EebusError RegisterService(ShipMdnsObject* self);
 static void DeregisterService(ShipMdnsObject* self);
 static void SetAutoaccept(ShipMdnsObject* self, bool autoaccept);
-static void MdnsNotifyFoundEntries(Mdns* mdns);
 
 static const ShipMdnsInterface mdns_methods = {
     .destruct           = Destruct,
@@ -119,7 +111,6 @@ EebusError MdnsConstruct(
   // Override "virtual functions table"
   SHIP_MDNS_INTERFACE(self) = &mdns_methods;
 
-  self->cancel              = false;
   self->ski                 = StringCopy(ski);
   self->on_entries_found_cb = cb;
   self->context             = ctx;
@@ -127,10 +118,6 @@ EebusError MdnsConstruct(
   self->service_name        = StringCopy(service_name);
   self->port                = port;
   self->autoaccept          = false;
-  self->found_entries       = VectorCreateWithDeallocator(MdnsEntryDeallocator);
-  self->semaphore           = xSemaphoreCreateBinary();
-
-  mdns_inst = self;
 
   return kEebusErrorOk;
 }
@@ -161,16 +148,7 @@ ShipMdnsObject* ShipMdnsCreate(
 void Destruct(ShipMdnsObject* self) {
   Mdns* const mdns = MDNS(self);
 
-  mdns_inst = NULL;
-
   SHIP_MDNS_STOP(self);
-
-  if (mdns->found_entries != NULL) {
-    VectorFreeElements(mdns->found_entries);
-    VectorDestruct(mdns->found_entries);
-    EEBUS_FREE(mdns->found_entries);
-    mdns->found_entries = NULL;
-  }
 
   EebusDeviceInfoDelete(mdns->device_info);
   mdns->device_info = NULL;
@@ -182,142 +160,16 @@ void Destruct(ShipMdnsObject* self) {
   mdns->service_name = NULL;
 }
 
-MdnsEntry* MdnsEntryCreateWithMdnsResult(mdns_result_t* result) {
-  if (result == NULL) {
-    return NULL;
-  }
-
-  MdnsEntry* entry = MdnsEntryCreate(result->instance_name, result->hostname, 0);
-  if (entry == NULL) {
-    return NULL;
-  }
-
-  const char* const host_local = StringFmtSprintf("%s.local.", result->hostname);
-  MdnsEntrySetHost(entry, host_local);
-  StringDelete((char*)host_local);
-  MdnsEntrySetPort(entry, result->port);
-
-  for (size_t i = 0; i < result->txt_count; i++) {
-    const char* key   = result->txt[i].key;
-    const char* value = result->txt[i].value;
-
-    const EebusError err = MdnsEntrySetValue(entry, key, strlen(key), value, strlen(value));
-
-    if (err != kEebusErrorOk) {
-      MDNS_DEBUG_PRINTF("MdnsEntrySetValue() failed: %d, key = %s, value = %s\n", err, key, value);
-    }
-  }
-
-  return entry;
-}
-
-void MdnsQueryNotifyCallback(mdns_search_once_t* search) {
-  Mdns* mdns = mdns_inst;
-
-  xSemaphoreGive(mdns->semaphore);
-}
-
-static void MdnsNotifyFoundEntries(Mdns* mdns) {
-  const size_t found_count = VectorGetSize(mdns->found_entries);
-  Vector* const copy       = VectorCreateWithDeallocator(MdnsEntryDeallocator);
-
-  for (size_t i = 0; i < found_count; ++i) {
-    MdnsEntry* const entry = (MdnsEntry*)VectorGetElement(mdns->found_entries, i);
-    if (entry != NULL) {
-      VectorPushBack(copy, MdnsEntryCopy(entry));
-    }
-  }
-
-  mdns->on_entries_found_cb(copy, mdns->context);
-}
-
-void MdnsProcessSearchResult(Mdns* mdns, mdns_search_once_t* search) {
-  mdns_result_t* results = NULL;
-
-  bool finished = mdns_query_async_get_results(search, 0, &results, NULL);
-  if (!finished) {
-    MDNS_DEBUG_PRINTF("mdns_query_async_get_results() not finished\n");
-    return;
-  }
-
-  if (results == NULL) {
-    MDNS_DEBUG_PRINTF("mdns_query_async_get_results() returned no results\n");
-    return;
-  }
-
-  mdns_result_t* r = results;
-  while (r) {
-    MdnsEntry* const entry = MdnsEntryCreateWithMdnsResult(r);
-    if (entry == NULL) {
-      MDNS_DEBUG_PRINTF("Failed to create mDNS entry\n");
-      return;
-    } else {
-      if (MdnsEntryIsValid(entry) && (strcmp(entry->ski, mdns->ski) != 0)) {
-        MDNS_DEBUG_PRINTF("Added entry: %s, ski: %s\n", entry->name, entry->ski);
-        VectorPushBack(mdns->found_entries, entry);
-      } else {
-        MDNS_DEBUG_PRINTF("Ignored entry: %s, ski: %s\n", entry->name, entry->ski);
-        MdnsEntryDelete(entry);
-      }
-    }
-
-    r = r->next;
-  }
-
-  mdns_query_results_free(results);
-  MdnsNotifyFoundEntries(mdns);
-}
-
-uint32_t GetUpdateIntervalMs(void) {
-  uint8_t update_interval
-      = kMdnsBrowseIntervalMinSeconds + rand() % (kMdnsBrowseIntervalMaxSeconds - kMdnsBrowseIntervalMinSeconds);
-
-  return update_interval * 1000;
-}
-
-void* MdnsBrowserLoop(void* parameters) {
-  Mdns* const mdns = (Mdns*)parameters;
-
-  mdns_search_once_t* search = NULL;
-
-  while (!mdns->cancel) {
-    VectorFreeElements(mdns->found_entries);
-
-    search = mdns_query_async_new(
-        NULL,
-        kShipServiceType,
-        kShipServiceProtocol,
-        MDNS_TYPE_PTR,
-        kMdnsQueryTimeoutMs,
-        kMdnsQueryMaxResults,
-        MdnsQueryNotifyCallback
-    );
-
-    xSemaphoreTake(mdns->semaphore, portMAX_DELAY);
-
-    MdnsProcessSearchResult(mdns, search);
-    mdns_query_async_delete(search);
-    search = NULL;
-
-    if (!mdns->cancel) {
-      const TickType_t timeout = pdMS_TO_TICKS(GetUpdateIntervalMs());
-      xSemaphoreTake(mdns->semaphore, timeout);
-    }
-  }
-
-  return NULL;
-}
-
 EebusError RegisterService(ShipMdnsObject* self) {
   Mdns* const mdns = MDNS(self);
 
-  esp_err_t err = mdns_instance_name_set(mdns->service_name);
-  if (err != ESP_OK) {
-    MDNS_DEBUG_PRINTF("mdns_instance_name_set() failed: %d\n", err);
-    return kEebusErrorInit;
-  }
+  // Note: do not call mdns_instance_name_set() here — it sets the
+  // daemon-global instance name and multiple EEBus instances (and the host
+  // framework) would overwrite each other. The per-service instance name is
+  // passed to mdns_service_add() below.
 
   const char* register_str = mdns->autoaccept ? "true" : "false";
+  esp_err_t err;
 
   // Structure with TXT records
   mdns_txt_item_t service_txt_data[] = {
@@ -413,11 +265,7 @@ EebusError Start(ShipMdnsObject* self) {
     return ret;
   }
 
-  mdns->thread = EebusThreadCreate(MdnsBrowserLoop, mdns, 4096);
-  if (mdns->thread == NULL) {
-    MDNS_DEBUG_PRINTF("EebusThreadCreate() failed\n");
-    return kEebusErrorThread;
-  }
+  // No browser thread: advertisement-only backend (see file header)
 
   return kEebusErrorOk;
 }
@@ -425,16 +273,13 @@ EebusError Start(ShipMdnsObject* self) {
 void DeregisterService(ShipMdnsObject* self) {
   Mdns* const mdns = MDNS(self);
 
-  mdns->cancel = true;
-
-  if (mdns->thread != NULL) {
-    xSemaphoreGive(mdns->semaphore);
-    EEBUS_THREAD_JOIN(mdns->thread);
-    EebusThreadDelete(mdns->thread);
-    mdns->thread = NULL;
+  // Remove only this instance's service entry. Do not call mdns_free():
+  // the daemon is shared with the host framework and other EEBus instances.
+  esp_err_t err
+      = mdns_service_remove_for_host(mdns->service_name, kShipServiceType, kShipServiceProtocol, NULL);
+  if (err != ESP_OK && err != ESP_ERR_NOT_FOUND) {
+    MDNS_DEBUG_PRINTF("mdns_service_remove_for_host() failed: %d\n", err);
   }
-
-  mdns_free();
 }
 
 void Stop(ShipMdnsObject* self) {
