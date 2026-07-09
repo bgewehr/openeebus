@@ -191,6 +191,13 @@ DeviceRemoteObject* DeviceRemoteCreate(DeviceLocalObject* local_device, const ch
   return DEVICE_REMOTE_OBJECT(device_remote);
 }
 
+DeviceLocalObject* DeviceRemoteGetLocalDevice(const DeviceRemoteObject* self) {
+  if (self == NULL) {
+    return NULL;
+  }
+  return DEVICE_REMOTE(self)->local_device;
+}
+
 void Destruct(DeviceObject* self) {
   DeviceRemote* const dr = DEVICE_REMOTE(self);
 

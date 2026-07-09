@@ -26,6 +26,7 @@
 #include "src/common/eebus_device_info.h"
 #include "src/common/eebus_malloc.h"
 #include "src/spine/api/device_local_interface.h"
+#include "src/spine/api/events.h"
 #include "src/spine/model/entity_types.h"
 
 #ifdef __cplusplus
@@ -34,6 +35,14 @@ extern "C" {
 
 DeviceLocalObject*
 DeviceLocalCreate(const EebusDeviceInfo* device_info, const NetworkManagementFeatureSetType* feature_set);
+
+// True when the event belongs to this local device: the remote
+// device/entity/feature of the payload is registered in this device's remote
+// registry, or the local feature belongs to one of this device's entities.
+// Unattributable events return false. Used to scope the process-global event
+// bus so several EEBus service instances in one process do not process each
+// other's events.
+bool DeviceLocalOwnsEvent(const DeviceLocalObject* self, const EventPayload* payload);
 
 static inline void DeviceLocalDelete(DeviceLocalObject* device_local) {
   if (device_local != NULL) {
