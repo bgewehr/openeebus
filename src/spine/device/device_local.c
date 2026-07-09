@@ -362,7 +362,11 @@ EebusError DeviceLocalTryStart(DeviceLocal* self) {
     return kEebusErrorMemory;
   }
 
-  self->thread = EebusThreadCreate(DeviceLocalLoop, self, 4 * 1024);
+  // 12 KB: datagram processing runs use-case event handlers synchronously,
+  // which build and serialize reply datagrams via recursive cJSON calls -
+  // 4 KB overflows the stack (observed on ESP32 while processing
+  // nodeManagementUseCaseData and sending the DeviceDiagnosis subscription)
+  self->thread = EebusThreadCreate(DeviceLocalLoop, self, 12 * 1024);
   if (self->thread == NULL) {
     DEVICE_LOCAL_DEBUG_PRINTF("%s(), start thread failed\n", __func__);
     return kEebusErrorThread;
