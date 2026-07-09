@@ -22,6 +22,7 @@
 
 #include "src/common/eebus_malloc.h"
 #include "src/spine/api/entity_local_interface.h"
+#include "src/spine/device/device_local.h"
 #include "src/spine/events/events.h"
 #include "src/spine/model/usecase_information_types.h"
 #include "src/use_case/api/use_case_interface.h"
@@ -50,6 +51,20 @@ void UseCaseEntityAddUseCaseInfo(UseCase* self) {
   EEBUS_FREE(scenarios);
 }
 
+// The event bus is process-global: with several EEBus service instances in
+// one process every use case receives every event, including those belonging
+// to other instances' devices. Forward only events attributable to this use
+// case's own local device so instances never process each other's data.
+static void UseCaseScopedEventHandler(const EventPayload* payload, void* ctx) {
+  UseCase* const self = (UseCase*)ctx;
+
+  if (!DeviceLocalOwnsEvent(self->local_device, payload)) {
+    return;
+  }
+
+  self->event_handler(payload, ctx);
+}
+
 void UseCaseConstruct(
     UseCase* self, const UseCaseInfo* info, EntityLocalObject* local_entity, EventHandler event_handler) {
   self->info         = info;
@@ -58,7 +73,7 @@ void UseCaseConstruct(
   UseCaseEntityAddUseCaseInfo(self);
   self->event_handler = event_handler;
   if (self->event_handler != NULL) {
-    EventSubscribe(kEventHandlerLevelApplication, event_handler, self);
+    EventSubscribe(kEventHandlerLevelApplication, UseCaseScopedEventHandler, self);
   }
 }
 
@@ -66,7 +81,7 @@ void UseCaseDestruct(UseCaseObject* self) {
   UseCase* use_case = USE_CASE(self);
 
   if (use_case->event_handler != NULL) {
-    EventUnsubscribe(kEventHandlerLevelApplication, use_case->event_handler, self);
+    EventUnsubscribe(kEventHandlerLevelApplication, UseCaseScopedEventHandler, self);
   }
 }
 

@@ -418,8 +418,49 @@ static void Stop(DeviceLocalObject* self) {
   EEBUS_QUEUE_CLEAR(dl->msg_queue);
 }
 
+bool DeviceLocalOwnsEvent(const DeviceLocalObject* self, const EventPayload* payload) {
+  if ((self == NULL) || (payload == NULL)) {
+    return false;
+  }
+
+  // Prefer pointer-based attribution: the payload's remote objects carry a
+  // backref to the local device that owns their SHIP session. This stays
+  // unambiguous even when the same physical device (same SKI) is connected
+  // to several instances in this process.
+  const DeviceRemoteObject* remote = payload->device;
+  if ((remote == NULL) && (payload->entity != NULL)) {
+    remote = ENTITY_REMOTE_GET_DEVICE(payload->entity);
+  }
+  if ((remote == NULL) && (payload->feature != NULL)) {
+    remote = FEATURE_REMOTE_GET_DEVICE(payload->feature);
+  }
+  if (remote != NULL) {
+    return DeviceRemoteGetLocalDevice(remote) == self;
+  }
+
+  if (payload->local_feature != NULL) {
+    return FEATURE_LOCAL_GET_DEVICE(payload->local_feature) == self;
+  }
+
+  if (!StringIsEmpty(payload->ski)) {
+    return GetRemoteDeviceWithSki(self, payload->ski) != NULL;
+  }
+
+  // Event cannot be attributed to any device — do not claim it
+  return false;
+}
+
 void DeivceLocalHandleEvent(const EventPayload* payload, void* ctx) {
   DeviceLocal* const dl = (DeviceLocal*)(ctx);
+
+  // Scope to own events: with several instances the same SKI can be
+  // registered in more than one device registry; without this gate a
+  // discovery event from another instance's session would trigger duplicate
+  // NM subscriptions and use-case requests over this instance's connection.
+  if (!DeviceLocalOwnsEvent(DEVICE_LOCAL_OBJECT(dl), payload)) {
+    return;
+  }
+
   // Subscribe to NodeManagement after DetailedDiscovery is received
   if ((payload->event_type != kEventTypeDeviceChange) || (payload->change_type != kElementChangeAdd)) {
     return;

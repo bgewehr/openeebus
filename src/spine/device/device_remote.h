@@ -34,6 +34,11 @@ extern "C" {
 
 DeviceRemoteObject* DeviceRemoteCreate(DeviceLocalObject* local_device, const char* ski, SenderObject* sender);
 
+// Returns the local device this remote device is registered with — the owning
+// EEBus service instance. Needed to attribute events on the process-global
+// event bus when several instances run in one process.
+DeviceLocalObject* DeviceRemoteGetLocalDevice(const DeviceRemoteObject* self);
+
 static inline void DeviceRemoteDelete(DeviceRemoteObject* device_remote) {
   if (device_remote != NULL) {
     DEVICE_DESTRUCT(DEVICE_OBJECT(device_remote));
