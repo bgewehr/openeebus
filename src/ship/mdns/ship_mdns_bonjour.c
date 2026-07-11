@@ -916,12 +916,14 @@ static EebusError Start(ShipMdnsObject* self) {
 
   if (mdns->on_entries_found_cb == NULL) {
     MDNS_DEBUG_PRINTF("No callback function set\n");
+    DeregisterService(self);
     return kEebusErrorInit;
   }
 
   mdns->thread = EebusThreadCreate(MdnsBrowserLoop, mdns, 4096);
   if (mdns->thread == NULL) {
     MDNS_DEBUG_PRINTF("EebusThreadCreate() failed\n");
+    DeregisterService(self);
     return kEebusErrorThread;
   }
 
