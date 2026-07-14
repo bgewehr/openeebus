@@ -2,7 +2,7 @@
 
 cmake_minimum_required (VERSION 3.15)
 
-set(PROJECT_NAME "eebus")
+set(PROJECT_NAME "openeebus")
 
 # Set consistent runtime library for all targets on Windows BEFORE project()
 if(WIN32)
@@ -173,10 +173,14 @@ if(WIN32)
   )
 endif()
 
+set(OPENEEBUS_EXTRA_INCLUDES "" CACHE STRING "Additional include directories injected by the product")
+
 target_include_directories(
   ${PROJECT_NAME}
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+  PRIVATE
+    ${OPENEEBUS_EXTRA_INCLUDES}
 )
 
 target_compile_options(
