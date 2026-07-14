@@ -322,10 +322,8 @@ void HandleConnectionClosed(InfoProviderObject* self, ShipConnectionObject* sc, 
 }
 
 void ReportServiceShipId(InfoProviderObject* self, const char* service_id, const char* ship_id) {
-  UNUSED(self);
-  UNUSED(service_id);
-  UNUSED(ship_id);
-  // TODO: Implement method
+  const ShipNode* const sn = SHIP_NODE(self);
+  SHIP_NODE_READER_ON_SHIP_ID_UPDATE(sn->ship_node_reader, service_id, ship_id);
 }
 
 bool IsWaitingForTrustAllowed(InfoProviderObject* self, const char* ski) {
