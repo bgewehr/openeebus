@@ -329,10 +329,8 @@ void ReportServiceShipId(InfoProviderObject* self, const char* service_id, const
 }
 
 bool IsWaitingForTrustAllowed(InfoProviderObject* self, const char* ski) {
-  UNUSED(self);
-  UNUSED(ski);
-  // TODO: Implement method
-  return false;
+  const ShipNode* const sn = SHIP_NODE(self);
+  return SHIP_NODE_READER_IS_WAITING_FOR_TRUST_ALLOWED(sn->ship_node_reader, ski);
 }
 
 void HandleShipStateUpdate(InfoProviderObject* self, const char* ski, SmeState state, const char* err) {
@@ -482,7 +480,17 @@ int ShipNodeOnWebsocketServerConnectionCallback(const char* ski, WebsocketCreato
 
   // Check the SKI
   EEBUS_MUTEX_LOCK(sn->mutex);
-  const bool is_ski_trusted = SkiMatches(ski, sn->remote_ski);
+  bool is_ski_trusted = SkiMatches(ski, sn->remote_ski);
+  if (!is_ski_trusted && StringIsEmpty(sn->remote_ski)) {
+    // Pairing mode: no remote SKI registered yet.
+    // Delegate to the info-provider (service layer) to decide whether to trust this SKI.
+    if (INFO_PROVIDER_IS_WAITING_FOR_TRUST_ALLOWED(sn, ski)) {
+      StringDelete(sn->remote_ski);
+      sn->remote_ski = StringCopy(ski);
+      is_ski_trusted = (sn->remote_ski != NULL);
+      SHIP_NODE_DEBUG_PRINTF("%s(), Pairing mode: auto-trusting incoming SKI %s\n", __func__, ski);
+    }
+  }
   EEBUS_MUTEX_UNLOCK(sn->mutex);
 
   if (!is_ski_trusted) {
