@@ -31,8 +31,13 @@
 extern "C" {
 #endif  // __cplusplus
 
-EntityLocalObject* EntityLocalCreate(DeviceLocalObject* device, EntityTypeType type, const uint32_t* entity_id,
-    size_t entity_id_size, uint32_t heartbeat_timeout);
+EntityLocalObject* EntityLocalCreate(
+    DeviceLocalObject* device,
+    EntityTypeType type,
+    const uint32_t* entity_id,
+    size_t entity_id_size,
+    uint32_t heartbeat_period
+);
 
 static inline void EntityLocalDelete(EntityLocalObject* entity_local) {
   if (entity_local != NULL) {
