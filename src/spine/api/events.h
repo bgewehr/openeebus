@@ -63,6 +63,14 @@ enum {
 typedef struct EventPayload EventPayload;
 
 struct EventPayload {
+  // Forward declaration
+  typedef struct DeviceLocalObject DeviceLocalObject;
+
+  // The device instance that owns this event. Events are only delivered to
+  // handlers registered with this device. Used to scope the process-global
+  // event bus when multiple EEBus service instances run in one process.
+  DeviceLocalObject* device_owner;
+
   const char* ski;                // Required
   EventType event_type;           // Required
   ElementChangeType change_type;  // Required
