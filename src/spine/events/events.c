@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "src/spine/api/events.h"
+#include "src/spine/events/events.h"
 
 #include "src/common/eebus_malloc.h"
 #include "src/common/vector.h"
@@ -25,28 +25,35 @@ struct EventHandlerInfo {
   EventHandlerLevel level;
   EventHandler handler;
   void* ctx;
+  // The device instance this handler is registered with. NULL means
+  // handler is registered for all events (core-level handlers only).
+  DeviceLocalObject* device_owner;
 };
 
 static Vector handlers = {0};
 
-EventHandlerInfo* EventHandlerInfoCreate(EventHandlerLevel level, EventHandler handler, void* ctx) {
+EventHandlerInfo* EventHandlerInfoCreate(
+    EventHandlerLevel level, EventHandler handler, void* ctx, DeviceLocalObject* device_owner) {
   EventHandlerInfo* info = EEBUS_MALLOC(sizeof(*info));
   if (info == NULL) {
     return NULL;
   }
 
-  info->level   = level;
-  info->handler = handler;
-  info->ctx     = ctx;
+  info->level         = level;
+  info->handler       = handler;
+  info->ctx           = ctx;
+  info->device_owner  = device_owner;
   return info;
 }
 
 void EventHandlerInfoDelete(EventHandlerInfo* info) { EEBUS_FREE(info); }
 
-const EventHandlerInfo* EventHandlerFind(EventHandlerLevel level, EventHandler handler, void* ctx) {
+const EventHandlerInfo* EventHandlerFind(
+    EventHandlerLevel level, EventHandler handler, void* ctx, DeviceLocalObject* device_owner) {
   for (size_t i = 0; i < VectorGetSize(&handlers); ++i) {
     EventHandlerInfo* info = VectorGetElement(&handlers, i);
-    if ((info->level == level) && (info->handler == handler) && (info->ctx == ctx)) {
+    if ((info->level == level) && (info->handler == handler) && (info->ctx == ctx)
+        && (info->device_owner == device_owner)) {
       return info;
     }
   }
@@ -55,11 +62,17 @@ const EventHandlerInfo* EventHandlerFind(EventHandlerLevel level, EventHandler h
 }
 
 EebusError EventSubscribe(EventHandlerLevel level, EventHandler handler, void* ctx) {
-  if (EventHandlerFind(level, handler, ctx) != NULL) {
+  return EventSubscribeWithDeviceOwner(level, handler, ctx, NULL);
+}
+
+EebusError EventSubscribeWithDeviceOwner(
+    EventHandlerLevel level, EventHandler handler, void* ctx, DeviceLocalObject* device_owner) {
+  if (EventHandlerFind(level, handler, ctx, device_owner) != NULL) {
     return kEebusErrorOk;
   }
 
-  EventHandlerInfo* const new_handler_info = EventHandlerInfoCreate(level, handler, ctx);
+  EventHandlerInfo* const new_handler_info
+      = EventHandlerInfoCreate(level, handler, ctx, device_owner);
   if (new_handler_info == NULL) {
     return kEebusErrorMemoryAllocate;
   }
@@ -69,7 +82,12 @@ EebusError EventSubscribe(EventHandlerLevel level, EventHandler handler, void* c
 }
 
 EebusError EventUnsubscribe(EventHandlerLevel level, EventHandler handler, void* ctx) {
-  const EventHandlerInfo* const info = EventHandlerFind(level, handler, ctx);
+  return EventUnsubscribeWithDeviceOwner(level, handler, ctx, NULL);
+}
+
+EebusError EventUnsubscribeWithDeviceOwner(
+    EventHandlerLevel level, EventHandler handler, void* ctx, DeviceLocalObject* device_owner) {
+  const EventHandlerInfo* const info = EventHandlerFind(level, handler, ctx, device_owner);
   if (info == NULL) {
     return kEebusErrorNoChange;
   }
@@ -85,9 +103,27 @@ EebusError EventUnsubscribe(EventHandlerLevel level, EventHandler handler, void*
 }
 
 void EventPublish(const EventPayload* payload) {
-  // TODO: Check if level is required and should be analysed
+  if (payload == NULL) {
+    return;
+  }
+
+  // Route events to handlers registered with the owning device instance.
+  // Core-level handlers (device_owner == NULL) receive all events regardless
+  // of device ownership, for bootstrapping and system-wide logic.
+  // Application-level handlers (device_owner != NULL) only receive events
+  // from their registered device, implementing instance isolation.
   for (size_t i = 0; i < VectorGetSize(&handlers); ++i) {
     EventHandlerInfo* info = VectorGetElement(&handlers, i);
-    info->handler(payload, info->ctx);
+
+    // Core-level handlers always receive events
+    if (info->level == kEventHandlerLevelCore) {
+      info->handler(payload, info->ctx);
+      continue;
+    }
+
+    // Application-level handlers only receive events for their device
+    if (info->device_owner == payload->device_owner) {
+      info->handler(payload, info->ctx);
+    }
   }
 }
