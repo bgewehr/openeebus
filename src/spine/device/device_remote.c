@@ -51,6 +51,7 @@ struct DeviceRemote {
 #define DEVICE_REMOTE(obj) ((DeviceRemote*)(obj))
 
 static void Destruct(DeviceObject* self);
+static DeviceLocalObject* GetLocalDevice(const DeviceRemoteObject* self);
 static const char* GetSki(const DeviceRemoteObject* self);
 static DataReaderObject* GetDataReader(const DeviceRemoteObject* self);
 static void AddEntity(DeviceRemoteObject* self, EntityRemoteObject* entity);
@@ -90,6 +91,7 @@ static const DeviceRemoteInterface device_remote_methods = {
         .create_destination_data = DeviceCreateDestinationData,
     },
 
+    .get_local_device               = GetLocalDevice,
     .get_ski                        = GetSki,
     .get_data_reader                = GetDataReader,
     .add_entity                     = AddEntity,
@@ -191,7 +193,7 @@ DeviceRemoteObject* DeviceRemoteCreate(DeviceLocalObject* local_device, const ch
   return DEVICE_REMOTE_OBJECT(device_remote);
 }
 
-DeviceLocalObject* DeviceRemoteGetLocalDevice(const DeviceRemoteObject* self) {
+DeviceLocalObject* GetLocalDevice(const DeviceRemoteObject* self) {
   if (self == NULL) {
     return NULL;
   }

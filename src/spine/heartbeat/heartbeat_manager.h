@@ -29,7 +29,10 @@
 extern "C" {
 #endif  // __cplusplus
 
-HeartbeatManagerObject* HeartbeatManagerCreate(EntityLocalObject* local_entity, uint32_t timeout);
+// period: interval in seconds between two heartbeat transmissions.
+// Choose heartbeat period <= the remote node's heartbeat timeout (its
+// deadline for receiving a heartbeat) so the remote always sees a fresh one.
+HeartbeatManagerObject* HeartbeatManagerCreate(EntityLocalObject* local_entity, uint32_t period);
 
 static inline void HeartbeatManagerDelete(HeartbeatManagerObject* heartbeat_manager) {
   if (heartbeat_manager != NULL) {

@@ -101,6 +101,9 @@
 #define MDNS_DEBUG_PRINTF(fmt, ...)
 #endif  // MDNS_DEBUG
 
+/** Delay before retrying to re-establish a dead mDNS session */
+static const uint32_t kMdnsRecoveryDelaySeconds = 5;
+
 static const char* kShipServiceType   = "_ship._tcp";
 static const char* kShipServicePath   = "/ship/";
 static const char* kShipServiceTxtVer = "1";
@@ -144,6 +147,11 @@ struct Mdns {
   Vector* found_entries;
 
   bool cancel;
+
+  /** Set when the mDNS sessions must be recovered */
+  bool needs_recovery;
+  /** Earliest monotonic time (seconds) at which a session recovery attempt may run */
+  uint32_t next_recovery_time_seconds;
 };
 
 #define MDNS(obj) ((Mdns*)(obj))
@@ -228,6 +236,7 @@ static void MdnsRegisterServiceCallback(
 );
 static DNSServiceErrorType MdnsCreateTextRecord(TXTRecordRef* txt_record, const Mdns* mdns);
 static void MdnsBrowserReset(Mdns* self);
+static void MdnsRecoverSessions(Mdns* self, uint32_t now_seconds);
 static uint32_t MdnsGetRandomInterval(uint32_t min_seconds, uint32_t max_seconds);
 
 void MdnsConstruct(
@@ -256,7 +265,9 @@ void MdnsConstruct(
   self->found_entries            = VectorCreateWithDeallocator(MdnsEntryDeallocator);
   self->active_resolves          = VectorCreateWithDeallocator(MdnsActiveResolveEntryDeallocator);
 
-  self->cancel = false;
+  self->cancel                     = false;
+  self->needs_recovery             = false;
+  self->next_recovery_time_seconds = 0;
 
   // Seed random number generator
   srand((int)time(NULL));
@@ -548,8 +559,14 @@ static void MdnsBrowseServicesCallback(
   UNUSED(service_ref);
   UNUSED(type);
 
+  Mdns* const mdns = (Mdns*)ctx;
+
   if (err != kDNSServiceErr_NoError) {
     MDNS_DEBUG_PRINTF("Bonjour browser error occurred: %d\n", err);
+    if (mdns != NULL) {
+      mdns->needs_recovery = true;
+    }
+
     return;
   }
 
@@ -559,8 +576,6 @@ static void MdnsBrowseServicesCallback(
 
   MDNS_DEBUG_PRINTF("%s %30s.%s%s on interface %d%s\n", action, name, type, domain, (int)iface, more);
 #endif
-
-  Mdns* const mdns = (Mdns*)ctx;
 
   if (!(flags & kDNSServiceFlagsAdd)) {
     MDNS_DEBUG_PRINTF("Removed service: %s.%s%s\n", name, type, domain);
@@ -670,11 +685,19 @@ static int MdnsPrepareSockFd(DNSServiceRef service_ref, fd_set* readfds, int* ma
 
 static void MdnsDispatchReadyFds(Mdns* mdns, const fd_set* readfds, int browse_fd, int register_fd) {
   if ((browse_fd >= 0) && FD_ISSET(browse_fd, readfds)) {
-    DNSServiceProcessResult(mdns->dns_service_browser_ref);
+    DNSServiceErrorType err = DNSServiceProcessResult(mdns->dns_service_browser_ref);
+    if (err != kDNSServiceErr_NoError) {
+      MDNS_DEBUG_PRINTF("dns_service_browser_ref processing error %d\n", err);
+      mdns->needs_recovery = true;
+    }
   }
 
   if ((register_fd >= 0) && FD_ISSET(register_fd, readfds)) {
-    DNSServiceProcessResult(mdns->dns_service_register_ref);
+    DNSServiceErrorType err = DNSServiceProcessResult(mdns->dns_service_register_ref);
+    if (err != kDNSServiceErr_NoError) {
+      MDNS_DEBUG_PRINTF("dns_service_register_ref processing error %d\n", err);
+      mdns->needs_recovery = true;
+    }
   }
 
   MdnsProcessActiveResolves(mdns, readfds);
@@ -714,18 +737,43 @@ static uint32_t MdnsGetCurrentTimeSeconds() {
 #endif  // _WIN32
 }
 
+static void MdnsRecoverSessions(Mdns* mdns, uint32_t now_seconds) {
+  if (mdns->needs_recovery == false) {
+    return;
+  }
+
+  // Back off between attempts
+  if (now_seconds < mdns->next_recovery_time_seconds) {
+    return;
+  }
+
+  MDNS_DEBUG_PRINTF("Recovering mDNS sessions\n");
+
+  bool recovered = (RegisterService(SHIP_MDNS_OBJECT(mdns)) == kEebusErrorOk);
+
+  MdnsBrowserReset(mdns);
+  MdnsBrowseServices(mdns);
+  recovered = recovered && (mdns->dns_service_browser_ref != NULL);
+
+  mdns->needs_recovery             = !recovered;
+  mdns->next_recovery_time_seconds = now_seconds + kMdnsRecoveryDelaySeconds;
+}
+
 static void* MdnsBrowserLoop(void* parameters) {
   Mdns* const mdns = (Mdns*)parameters;
 
   uint32_t next_notify_time_seconds = 0;
 
   MdnsBrowseServices(mdns);
+  if (mdns->dns_service_browser_ref == NULL) {
+    MDNS_DEBUG_PRINTF("No browse ref to process, will retry\n");
+    mdns->needs_recovery = true;
+  }
 
   while (!mdns->cancel) {
-    if (mdns->dns_service_browser_ref == NULL) {
-      MDNS_DEBUG_PRINTF("No browse ref to process!\n");
-      break;
-    }
+    const uint32_t now_seconds = MdnsGetCurrentTimeSeconds();
+
+    MdnsRecoverSessions(mdns, now_seconds);
 
     fd_set readfds;
     FD_ZERO(&readfds);
@@ -755,7 +803,6 @@ static void* MdnsBrowserLoop(void* parameters) {
       MdnsDispatchReadyFds(mdns, &readfds, browse_fd, register_fd);
     }
 
-    const uint32_t now_seconds = MdnsGetCurrentTimeSeconds();
     if (now_seconds >= next_notify_time_seconds) {
       MdnsNotifyFoundEntries(mdns);
       next_notify_time_seconds
@@ -782,12 +829,16 @@ static void MdnsRegisterServiceCallback(
   UNUSED(name);
   UNUSED(type);
   UNUSED(domain);
-  UNUSED(ctx);
+
+  Mdns* const mdns = (Mdns*)ctx;
 
   if (error == kDNSServiceErr_NoError) {
     MDNS_DEBUG_PRINTF("Service registered: %s.%s.%s\n", name, type, domain);
   } else {
     MDNS_DEBUG_PRINTF("Error registering service: %d\n", error);
+    if (mdns != NULL) {
+      mdns->needs_recovery = true;
+    }
   }
 }
 
@@ -837,7 +888,7 @@ static EebusError RegisterService(ShipMdnsObject* self) {
       TXTRecordGetLength(&txt_record),    // TXT record length
       TXTRecordGetBytesPtr(&txt_record),  // TXT record
       MdnsRegisterServiceCallback,        // Callback function
-      NULL                                // No callback context
+      mdns                                // Callback context (owning Mdns instance)
   );
 
   TXTRecordDeallocate(&txt_record);
@@ -865,12 +916,14 @@ static EebusError Start(ShipMdnsObject* self) {
 
   if (mdns->on_entries_found_cb == NULL) {
     MDNS_DEBUG_PRINTF("No callback function set\n");
+    DeregisterService(self);
     return kEebusErrorInit;
   }
 
   mdns->thread = EebusThreadCreate(MdnsBrowserLoop, mdns, 4096);
   if (mdns->thread == NULL) {
     MDNS_DEBUG_PRINTF("EebusThreadCreate() failed\n");
+    DeregisterService(self);
     return kEebusErrorThread;
   }
 

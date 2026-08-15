@@ -434,9 +434,18 @@ else()
     src/common/eebus_mutex/eebus_mutex.c
     src/common/eebus_queue/eebus_queue.c
     src/common/eebus_thread/eebus_thread.c
-    src/ship/mdns/ship_mdns_bonjour.c
     src/ship/tls_certificate/tls_certificate.c
   )
+
+  if (NOT APPLE AND NOT WIN32 AND OPTION_MDNS_USE_AVAHI_CLIENT)
+    list(APPEND SOURCES
+      src/ship/mdns/ship_mdns_avahi.c
+    )
+  else()
+    list(APPEND SOURCES
+      src/ship/mdns/ship_mdns_bonjour.c
+    )
+  endif()
 
   if(APPLE)
     list(APPEND SOURCES

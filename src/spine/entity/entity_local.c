@@ -106,7 +106,7 @@ static void EntityLocalConstruct(
     EntityTypeType type,
     const uint32_t* entity_id,
     size_t entity_id_size,
-    uint32_t heartbeat_timeout
+    uint32_t heartbeat_period
 );
 
 void EntityLocalConstruct(
@@ -115,7 +115,7 @@ void EntityLocalConstruct(
     EntityTypeType type,
     const uint32_t* entity_id,
     size_t entity_id_size,
-    uint32_t heartbeat_timeout
+    uint32_t heartbeat_period
 ) {
   EntityConstruct(ENTITY(self), type, DEVICE_GET_ADDRESS(DEVICE_OBJECT(device)), entity_id, entity_id_size);
   // Override "virtual functions table"
@@ -126,7 +126,7 @@ void EntityLocalConstruct(
 
   // Only needed if the entity address is not DeviceInformationEntityId
   if ((entity_id != NULL) && (entity_id[0] != DEVICE_INFORMATION_ENTITY_ID)) {
-    self->heartbeat_manager = HeartbeatManagerCreate(ENTITY_LOCAL_OBJECT(self), heartbeat_timeout);
+    self->heartbeat_manager = HeartbeatManagerCreate(ENTITY_LOCAL_OBJECT(self), heartbeat_period);
   } else {
     self->heartbeat_manager = NULL;
   }
@@ -137,14 +137,14 @@ EntityLocalObject* EntityLocalCreate(
     EntityTypeType type,
     const uint32_t* entity_id,
     size_t entity_id_size,
-    uint32_t heartbeat_timeout
+    uint32_t heartbeat_period
 ) {
   EntityLocal* const entity_local = (EntityLocal*)EEBUS_MALLOC(sizeof(EntityLocal));
   if (entity_local == NULL) {
     return NULL;
   }
 
-  EntityLocalConstruct(entity_local, device, type, entity_id, entity_id_size, heartbeat_timeout);
+  EntityLocalConstruct(entity_local, device, type, entity_id, entity_id_size, heartbeat_period);
 
   return ENTITY_LOCAL_OBJECT(entity_local);
 }

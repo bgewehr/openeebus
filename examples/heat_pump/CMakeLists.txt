@@ -42,5 +42,5 @@ target_compile_options(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
     ${MATH_LIBRARY}
-    eebus
+    openeebus
 )

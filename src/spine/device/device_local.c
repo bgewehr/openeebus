@@ -82,6 +82,7 @@ struct DeviceLocal {
   Device obj;
 
   Vector entities;
+  EventsManagerObject* events_manager;
   SubscriptionManagerObject* subscription_manager;
   BindingManagerObject* binding_manager;
   NodeManagementObject* node_management;
@@ -117,6 +118,7 @@ static EebusError HandleMessage(DeviceLocalObject* self, MessageBuffer* msg, Dev
 static NodeManagementObject* GetNodeManagement(const DeviceLocalObject* self);
 static BindingManagerObject* GetBindingManager(const DeviceLocalObject* self);
 static SubscriptionManagerObject* GetSubscriptionManager(const DeviceLocalObject* self);
+static EventsManagerObject* GetEventsManager(const DeviceLocalObject* self);
 static void
 NotifySubscribers(const DeviceLocalObject* self, const FeatureAddressType* feature_addr, const CmdType* cmd);
 static NodeManagementDetailedDiscoveryDeviceInformationType* CreateInformation(const DeviceLocalObject* self);
@@ -151,6 +153,7 @@ static const DeviceLocalInterface device_local_methods = {
     .get_node_management                    = GetNodeManagement,
     .get_binding_manager                    = GetBindingManager,
     .get_subscription_manager               = GetSubscriptionManager,
+    .get_events_manager                     = GetEventsManager,
     .notify_subscribers                     = NotifySubscribers,
     .create_information                     = CreateInformation,
     .lock                                   = Lock,
@@ -213,6 +216,7 @@ void DeviceLocalConstruct(
   DEVICE_LOCAL_INTERFACE(self) = &device_local_methods;
 
   VectorConstruct(&self->entities);
+  self->events_manager       = EventsManagerCreate();
   self->subscription_manager = SubscriptionManagerCreate(DEVICE_LOCAL_OBJECT(self));
   self->binding_manager      = BindingManagerCreate(DEVICE_LOCAL_OBJECT(self));
   self->node_management      = NULL;
@@ -230,7 +234,7 @@ void DeviceLocalConstruct(
 
   AddDeviceInformation(self, device_info);
 
-  EventSubscribe(kEventHandlerLevelCore, DeivceLocalHandleEvent, self);
+  EVENTS_SUBSCRIBE(self->events_manager, kEventHandlerLevelCore, DeivceLocalHandleEvent, self);
 }
 
 DeviceLocalObject*
@@ -262,7 +266,7 @@ void Destruct(DeviceObject* self) {
   EebusQueueDelete(dl->msg_queue);
   dl->msg_queue = NULL;
 
-  EventUnsubscribe(kEventHandlerLevelCore, DeivceLocalHandleEvent, dl);
+  EVENTS_UNSUBSCRIBE(dl->events_manager, kEventHandlerLevelCore, DeivceLocalHandleEvent, dl);
 
   StringLutRelease(&dl->remote_devices);
 
@@ -285,7 +289,14 @@ void Destruct(DeviceObject* self) {
 
   VectorDestruct(&dl->entities);
 
+  EventsManagerDelete(dl->events_manager);
+  dl->events_manager = NULL;
+
   DeviceDestruct(DEVICE_OBJECT(self));
+}
+
+EventsManagerObject* GetEventsManager(const DeviceLocalObject* self) {
+  return DEVICE_LOCAL(self)->events_manager;
 }
 
 void DeviceLocalTick(DeviceLocalObject* self) {
@@ -362,11 +373,11 @@ EebusError DeviceLocalTryStart(DeviceLocal* self) {
     return kEebusErrorMemory;
   }
 
-  // 12 KB: datagram processing runs use-case event handlers synchronously,
-  // which build and serialize reply datagrams via recursive cJSON calls —
+  // 10 KB: datagram processing runs use-case event handlers synchronously,
+  // which build and serialize reply datagrams via recursive cJSON calls -
   // 4 KB overflows the stack (observed on ESP32 while processing
   // nodeManagementUseCaseData and sending the DeviceDiagnosis subscription)
-  self->thread = EebusThreadCreate(DeviceLocalLoop, self, 12 * 1024);
+  self->thread = EebusThreadCreate(DeviceLocalLoop, self, 10 * 1024);
   if (self->thread == NULL) {
     DEVICE_LOCAL_DEBUG_PRINTF("%s(), start thread failed\n", __func__);
     return kEebusErrorThread;
@@ -418,48 +429,8 @@ static void Stop(DeviceLocalObject* self) {
   EEBUS_QUEUE_CLEAR(dl->msg_queue);
 }
 
-bool DeviceLocalOwnsEvent(const DeviceLocalObject* self, const EventPayload* payload) {
-  if ((self == NULL) || (payload == NULL)) {
-    return false;
-  }
-
-  // Prefer pointer-based attribution: the payload's remote objects carry a
-  // backref to the local device that owns their SHIP session. This stays
-  // unambiguous even when the same physical device (same SKI) is connected
-  // to several instances in this process.
-  const DeviceRemoteObject* remote = payload->device;
-  if ((remote == NULL) && (payload->entity != NULL)) {
-    remote = ENTITY_REMOTE_GET_DEVICE(payload->entity);
-  }
-  if ((remote == NULL) && (payload->feature != NULL)) {
-    remote = FEATURE_REMOTE_GET_DEVICE(payload->feature);
-  }
-  if (remote != NULL) {
-    return DeviceRemoteGetLocalDevice(remote) == self;
-  }
-
-  if (payload->local_feature != NULL) {
-    return FEATURE_LOCAL_GET_DEVICE(payload->local_feature) == self;
-  }
-
-  if (!StringIsEmpty(payload->ski)) {
-    return GetRemoteDeviceWithSki(self, payload->ski) != NULL;
-  }
-
-  // Event cannot be attributed to any device — do not claim it
-  return false;
-}
-
 void DeivceLocalHandleEvent(const EventPayload* payload, void* ctx) {
   DeviceLocal* const dl = (DeviceLocal*)(ctx);
-
-  // Scope to own events: with several instances the same SKI can be
-  // registered in more than one device registry; without this gate a
-  // discovery event from another instance's session would trigger duplicate
-  // NM subscriptions and use-case requests over this instance's connection.
-  if (!DeviceLocalOwnsEvent(DEVICE_LOCAL_OBJECT(dl), payload)) {
-    return;
-  }
 
   // Subscribe to NodeManagement after DetailedDiscovery is received
   if ((payload->event_type != kEventTypeDeviceChange) || (payload->change_type != kElementChangeAdd)) {
@@ -551,7 +522,7 @@ void RemoveRemoteDeviceConnection(DeviceLocalObject* self, const char* ski) {
       .device      = remote_device,
   };
 
-  EventPublish(&payload);
+  EVENTS_PUBLISH(dl->events_manager, &payload);
   EEBUS_MUTEX_UNLOCK(dl->mutex);
 }
 
@@ -573,7 +544,7 @@ void RemoveRemoteDevice(DeviceLocalObject* self, const char* ski) {
 
   // Only unsubscribe if we don't have any remote devices left
   if (StringLutGetSize(&dl->remote_devices) == 0) {
-    EventUnsubscribe(kEventHandlerLevelCore, DeivceLocalHandleEvent, dl);
+    EVENTS_UNSUBSCRIBE(dl->events_manager, kEventHandlerLevelCore, DeivceLocalHandleEvent, dl);
   }
 
   const DeviceAddressType remote_device_addr = {

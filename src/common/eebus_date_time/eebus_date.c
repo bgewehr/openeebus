@@ -28,6 +28,9 @@
 
 #include "src/common/eebus_date_time/eebus_date.h"
 
+// 20 = max output of "%04d-%02d-%02d" with int32_t args (up to 19 chars) + null terminator
+#define EEBUS_DATE_STRING_SIZE 20
+
 static const int days_per_month[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 bool IsLeapYear(int32_t year) {
@@ -110,7 +113,7 @@ char* EebusDateToString(const EebusDate* self) {
     return NULL;
   }
 
-  static const size_t buffer_size = ARRAY_SIZE("YYYY-MM-DD");
+  static const size_t buffer_size = EEBUS_DATE_STRING_SIZE;
 
   // Allocate memory for the string representation
   char* const buffer = (char*)EEBUS_MALLOC(buffer_size);
