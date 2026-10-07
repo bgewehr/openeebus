@@ -39,11 +39,9 @@ struct HeartbeatManager {
   FeatureLocalObject* local_feature;
   uint64_t heartbeat_num;
   uint32_t tick_cnt;
-  // Period (in ticks/seconds) between two heartbeat transmissions.
-  // Note: this is not the remote heartbeat timeout (the deadline by which the
-  // remote expects a heartbeat); the application should choose
-  // heartbeat period <= remote heartbeat timeout.
+  // Timeout announced to the remote; send earlier to allow scheduling jitter.
   uint32_t heartbeat_period;
+  uint32_t heartbeat_interval;
 
   bool running;
 };
@@ -73,12 +71,13 @@ void HeartbeatManagerConstruct(HeartbeatManager* self, EntityLocalObject* local_
   // Override "virtual functions table"
   HEARTBEAT_MANAGER_INTERFACE(self) = &heartbeat_manager_methods;
 
-  self->local_entity     = local_entity;
-  self->local_feature    = NULL;
-  self->heartbeat_num    = 0;
-  self->tick_cnt         = period;
-  self->heartbeat_period = period;
-  self->running          = false;
+  self->local_entity       = local_entity;
+  self->local_feature      = NULL;
+  self->heartbeat_num      = 0;
+  self->heartbeat_interval = period - period / 4;
+  self->tick_cnt           = self->heartbeat_interval;
+  self->heartbeat_period   = period;
+  self->running            = false;
 }
 
 HeartbeatManagerObject* HeartbeatManagerCreate(EntityLocalObject* local_entity, uint32_t period) {
@@ -136,7 +135,7 @@ void Tick(HeartbeatManagerObject* self) {
     hm->heartbeat_num++;
     UpdateHeartbeatData(hm);
     // On period elapse, reset the heartbeat counter
-    hm->tick_cnt = hm->heartbeat_period;
+    hm->tick_cnt = hm->heartbeat_interval;
   }
 }
 
@@ -144,10 +143,6 @@ void UpdateHeartbeatData(HeartbeatManager* self) {
   DeviceDiagnosisHeartbeatDataType heartbeat_data = {
       .timestamp         = &ABSOLUTE_OR_RELATIVE_TIME_NOW,
       .heartbeat_counter = &self->heartbeat_num,
-      // The SPINE heartbeatTimeout wire field declares how often we send;
-      // it is filled with the configured heartbeat period.
-      // TODO: consider a separate parameter for the declared heartbeatTimeout
-      // wire value so the send period and the declared timeout can differ
       .heartbeat_timeout = &(DurationType){.seconds = self->heartbeat_period},
   };
 

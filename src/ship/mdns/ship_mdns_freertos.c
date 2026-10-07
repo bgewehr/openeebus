@@ -69,6 +69,7 @@ struct Mdns {
   const char* service_name;
   int port;
   bool autoaccept;
+  bool service_registered;
 };
 
 #define MDNS(obj) ((Mdns*)(obj))
@@ -118,6 +119,7 @@ EebusError MdnsConstruct(
   self->service_name        = StringCopy(service_name);
   self->port                = port;
   self->autoaccept          = false;
+  self->service_registered  = false;
 
   return kEebusErrorOk;
 }
@@ -169,7 +171,6 @@ EebusError RegisterService(ShipMdnsObject* self) {
   // passed to mdns_service_add() below.
 
   const char* register_str = mdns->autoaccept ? "true" : "false";
-  esp_err_t err;
 
   // Structure with TXT records
   mdns_txt_item_t service_txt_data[] = {
@@ -184,7 +185,7 @@ EebusError RegisterService(ShipMdnsObject* self) {
   };
 
   // Initialize service
-  err = mdns_service_add(
+  const esp_err_t err = mdns_service_add(
       mdns->service_name,
       kShipServiceType,
       kShipServiceProtocol,
@@ -198,6 +199,7 @@ EebusError RegisterService(ShipMdnsObject* self) {
     return kEebusErrorInit;
   }
 
+  mdns->service_registered = true;
   return kEebusErrorOk;
 }
 
@@ -275,10 +277,13 @@ void DeregisterService(ShipMdnsObject* self) {
 
   // Remove only this instance's service entry. Do not call mdns_free():
   // the daemon is shared with the host framework and other EEBus instances.
-  esp_err_t err
-      = mdns_service_remove_for_host(mdns->service_name, kShipServiceType, kShipServiceProtocol, NULL);
-  if (err != ESP_OK && err != ESP_ERR_NOT_FOUND) {
-    MDNS_DEBUG_PRINTF("mdns_service_remove_for_host() failed: %d\n", err);
+  if (mdns->service_registered) {
+    const esp_err_t err
+        = mdns_service_remove_for_host(mdns->service_name, kShipServiceType, kShipServiceProtocol, NULL);
+    if (err != ESP_OK && err != ESP_ERR_NOT_FOUND) {
+      MDNS_DEBUG_PRINTF("mdns_service_remove_for_host() failed: %d\n", err);
+    }
+    mdns->service_registered = false;
   }
 }
 

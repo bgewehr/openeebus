@@ -29,9 +29,8 @@
 extern "C" {
 #endif  // __cplusplus
 
-// period: interval in seconds between two heartbeat transmissions.
-// Choose heartbeat period <= the remote node's heartbeat timeout (its
-// deadline for receiving a heartbeat) so the remote always sees a fresh one.
+// period: declared heartbeat timeout in seconds; send at 3/4 of this value,
+// rounded up to whole seconds. Zero disables periodic transmissions.
 HeartbeatManagerObject* HeartbeatManagerCreate(EntityLocalObject* local_entity, uint32_t period);
 
 static inline void HeartbeatManagerDelete(HeartbeatManagerObject* heartbeat_manager) {
