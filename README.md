@@ -1,5 +1,28 @@
 # openeebus-esphome
 
+> **Historischer Entwicklungsstand - nicht fuer neue Installationen verwenden.**
+> Die aktuelle ESPHome-Integration und Build-Anleitung liegen unter
+> [bgewehr/esphome-hems](https://github.com/bgewehr/esphome-hems).
+> Dieser Branch bleibt als Historie erhalten. Die Beispiele mit `eebus_lpc`
+> und `eebus_wp` sind keine unterstuetzte eigenstaendige Installation per
+> `external_components`. Fruehere Hardware-, Fertigstellungs- und
+> Konformitaetsaussagen weiter unten sind historisch und keine bestaetigten
+> Zusagen. Getestete Hardware, ESPHome-Version und ein minimales Build-/Pairing-
+> Beispiel stehen in der aktuellen README.
+
+Aktuellen Stand vollstaendig inklusive OpenEEBus-Submodul laden:
+
+```bash
+git clone --recurse-submodules https://github.com/bgewehr/esphome-hems.git
+```
+
+Die aktuellen Komponenten heissen `eebus_cs` (Limits von der CLS-Steuerbox
+empfangen) und `eebus_eg` (Limits an steuerbare Geraete senden). Bibliothek,
+ESP32-Port und Komponenten muessen zusammen erhalten bleiben; nur die
+Komponenten zu kopieren reicht nicht aus.
+
+## Historische Dokumentation
+
 **EEBus SHIP/SPINE für ESP32 — §14a EnWG HEMS als ESPHome-Komponente**
 
 Dieses Repository ist ein Fork von [NIBEGroup/openeebus](https://github.com/NIBEGroup/openeebus)
