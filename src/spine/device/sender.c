@@ -32,6 +32,10 @@
 #include "src/spine/model/specification_version.h"
 #include "src/spine/model/subscription_management_types.h"
 
+#ifdef ESP_PLATFORM
+extern void eebus_log_w(const char* tag, int line, const char* fmt, ...) __attribute__((weak));
+#endif
+
 /** Set SENDER_DEBUG 1 to enable debug prints */
 #ifndef SENDER_DEBUG
 #define SENDER_DEBUG 0
@@ -343,7 +347,23 @@ EebusError SendNodeManagmentCall(
   const FeatureAddressType local_addr  = NodeManagementAddress(local_device);
   const FeatureAddressType remote_addr = NodeManagementAddress(remote_device);
 
-  return SendSpineMessage(self, kCommandClassifierTypeCall, &local_addr, &remote_addr, NULL, true, &cmd, 1, NULL);
+  uint64_t msg_counter = 0;
+  const EebusError error
+      = SendSpineMessage(self, kCommandClassifierTypeCall, &local_addr, &remote_addr, NULL, true, &cmd, 1, &msg_counter);
+#ifdef ESP_PLATFORM
+  if ((eebus_log_w != NULL)
+      && ((data_type_id == kFunctionTypeNodeManagementSubscriptionRequestCall)
+          || (data_type_id == kFunctionTypeNodeManagementBindingRequestCall))) {
+    eebus_log_w(
+        "eebus_eg", __LINE__,
+        "SPINE registration tx: kind=%s local=%.96s remote=%.96s msg_cnt=%llu ack_requested=true send_err=%d",
+        data_type_id == kFunctionTypeNodeManagementSubscriptionRequestCall ? "subscription" : "binding",
+        local_device != NULL ? local_device : "?", remote_device != NULL ? remote_device : "?",
+        (unsigned long long)msg_counter, (int)error
+    );
+  }
+#endif
+  return error;
 }
 
 EebusError CallSubscribe(

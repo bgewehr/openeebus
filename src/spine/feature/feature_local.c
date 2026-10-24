@@ -33,6 +33,10 @@
 #include "src/spine/model/filter.h"
 #include "src/spine/model/result_types.h"
 
+#ifdef ESP_PLATFORM
+extern void eebus_log_w(const char* tag, int line, const char* fmt, ...) __attribute__((weak));
+#endif
+
 typedef struct WriteApprovalCbRecord WriteApprovalCbRecord;
 
 struct WriteApprovalCbRecord {
@@ -100,7 +104,6 @@ static void PublishDataUpdateEvent(
 static EebusError ProcessNotify(FeatureLocal* self, const Message* msg);
 static EebusError ProcessWriteInternal(FeatureLocal* self, const Message* msg);
 static EebusError ProcessWrite(FeatureLocal* self, const Message* msg);
-static EebusError ProcessReply(FeatureLocal* self, const Message* msg);
 
 void FeatureLocalConstruct(
     FeatureLocal* self,
@@ -529,6 +532,22 @@ EebusError FeatureLocalProcessResult(FeatureLocal* self, const Message* msg) {
   }
 
   const ResultDataType* const result_data = msg->cmd->data_choice;
+#ifdef ESP_PLATFORM
+  if ((eebus_log_w != NULL) && (FEATURE_GET_TYPE(FEATURE_OBJECT(self)) == kFeatureTypeTypeNodeManagement)) {
+    const HeaderType* const header = msg->request_header;
+    const bool has_reference       = (header != NULL) && (header->msg_cnt_ref != NULL);
+    const bool has_error           = (result_data != NULL) && (result_data->error_number != NULL);
+    const char* const remote       = (header != NULL) && (header->src_addr != NULL) ? header->src_addr->device : NULL;
+    const char* const local        = (header != NULL) && (header->dest_addr != NULL) ? header->dest_addr->device : NULL;
+    eebus_log_w(
+        "eebus_eg", __LINE__,
+        "SPINE registration result: local=%.96s remote=%.96s msg_ref_present=%s msg_ref=%llu error_present=%s error=%u",
+        local != NULL ? local : "?", remote != NULL ? remote : "?", has_reference ? "true" : "false",
+        has_reference ? (unsigned long long)*header->msg_cnt_ref : 0ULL, has_error ? "true" : "false",
+        has_error ? (unsigned)*result_data->error_number : 0U
+    );
+  }
+#endif
   if ((result_data == NULL) || (result_data->error_number == NULL)) {
     return kEebusErrorNotImplemented;
   }
@@ -685,7 +704,7 @@ EebusError ProcessWrite(FeatureLocal* self, const Message* msg) {
   }
 }
 
-EebusError ProcessReply(FeatureLocal* self, const Message* msg) {
+EebusError FeatureLocalProcessReply(FeatureLocal* self, const Message* msg) {
   const FunctionType function_type       = msg->cmd->data_choice_type_id;
   const void* const new_data             = msg->cmd->data_choice;
   const FilterType* const filter_partial = msg->filter_partial;
@@ -730,7 +749,7 @@ EebusError HandleMessage(FeatureLocalObject* self, const Message* msg) {
   switch (msg->cmd_classifier) {
     case kCommandClassifierTypeResult: return FeatureLocalProcessResult(fl, msg);
     case kCommandClassifierTypeRead: return ProcessRead(fl, msg);
-    case kCommandClassifierTypeReply: return ProcessReply(fl, msg);
+    case kCommandClassifierTypeReply: return FeatureLocalProcessReply(fl, msg);
     case kCommandClassifierTypeNotify: return ProcessNotify(fl, msg);
     case kCommandClassifierTypeWrite: return ProcessWrite(fl, msg);
     default: return kEebusErrorNotImplemented;

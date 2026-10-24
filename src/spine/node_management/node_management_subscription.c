@@ -30,7 +30,10 @@ SubscriptionManagerObject* GetSubscriptionManager(NodeManagement* self) {
 }
 
 EebusError HandleMsgSubscriptionData(NodeManagement* self, const Message* msg) {
-  if (msg->cmd_classifier != kCommandClassifierTypeCall) {
+  if (msg->cmd_classifier == kCommandClassifierTypeReply) {
+    return FeatureLocalProcessReply(FEATURE_LOCAL(self), msg);
+  }
+  if ((msg->cmd_classifier != kCommandClassifierTypeCall) && (msg->cmd_classifier != kCommandClassifierTypeRead)) {
     return kEebusErrorNotImplemented;
   }
 
